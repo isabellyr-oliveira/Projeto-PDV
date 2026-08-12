@@ -1,0 +1,8 @@
+# Dependências necessárias para RODAR os testes (não confundir com
+# requirements.txt da raiz, que são dependências da APLICAÇÃO).
+#
+# Instale com:
+#   pip install -r testes_software/requirements-teste.txt
+
+pytest          # framework que executa os testes e mostra os resultados
+httpx           # cliente HTTP usado por baixo dos panos pelo TestClient do FastAPI
