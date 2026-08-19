@@ -11,6 +11,7 @@ from app.controllers import categoria_controller
 from app.controllers import produto_controller
 from app.controllers import movimentacao_controller
 
+
 app = FastAPI(title="Sistema de Ponto de venda")
 
 #Configurar a pasta para servir os arquivos estáticos (CSS, JS e IMG)
