@@ -1,16 +1,17 @@
-{% extends "base.html" %}
-
-{% block title %}
-Login - AAPM
-{% endblock %}
-
-{% block content %}
-
-<h1>Login</h1>
-
-{% if erro %}
-    <p style="color: red;">{{ erro }}</p>
-{% endif %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AAPM</title>
+</head>
+<body>
+    
+    <h1>Entrar no Sistema</h1>
+    <!-- Exibe mensagem de erro se existir -->
+    {% if erro %}
+        <p style="color: red;">{{ erro }}</p>
+    {% endif %}
 
 <form action="/auth/login" method="POST">
 
@@ -28,9 +29,6 @@ Login - AAPM
 
 </form>
 
-<p>
-    Não tem conta?
-    <a href="/auth/cadastro">Cadastre-se</a>
-</p>
-
-{% endblock %}
+    
+</body>
+</html>
