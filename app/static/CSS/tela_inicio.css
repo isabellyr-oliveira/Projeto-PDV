@@ -1,0 +1,439 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+:root {
+    --bg-orange: #ff7a29;
+    --btn-blue: #1d52b8;
+    --text-white: #ffffff;
+    --card-bg: #ffffff;
+}
+
+body {
+    background-color: var(--bg-orange);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+}
+
+/* Container Principal */
+.hero-container {
+    width: 100%;
+    max-width: 1300px;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 3rem;
+    align-items: center;
+}
+
+/* =========================
+   LADO ESQUERDO
+========================= */
+
+.content-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 550px;
+    animation: fadeUp .8s ease;
+}
+
+.main-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 800;
+}
+
+.logo-img {
+    height: 40px;
+}
+
+.hero-text {
+    margin: 3rem 0;
+}
+
+.hero-text h1 {
+    color: white;
+    font-size: 4.3rem;
+    font-weight: 900;
+    line-height: 1.05;
+    margin-bottom: 1.5rem;
+}
+
+.hero-text p {
+    color: white;
+    font-size: 1.3rem;
+    line-height: 1.5;
+    margin-bottom: 2rem;
+}
+
+/* BOTÃO */
+
+
+.btn-primary {
+    background: linear-gradient(
+        135deg,
+        #3b82f6,
+        #1d4ed8
+    );
+
+    color: white;
+    border: none;
+
+    padding: 1rem 3rem;
+
+    font-size: 1rem;
+    font-weight: 700;
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    position: relative;
+    overflow: hidden;
+
+    transition: all .4s ease;
+
+    box-shadow:
+        0 0 15px rgba(59,130,246,.4),
+        0 10px 25px rgba(236, 236, 236, 0.35);
+}
+
+/* Brilho atravessando o botão */
+
+.btn-primary::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: -120%;
+
+    width: 60%;
+    height: 100%;
+
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,.6),
+        transparent
+    );
+
+    transition: .7s;
+}
+
+.btn-primary:hover::before {
+    left: 150%;
+}
+
+/* Hover */
+
+.btn-primary:hover {
+
+    transform:
+        translateY(-5px)
+        scale(1.05);
+
+    box-shadow:
+        0 0 25px rgba(59,130,246,.8),
+        0 0 50px rgba(59,130,246,.4),
+        0 20px 40px rgba(29,78,216,.5);
+
+    filter: brightness(1.1);
+}
+
+/* Clique */
+
+.btn-primary:active {
+    transform: scale(.96);
+}
+
+/* Diferenciais */
+
+.features-footer {
+    display: flex;
+    gap: 2rem;
+    margin-top: auto;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    color: white;
+    font-size: .95rem;
+
+    cursor: pointer;
+    transition: .3s;
+}
+
+.feature-item:hover {
+    transform: translateY(-5px);
+}
+
+.feature-item i {
+    font-size: 1.2rem;
+    transition: .3s;
+}
+
+.feature-item:hover i {
+    transform: scale(1.3);
+}
+
+/* =========================
+   LADO DIREITO
+========================= */
+
+.content-right {
+    display: grid;
+    grid-template-columns: 1fr 230px;
+    gap: 3rem;
+    align-items: center;
+    animation: fadeUp 1s ease;
+}
+
+/* CARD DA CAMISA */
+
+.mockup-card-clean {
+
+    height: 400px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    position: relative;
+
+    cursor: pointer;
+
+    transition: all .5s ease;
+
+    box-shadow:
+        0 15px 35px rgba(0,0,0,.15),
+        0 0 20px rgba(255,255,255,.15);
+}
+
+.mockup-card-clean:hover {
+
+    transform:
+        translateY(-12px)
+        scale(1.03);
+
+    box-shadow:
+        0 30px 60px rgba(0,0,0,.25),
+        0 0 25px rgba(255,255,255,.25);
+}
+
+/* BRILHO */
+
+.mockup-card-clean::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: -150%;
+
+    width: 60%;
+    height: 100%;
+
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,.5),
+        transparent
+    );
+
+    transition: .8s;
+    z-index: 2;
+}
+
+.mockup-card-clean:hover::before {
+    left: 180%;
+}
+
+/* IMAGEM */
+
+.mockup-img-full {
+    width: 300%;
+    height: 100%;
+    object-fit: cover;
+    transition: .5s;
+}
+
+.mockup-card-clean:hover .mockup-img-full {
+    transform: scale(1.06);
+}
+
+/* CARDS LATERAIS */
+
+.side-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.card-mini {
+
+    background: white;
+
+    border-radius: 18px;
+
+    padding: 1.2rem;
+
+    cursor: pointer;
+
+    transition: all .35s ease;
+
+    box-shadow:
+        0 8px 20px rgba(0,0,0,.08);
+}
+
+.card-mini:hover {
+
+    transform:
+        translateY(-8px)
+        scale(1.03);
+
+    box-shadow:
+        0 20px 40px rgba(0,0,0,.18);
+}
+
+.card-senai img {
+    width: 100%;
+    display: block;
+    border-radius: 12px;
+}
+
+/* CARD SOBRE */
+
+.card-about h3 {
+    color: #ff7a29;
+    font-size: .9rem;
+    font-weight: 800;
+    margin-bottom: .7rem;
+}
+
+.card-about p {
+    color: #555;
+    font-size: .8rem;
+    line-height: 1.6;
+}
+
+
+.main-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none; /* Garante que se for um link, não mude de cor */
+    filter: none !important; /* Blinda a logo contra filtros que vazam de outros hovers */
+}
+
+.logo-img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    display: block;
+    /* Força a imagem a renderizar com suas cores originais puras */
+    mix-blend-mode: normal; 
+    filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.05));
+}
+
+.logo-text {
+    color: #ffffff !important; /* Mantém o texto sempre branco puro */
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+
+/* =========================
+   ANIMAÇÃO
+========================= */
+
+@keyframes fadeUp {
+
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media (max-width: 968px) {
+
+    .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .content-left {
+        align-items: center;
+        min-height: auto;
+    }
+
+    .main-logo {
+        justify-content: center;
+    }
+
+    .hero-text h1 {
+        font-size: 3rem;
+    }
+
+    .features-footer {
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+
+    .content-right {
+        grid-template-columns: 1fr;
+        margin-top: 2rem;
+    }
+
+    .side-cards {
+        flex-direction: row;
+    }
+
+    .card-mini {
+        flex: 1;
+    }
+}
+
+@media (max-width: 500px) {
+
+    .side-cards {
+        flex-direction: column;
+    }
+
+    .hero-text h1 {
+        font-size: 2.5rem;
+    }
+
+}
