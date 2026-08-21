@@ -1,17 +1,99 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bem-vindo - AAPM</title>
+    <title>AAPM - Bem-vindo</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', path='CSS/index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='CSS/tela_inicio.css') }}">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
 
-    <h1>Sistema da AAPM</h1>
-    <p>Faça login para acessar o sistema</p>
-    
-    <a href="/auth/login"> Entrar </a>
-    <br><br>
-    <a href="/auth/cadastro"> Criar conta </a>
+    <main class="hero-container">
+
+        <section class="content-left">
+
+            <header class="logo-area">
+                <div class="main-logo">
+                    <img src="{{ url_for('static', path='IMG/logo.png') }}" alt="Logo AAPM" class="logo-img">
+                    <span class="logo-text">AAPM</span>
+                </div>
+            </header>
+
+            <div class="hero-text">
+                <h1>BEM VINDO<br>A AAPM!</h1>
+
+                <p>
+                    O melhor para seus estudos <br>
+                    <strong>começa aqui!</strong>
+                </p>
+
+                <button id="btn-entrar" class="btn-primary">
+                    ENTRAR
+                </button>
+            </div>
+
+            <footer class="features-footer">
+
+                <div class="feature-item">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>Material de qualidade</span>
+                </div>
+
+                <div class="feature-item">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Feito para estudantes</span>
+                </div>
+
+                <div class="feature-item">
+                    <i class="fa-solid fa-bullseye"></i>
+                    <span>Foco no seu futuro</span>
+                </div>
+
+            </footer>
+
+        </section>
+
+        <section class="content-right">
+
+            <div class="mockup-card-clean">
+                <img
+                    src="{{ url_for('static', path='IMG/camisa.png') }}"
+                    alt="Camiseta AAPM"
+                    class="mockup-img-full">
+            </div>
+
+            <div class="side-cards">
+
+                <div class="card-mini card-senai">
+                    <img
+                        src="{{ url_for('static', path='IMG/card.png') }}"
+                        alt="Card SENAI">
+                </div>
+
+                <div class="card-mini card-about">
+
+                    <h3>SOBRE A AAPM</h3>
+
+                    <p>
+                        A AAPM existe para apoiar seu aprendizado,
+                        oferecendo materiais selecionados e soluções
+                        que fazem a diferença no seu dia a dia.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="{{ url_for('static', path='JS/tela_inicio.js') }}"></script>
+
 </body>
 </html>
