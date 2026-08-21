@@ -1,0 +1,59 @@
+/* Zerar margens padrão e definir fonte limpa */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Fundo da aplicação */
+body {
+    background-color: #f4f6f8;
+    color: #333333;
+}
+
+/* Barra superior / Cabeçalho */
+header {
+    background-color: #1e293b;
+    color: #ffffff;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Card centralizado que envolve o conteúdo das telas */
+main {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Títulos e parágrafos */
+h1 {
+    margin-bottom: 0.5rem;
+    color: #0f172a;
+}
+
+p {
+    margin-bottom: 1.5rem;
+    color: #64748b;
+}
+
+/* Botões e Links de ação */
+a {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #ef4444;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+a:hover {
+    background-color: #dc2626;
+}
