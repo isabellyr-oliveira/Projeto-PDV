@@ -1,4 +1,4 @@
-/* Zerar margens padrão e definir fonte limpa */
+/* Reset básico */
 * {
     margin: 0;
     padding: 0;
@@ -6,54 +6,159 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Fundo da aplicação */
 body {
-    background-color: #f4f6f8;
-    color: #333333;
+    background-color: #ff6b2b; /* Laranja da AAPM */
+    color: #1e293b;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Barra superior / Cabeçalho */
-header {
-    background-color: #1e293b;
-    color: #ffffff;
+/* Header Superior */
+.app-header {
+    background-color: #ffffff;
     padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-/* Card centralizado que envolve o conteúdo das telas */
-main {
-    max-width: 900px;
-    margin: 2rem auto;
-    padding: 2rem;
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: #ff6b2b;
+}
+
+.header-logo {
+    height: 35px;
+    width: auto;
+}
+
+.header-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #475569;
+    font-weight: 600;
+}
+
+.header-user i {
+    font-size: 1.3rem;
+    color: #3b52f6;
+}
+
+/* Container Principal Conteúdo */
+.app-main {
+    max-width: 1000px;
+    width: 90%;
+    margin: 2.5rem auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Card de Boas-Vindas */
+.welcome-card {
     background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
-/* Títulos e parágrafos */
-h1 {
+.welcome-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     margin-bottom: 0.5rem;
+}
+
+.welcome-header h1 {
+    font-size: 1.8rem;
     color: #0f172a;
 }
 
-p {
-    margin-bottom: 1.5rem;
+.badge-role {
+    background-color: #e0e7ff;
+    color: #3b52f6;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+}
+
+.welcome-card p {
+    color: #64748b;
+    font-size: 1rem;
+}
+
+/* Grid de Atalhos do Dashboard */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.dash-card {
+    background-color: #ffffff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.dash-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+.dash-card i {
+    font-size: 2rem;
+    color: #3b52f6;
+    margin-bottom: 1rem;
+}
+
+.dash-card h3 {
+    font-size: 1.2rem;
+    color: #0f172a;
+    margin-bottom: 0.3rem;
+}
+
+.dash-card p {
+    font-size: 0.85rem;
     color: #64748b;
 }
 
-/* Botões e Links de ação */
-a {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    background-color: #ef4444;
-    color: #ffffff;
-    text-decoration: none;
-    border-radius: 4px;
-    font-weight: bold;
+/* Botão Sair */
+.logout-wrapper {
+    display: flex;
+    justify-content: flex-end;
 }
 
-a:hover {
+.btn-logout {
+    background-color: #ef4444;
+    color: #ffffff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-logout:hover {
     background-color: #dc2626;
 }
