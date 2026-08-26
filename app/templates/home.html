@@ -1,69 +1,52 @@
-<!-- herda a estrutura visual padrão criada no arquivo base.html -->
 {% extends "base.html" %}
 
-<!-- Define o título que aparecerá na aba do navegador para esta página -->
 {% block title %}Início - AAPM{% endblock %}
 
-<!-- Início do bloco de conteúdo principal que será injetado no base.html -->
 {% block content %}
-
-<!-- Card de Boas-Vindas ao usuário -->
 <div class="welcome-card">
     <div class="welcome-header">
-        <!-- Exibe dinamicamente o nome do usuário vindo da variável do Python/FastAPI -->
         <h1>Olá, {{ usuario.nome }}! 👋</h1>
-        
-        <!-- Exibe a 'role' (função/perfil) do usuário dentro de um selo/badge estilizado -->
         <span class="badge-role">{{ usuario.role }}</span>
     </div>
     <p>Seja bem-vindo ao Painel de Controle da AAPM.</p>
 </div>
 
-<!-- Grid de cards para navegação rápida entre os módulos do sistema -->
 <div class="dashboard-grid">
     
-    <!-- ROTA PÚBLICA (LIVRE): Todo usuário logado (Admin ou Operador) consegue ver o módulo de Produtos -->
+    <!-- ROTAS LIVRES: Acessíveis por Operador e Admin -->
     <a href="/produtos" class="dash-card">
         <i class="fa-solid fa-box-archive"></i>
         <h3>Produtos</h3>
         <p>Gerenciar estoque e itens</p>
     </a>
 
-    <!-- RESTRIÇÃO DE PERFIL: O comando 'if' verifica se o papel do usuário é estritamente 'admin' -->
+    <!-- Movimentações agora é de livre acesso -->
+    <a href="/movimentacoes" class="dash-card">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <h3>Movimentações</h3>
+        <p>Registrar e consultar vendas</p>
+    </a>
+
+    <!-- ROTAS RESTRITAS: Visíveis APENAS para Admin -->
     {% if usuario.role == 'admin' %}
-        
-        <!-- Rota exclusiva de Admin: Gerenciamento de Categorias -->
         <a href="/categorias" class="dash-card">
             <i class="fa-solid fa-tags"></i>
             <h3>Categorias</h3>
             <p>Organizar catálogo de produtos</p>
         </a>
 
-        <!-- Rota exclusiva de Admin: Registro e Histórico de Vendas/Movimentações -->
-        <a href="/movimentacoes" class="dash-card">
-            <i class="fa-solid fa-cart-shopping"></i>
-            <h3>Movimentações</h3>
-            <p>Registrar e consultar vendas</p>
-        </a>
-
-        <!-- Rota exclusiva de Admin: Gerenciamento de Contas e Usuários -->
         <a href="/usuarios" class="dash-card">
             <i class="fa-solid fa-users"></i>
             <h3>Usuários</h3>
             <p>Gerenciar acessos do sistema</p>
         </a>
-
-    <!-- Finaliza a verificação condicional das rotas restritas -->
     {% endif %}
 
 </div>
 
-<!-- Botão de encerramento da sessão -->
 <div class="logout-wrapper">
     <a href="/auth/logout" class="btn-logout">
         <i class="fa-solid fa-right-from-bracket"></i> Sair da Conta
     </a>
 </div>
-
-<!-- Finaliza o bloco de conteúdo que foi injetado -->
 {% endblock %}
