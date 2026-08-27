@@ -1,50 +1,24 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Produtos — AAPM SENAI</title>
-</head>
-<body>
-    <h1>Produtos</h1>
+{% extends "base.html" %}
 
-    {% if request.query_params.get('criado') == 'ok' %}
-        <p style="color:green">Produto criado com sucesso!</p>
-    {% endif %}
-    {% if request.query_params.get('desativado') == 'ok' %}
-        <p style="color:green">Produto desativado.</p>
-    {% endif %}
+{% block title %}Produtos - AAPM{% endblock %}
 
-    <!-- Filtros -->
-    <form method="get" action="/produtos">
-        <input  type="text"
-                name="busca"
-                placeholder="Buscar por nome..."
-                value="{{ busca }}">
+{% block content %}
+<div class="content-header">
+    <div class="header-title">
+        <h2><i class="fa-solid fa-box-archive"></i> Gestão de Produtos</h2>
+        <p>Consulte e gerencie o estoque do sistema</p>
+    </div>
+    <a href="/produtos/novo" class="btn-primary">
+        <i class="fa-solid fa-plus"></i> Novo Produto
+    </a>
+</div>
 
-        <select name="categoria_id">
-            <option value="0">Todas as categorias</option>
-            {% for c in categorias %}
-                <option value="{{ c.id }}"
-                    {{ 'selected' if categoria_id == c.id else '' }}>
-                    {{ c.nome }}
-                </option>
-            {% endfor %}
-        </select>
-
-        <button type="submit">Filtrar</button>
-
-        {% if busca or categoria_id %}
-            <a href="/produtos">Limpar</a>
-        {% endif %}
-    </form>
-
-    {% if usuario.role == 'admin' %}
-        <a href="/produtos/novo">+ Novo produto</a>
-    {% endif %}
-
-    <table border="1" cellpadding="8">
+<!-- Tabela de Produtos -->
+<div class="card-table">
+    <table class="data-table">
         <thead>
             <tr>
+                <th>Código</th>
                 <th>Imagem</th>
                 <th>Nome</th>
                 <th>Categoria</th>
@@ -54,42 +28,46 @@
             </tr>
         </thead>
         <tbody>
-            {% for p in produtos %}
+            {% for produto in produtos %}
             <tr>
+                <td>#{{ produto.id }}</td>
                 <td>
-                    <img src="{{ p.imagem_url }}"
-                         alt="{{ p.nome }}"
-                         width="50" height="50"
-                         style="object-fit:cover">
+                    <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;">
                 </td>
-                <td><a href="/produtos/{{ p.id }}">{{ p.nome }}</a></td>
-                <td>{{ p.categoria.nome if p.categoria else "—" }}</td>
-                <td>R$ {{ "%.2f"|format(p.preco) }}</td>
-                <td>{{ p.estoque_atual }}</td>
+                <td><strong>{{ produto.nome }}</strong></td>
                 <td>
-                    {% if usuario.role == 'admin' %}
-                        <a href="/produtos/{{ p.id }}/editar">Editar</a>
-                        <form action="/produtos/{{ p.id }}/desativar"
-                              method="post"
-                              style="display:inline"
-                              onsubmit="return confirm('Desativar {{ p.nome }}?')">
-                            <button type="submit">Desativar</button>
-                        </form>
+                    <span class="tag-category">
+                        {{ produto.categoria.nome if produto.categoria else 'Sem Categoria' }}
+                    </span>
+                </td>
+                <td>R$ {{ "%.2f"|format(produto.preco) }}</td>
+                <td>
+                    <!-- Usando a propriedade estoque_baixo e a coluna estoque_atual -->
+                    {% if produto.estoque_baixo %}
+                        <span class="badge-stock stock-low">{{ produto.estoque_atual }} un (Baixo)</span>
+                    {% else %}
+                        <span class="badge-stock stock-ok">{{ produto.estoque_atual }} un</span>
+                    {% endif %}
+                </td>
+                <td class="table-actions">
+                    <a href="/produtos/{{ produto.id }}/editar" class="btn-action edit" title="Editar">
+                        <i class="fa-solid fa-pen"></i>
+                    </a>
+                    {% if usuario and usuario.role == 'admin' %}
+                    <a href="/produtos/{{ produto.id }}/deletar" class="btn-action delete" title="Excluir">
+                        <i class="fa-solid fa-trash"></i>
+                    </a>
                     {% endif %}
                 </td>
             </tr>
-            {% endfor %}
-
-            {% if not produtos %}
+            {% else %}
             <tr>
-                <td colspan="6" style="text-align:center">
-                    Nenhum produto encontrado.
+                <td colspan="7" class="table-empty">
+                    Nenhum produto cadastrado até o momento.
                 </td>
             </tr>
-            {% endif %}
+            {% endfor %}
         </tbody>
     </table>
-
-    <p><a href="/">← Dashboard</a></p>
-</body>
-</html>
+</div>
+{% endblock %}
