@@ -17,7 +17,7 @@ body {
 }
 
 /* ==========================================================================
-   2. HEADER SUPERIOR (BASE)
+   2. HEADER SUPERIOR (BASE DA HOME E SISTEMA)
    ========================================================================== */
 .app-header {
     background-color: #ffffff;
@@ -55,6 +55,7 @@ body {
     color: #3b82f6;
 }
 
+/* Container Principal */
 .app-main {
     max-width: 1100px;
     width: 90%;
@@ -65,113 +66,7 @@ body {
 }
 
 /* ==========================================================================
-   3. ESTILOS DA TELA PRINCIPAL (HOME / DASHBOARD)
-   ========================================================================== */
-
-/* Card de Boas-Vindas */
-.welcome-card {
-    background-color: #ffffff;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-}
-
-.welcome-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 0.5rem;
-}
-
-.welcome-header h1 {
-    font-size: 1.8rem;
-    color: #0f172a;
-}
-
-.badge-role {
-    background-color: #e0e7ff;
-    color: #3b82f6;
-    font-size: 0.8rem;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 20px;
-    text-transform: uppercase;
-}
-
-.welcome-card p {
-    color: #64748b;
-    font-size: 1rem;
-}
-
-/* Grid de Atalhos da Home */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
-}
-
-.dash-card {
-    background-color: #ffffff;
-    padding: 1.5rem;
-    border-radius: 12px;
-    text-decoration: none;
-    color: inherit;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s, box-shadow 0.2s;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.dash-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-.dash-card i {
-    font-size: 2rem;
-    color: #ff6b2b;
-    margin-bottom: 1rem;
-}
-
-.dash-card h3 {
-    font-size: 1.2rem;
-    color: #0f172a;
-    margin-bottom: 0.3rem;
-}
-
-.dash-card p {
-    font-size: 0.85rem;
-    color: #64748b;
-}
-
-/* Botão Sair da Home */
-.logout-wrapper {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.btn-logout {
-    background-color: #ef4444;
-    color: #ffffff;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 0.9rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: background-color 0.2s;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
-}
-
-.btn-logout:hover {
-    background-color: #dc2626;
-}
-
-/* ==========================================================================
-   4. ESTILOS DA TELA DE PRODUTOS
+   3. ESTILOS DE CARDS E TABELAS (IGUAL A PRODUTOS)
    ========================================================================== */
 .page-card {
     background-color: #ffffff;
@@ -204,6 +99,7 @@ body {
     font-size: 0.88rem;
 }
 
+/* Botão Primário Laranja */
 .btn-primary {
     background-color: #ff6b2b;
     color: #ffffff;
@@ -222,54 +118,7 @@ body {
     background-color: #e55a1c;
 }
 
-.btn-secondary {
-    background-color: #1e293b;
-    color: #ffffff;
-    border: none;
-    padding: 0.65rem 1.2rem;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 0.9rem;
-}
-
-.filter-form {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-}
-
-.search-input-wrapper {
-    position: relative;
-    flex: 1;
-}
-
-.search-icon {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #94a3b8;
-}
-
-.input-control {
-    width: 100%;
-    padding: 0.6rem 0.6rem 0.6rem 2.3rem;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    outline: none;
-    font-size: 0.9rem;
-}
-
-.select-control {
-    padding: 0.6rem 1rem;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    outline: none;
-    font-size: 0.9rem;
-    background-color: #ffffff;
-}
-
+/* Tabela Estilizada */
 .table-card {
     padding: 0;
     overflow: hidden;
@@ -297,47 +146,19 @@ body {
     font-size: 0.92rem;
 }
 
-.col-id {
-    color: #94a3b8;
-    font-weight: 600;
-}
-
 .col-name {
     font-weight: 600;
     color: #0f172a;
 }
 
-.col-price {
-    font-weight: 700;
-    color: #16a34a;
-}
-
-.table-img {
-    width: 40px;
-    height: 40px;
-    border-radius: 6px;
-    object-fit: cover;
-    border: 1px solid #e2e8f0;
-}
-
-.table-img-placeholder {
-    width: 40px;
-    height: 40px;
-    border-radius: 6px;
-    background-color: #f1f5f9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #94a3b8;
-}
-
+/* Badges */
 .badge-cat {
-    background-color: #f1f5f9;
-    color: #475569;
+    background-color: #fff7ed;
+    color: #ff6b2b;
     padding: 4px 10px;
     border-radius: 6px;
     font-size: 0.8rem;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .badge-stock {
@@ -357,6 +178,7 @@ body {
     color: #b91c1c;
 }
 
+/* Botões de Ação Quadrados com Ícones */
 .actions-wrapper {
     display: flex;
     gap: 8px;
@@ -384,6 +206,7 @@ body {
     color: #dc2626;
 }
 
+/* Estado Vazio */
 .empty-state {
     text-align: center;
     padding: 3rem 1rem !important;

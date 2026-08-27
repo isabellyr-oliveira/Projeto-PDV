@@ -172,6 +172,28 @@ def editar_categoria(
 
 
 # ============================================================
+# EXCLUSÃO FÍSICA
+# ============================================================
+
+@router.get("/{categoria_id}/deletar")
+def deletar_categoria(
+    categoria_id: int,
+    db: Session = Depends(get_db),
+    admin = Depends(get_admin)
+):
+    """Apaga permanentemente a categoria do banco de dados."""
+    categoria = db.query(Categoria).filter(
+        Categoria.id == categoria_id
+    ).first()
+
+    if categoria:
+        db.delete(categoria)
+        db.commit()
+
+    return RedirectResponse(url="/categorias?deletado=ok", status_code=302)
+
+
+# ============================================================
 # TOGGLE ATIVO
 # ============================================================
 
