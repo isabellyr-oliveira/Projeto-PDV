@@ -1,63 +1,305 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Usuários — Estoque</title>
-</head>
-<body>
-    <h1>Usuários</h1>
+{% extends "base.html" %}
 
-    <a href="/usuarios/novo">+ Novo usuário</a>
+{% block title %}Usuários — AAPM SENAI{% endblock %}
 
-    <!-- Mensagens de feedback via query string -->
+{% block content %}
+<style>
+    .page-container {
+        padding: 32px;
+        max-width: 1100px;
+        margin: 0 auto;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .page-title {
+        font-size: 24px;
+        font-weight: 800;
+        color: #2D3748;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-novo {
+        background-color: #FF6B35;
+        color: #ffffff;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 14px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn-novo:hover {
+        background-color: #e55a2b;
+    }
+
+    .alert-banner {
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .alert-success {
+        background-color: #DEF7EC;
+        color: #03543F;
+        border: 1px solid #BCF0DA;
+    }
+
+    .alert-danger {
+        background-color: #FDE8E8;
+        color: #9B1C1C;
+        border: 1px solid #FBD5D5;
+    }
+
+    .card-table {
+        background-color: #ffffff;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .data-table th {
+        background-color: #F8FAFC;
+        padding: 14px 20px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748B;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid #E2E8F0;
+    }
+
+    .data-table td {
+        padding: 16px 20px;
+        font-size: 14px;
+        color: #334155;
+        border-bottom: 1px solid #F1F5F9;
+        vertical-align: middle;
+    }
+
+    .data-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .data-table tr:hover {
+        background-color: #F8FAFC;
+    }
+
+    .badge-role {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .badge-admin {
+        background-color: #E0E7FF;
+        color: #3730A3;
+    }
+
+    .badge-operador {
+        background-color: #FEF3C7;
+        color: #92400E;
+    }
+
+    .badge-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-ativo {
+        background-color: #DCFCE7;
+        color: #166534;
+    }
+
+    .status-inativo {
+        background-color: #FEE2E2;
+        color: #991B1B;
+    }
+
+    .actions-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .btn-edit {
+        background-color: #F1F5F9;
+        color: #334155;
+    }
+
+    .btn-edit:hover {
+        background-color: #E2E8F0;
+    }
+
+    .btn-toggle-off {
+        background-color: #FEF2F2;
+        color: #DC2626;
+    }
+
+    .btn-toggle-off:hover {
+        background-color: #FEE2E2;
+    }
+
+    .btn-toggle-on {
+        background-color: #F0FDF4;
+        color: #16A34A;
+    }
+
+    .btn-toggle-on:hover {
+        background-color: #DCFCE7;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #64748B;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 24px;
+        color: #2D3748;
+        font-weight: 700;
+        font-size: 14px;
+        text-decoration: none;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="page-container">
+
+    <div class="page-header">
+        <h1 class="page-title">
+            👤 Gerenciamento de Usuários
+        </h1>
+        <a href="/usuarios/novo" class="btn-novo">
+            <span>+</span> Novo Usuário
+        </a>
+    </div>
+
+    <!-- Feedback Mensagens Query Params -->
     {% if request.query_params.get('criado') == 'ok' %}
-        <p style="color: green;">Usuário criado com sucesso!</p>
+    <div class="alert-banner alert-success">
+        ✅ Usuário cadastrado com sucesso!
+    </div>
     {% endif %}
+
     {% if request.query_params.get('editado') == 'ok' %}
-        <p style="color: green;">Usuário atualizado com sucesso!</p>
+    <div class="alert-banner alert-success">
+        ✅ Usuário atualizado com sucesso!
+    </div>
     {% endif %}
+
     {% if request.query_params.get('erro') == 'autoproprio' %}
-        <p style="color: red;">Você não pode desativar sua própria conta.</p>
+    <div class="alert-banner alert-danger">
+        ⚠️ Você não pode desativar seu próprio usuário.
+    </div>
     {% endif %}
 
-    <table border="1" cellpadding="8">
-        <thead>
-            <tr>
-                <th>Nome</th>
-                <th>E-mail</th>
-                <th>Perfil</th>
-                <th>Status</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for u in usuarios %}
-            <tr>
-                <td>{{ u.nome }}</td>
-                <td>{{ u.email }}</td>
-                <td>{{ u.role }}</td>
-                <td>{{ "Ativo" if u.ativo else "Inativo" }}</td>
-                <td>
-                    <a href="/usuarios/{{ u.id }}/editar">Editar</a>
+    <div class="card-table">
+        {% if usuarios %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Perfil</th>
+                    <th>Status</th>
+                    <th style="width: 180px;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in usuarios %}
+                <tr>
+                    <td style="font-weight: 600;">{{ u.nome }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>
+                        <span class="badge-role {% if u.role == 'admin' %}badge-admin{% else %}badge-operador{% endif %}">
+                            {{ u.role }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge-status {% if u.ativo %}status-ativo{% else %}status-inativo{% endif %}">
+                            {% if u.ativo %}● Ativo{% else %}○ Inativo{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="actions-cell">
+                            <a href="/usuarios/{{ u.id }}/editar" class="btn-action btn-edit">Editar</a>
+                            
+                            <form action="/usuarios/{{ u.id }}/toggle-ativo" method="post" style="display: inline;">
+                                {% if u.ativo %}
+                                    <button type="submit" class="btn-action btn-toggle-off" title="Desativar usuário">Desativar</button>
+                                {% else %}
+                                    <button type="submit" class="btn-action btn-toggle-on" title="Ativar usuário">Ativar</button>
+                                {% endif %}
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <p>Nenhum usuário cadastrado até o momento.</p>
+        </div>
+        {% endif %}
+    </div>
 
-                    <!--
-                        Usamos um form com POST para ações destrutivas.
-                        Links GET podem ser acionados acidentalmente
-                        (pré-fetch do browser, bots, etc.)
-                    -->
-                    <form action="/usuarios/{{ u.id }}/toggle-ativo"
-                          method="post"
-                          style="display:inline">
-                        <button type="submit">
-                            {{ "Desativar" if u.ativo else "Ativar" }}
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <!-- Botão de voltar para a Home -->
+    <a href="/" class="back-link">
+        ← Ir para Início
+    </a>
 
-    <p><a href="/">← Voltar ao home</a></p>
-</body>
-</html>
+</div>
+{% endblock %}
