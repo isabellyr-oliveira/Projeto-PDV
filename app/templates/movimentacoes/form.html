@@ -1,139 +1,178 @@
-<!-- templates/movimentacoes/form.html -->
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Nova Movimentação — AAPM SENAI</title>
-</head>
-<body>
-    <h1>Registrar movimentação</h1>
+{% extends "base.html" %}
+
+{% block title %}Nova Movimentação - AAPM{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', path='css/form_movimentacao.css') }}">
+
+<div class="form-movimentacao-wrapper">
+
+    <!-- Card de Cabeçalho -->
+    <div class="form-header-card">
+        <svg class="form-header-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 11H5M19 11C20.1046 11 21 11.8954 21 13V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V13C3 11.8954 3.89543 11 5 11M19 11V9C19 7.89543 18.1046 7 17 7M5 11V9C5 7.89543 5.89543 7 7 7M7 7V5C7 3.89543 7.89543 3 9 3H15C16.1046 3 17 3.89543 17 5V7M7 7H17" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div>
+            <h1 class="form-header-title">Registrar Movimentação</h1>
+            <p class="form-header-subtitle">Adicione entradas ou saídas de itens no estoque do sistema</p>
+        </div>
+    </div>
 
     {% if erro %}
-        <p style="color:red">{{ erro }}</p>
+        <div class="alert-error">
+            <span>⚠️ {{ erro }}</span>
+        </div>
     {% endif %}
 
-    <form action="/movimentacoes/nova" method="post">
+    <!-- Card Principal -->
+    <div class="form-card">
+        <form action="/movimentacoes/nova" method="post">
+            <div class="form-grid">
+                
+                <!-- Seleção do Produto -->
+                <div class="form-group full-width">
+                    <label class="form-label" for="select-produto">Produto</label>
+                    <select name="produto_id" required id="select-produto" class="form-control">
+                        <option value="">Selecione um produto...</option>
+                        {% for p in produtos %}
+                            <option value="{{ p.id }}"
+                                    data-estoque="{{ p.estoque_atual }}"
+                                    data-preco="{{ p.preco }}"
+                                {{ 'selected' if produto_id == p.id else '' }}>
+                                {{ p.nome }} — estoque atual: {{ p.estoque_atual }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-        <label>Produto:
-            <select name="produto_id" required id="select-produto">
-                <option value="">Selecione...</option>
-                {% for p in produtos %}
-                    <option value="{{ p.id }}"
-                            data-estoque="{{ p.estoque_atual }}"
-                            data-preco="{{ p.preco }}"
-                        {{ 'selected' if produto_id == p.id else '' }}>
-                        {{ p.nome }} — estoque: {{ p.estoque_atual }}
-                    </option>
-                {% endfor %}
-            </select>
-        </label>
-        <br>
+                <!-- Estoque Atual (Informativo Dinâmico) -->
+                <div id="info-estoque" class="form-group full-width" style="display:none">
+                    <div class="info-box">
+                        Estoque atual disponível: <strong id="valor-estoque">0</strong> unidades
+                    </div>
+                </div>
 
-        <!--
-            Exibe o estoque atual do produto selecionado
-            para o usuário não precisar adivinhar o saldo.
-        -->
-        <p id="info-estoque" style="color:gray;display:none">
-            Estoque atual: <strong id="valor-estoque">0</strong>
-        </p>
-        <br>
+                <!-- Tipo de Movimentação -->
+                <div class="form-group">
+                    <label class="form-label" for="select-tipo">Tipo de Operação</label>
+                    <select name="tipo" required id="select-tipo" class="form-control">
+                        <option value="">Selecione o tipo...</option>
+                        {% for t in tipos %}
+                            <option value="{{ t.value }}">
+                                {{ "▲ Entrada" if t.value == 'entrada' else "▼ Saída" }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-        <label>Tipo:
-            <select name="tipo" required id="select-tipo">
-                <option value="">Selecione...</option>
-                {% for t in tipos %}
-                    <option value="{{ t.value }}">
-                        {{ "▲ Entrada" if t.value == 'entrada' else "▼ Saída" }}
-                    </option>
-                {% endfor %}
-            </select>
-        </label>
-        <br>
+                <!-- Quantidade -->
+                <div class="form-group">
+                    <label class="form-label" for="input-quantidade">Quantidade</label>
+                    <input type="number"
+                           name="quantidade"
+                           min="1"
+                           required
+                           id="input-quantidade"
+                           class="form-control"
+                           placeholder="0">
+                </div>
 
-        <label>Quantidade:
-            <input type="number"
-                   name="quantidade"
-                   min="1"
-                   required
-                   id="input-quantidade">
-        </label>
-        <br>
+                <!-- Preço Unitário -->
+                <div class="form-group">
+                    <label class="form-label" for="input-preco">Preço Unitário (R$)</label>
+                    <input type="number"
+                           name="preco_unitario"
+                           step="0.01"
+                           min="0"
+                           required
+                           id="input-preco"
+                           class="form-control"
+                           placeholder="0.00">
+                </div>
 
-        <label>Preço unitário (R$):
-            <input type="number"
-                   name="preco_unitario"
-                   step="0.01"
-                   min="0"
-                   required
-                   id="input-preco">
-        </label>
-        <br>
+                <!-- Subtotal (Informativo Dinâmico) -->
+                <div id="info-subtotal" class="form-group" style="display:none">
+                    <label class="form-label">&nbsp;</label>
+                    <div class="info-box info-box-highlight">
+                        Valor Total: <strong id="valor-subtotal">R$ 0,00</strong>
+                    </div>
+                </div>
 
-        <!-- Subtotal calculado em tempo real via JS -->
-        <p id="info-subtotal" style="display:none">
-            Subtotal: <strong id="valor-subtotal">R$ 0,00</strong>
-        </p>
-        <br>
+                <!-- Observação -->
+                <div class="form-group full-width">
+                    <label class="form-label" for="input-observacao">Observação (opcional)</label>
+                    <input type="text"
+                           name="observacao"
+                           id="input-observacao"
+                           maxlength="255"
+                           class="form-control"
+                           placeholder="Ex: Compra fornecedor X, Venda balcão...">
+                </div>
 
-        <label>Observação (opcional):
-            <input type="text"
-                   name="observacao"
-                   maxlength="255"
-                   placeholder="Ex: Compra fornecedor X, Venda balcão...">
-        </label>
-        <br>
+            </div>
 
-        <button type="submit">Registrar</button>
-        <a href="/movimentacoes">Cancelar</a>
-    </form>
+            <!-- Botões de Ação -->
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Salvar Movimentação</button>
+                <a href="/movimentacoes" class="btn-cancel">Cancelar</a>
+            </div>
+        </form>
+    </div>
 
-    <script>
-        const selectProduto  = document.getElementById('select-produto');
-        const inputQuantidade = document.getElementById('input-quantidade');
-        const inputPreco     = document.getElementById('input-preco');
-        const infoEstoque    = document.getElementById('info-estoque');
-        const valorEstoque   = document.getElementById('valor-estoque');
-        const infoSubtotal   = document.getElementById('info-subtotal');
-        const valorSubtotal  = document.getElementById('valor-subtotal');
+    <!-- Link Voltar -->
+    <div class="mov-back-box">
+        <a href="/movimentacoes" class="mov-back-link">
+            ← Voltar para o Histórico de Movimentações
+        </a>
+    </div>
 
-        // Ao selecionar produto: mostra estoque atual e preenche preço
-        selectProduto.addEventListener('change', function () {
-            const option = this.options[this.selectedIndex];
-            const estoque = option.dataset.estoque;
-            const preco   = option.dataset.preco;
+</div>
 
-            if (estoque !== undefined) {
-                valorEstoque.textContent = estoque;
-                infoEstoque.style.display = 'block';
+<script>
+    const selectProduto   = document.getElementById('select-produto');
+    const inputQuantidade = document.getElementById('input-quantidade');
+    const inputPreco      = document.getElementById('input-preco');
+    const infoEstoque     = document.getElementById('info-estoque');
+    const valorEstoque    = document.getElementById('valor-estoque');
+    const infoSubtotal    = document.getElementById('info-subtotal');
+    const valorSubtotal   = document.getElementById('valor-subtotal');
 
-                // Pré-preenche o preço unitário com o preço cadastrado
+    selectProduto.addEventListener('change', function () {
+        const option = this.options[this.selectedIndex];
+        const estoque = option.dataset.estoque;
+        const preco   = option.dataset.preco;
+
+        if (estoque !== undefined) {
+            valorEstoque.textContent = estoque;
+            infoEstoque.style.display = 'block';
+
+            if (preco) {
                 inputPreco.value = parseFloat(preco).toFixed(2);
-            } else {
-                infoEstoque.style.display = 'none';
             }
-
-            atualizarSubtotal();
-        });
-
-        // Atualiza o subtotal ao digitar quantidade ou preço
-        function atualizarSubtotal() {
-            const qtd   = parseFloat(inputQuantidade.value) || 0;
-            const preco = parseFloat(inputPreco.value) || 0;
-            const total = qtd * preco;
-
-            if (qtd > 0 && preco > 0) {
-                valorSubtotal.textContent = total.toLocaleString('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL'
-                });
-                infoSubtotal.style.display = 'block';
-            } else {
-                infoSubtotal.style.display = 'none';
-            }
+        } else {
+            infoEstoque.style.display = 'none';
         }
 
-        inputQuantidade.addEventListener('input', atualizarSubtotal);
-        inputPreco.addEventListener('input', atualizarSubtotal);
-    </script>
-</body>
-</html>
+        atualizarSubtotal();
+    });
+
+    function atualizarSubtotal() {
+        const qtd   = parseFloat(inputQuantidade.value) || 0;
+        const preco = parseFloat(inputPreco.value) || 0;
+        const total = qtd * preco;
+
+        if (qtd > 0 && preco > 0) {
+            valorSubtotal.textContent = total.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            });
+            infoSubtotal.style.display = 'block';
+        } else {
+            infoSubtotal.style.display = 'none';
+        }
+    }
+
+    inputQuantidade.addEventListener('input', atualizarSubtotal);
+    inputPreco.addEventListener('input', atualizarSubtotal);
+</script>
+{% endblock %}
