@@ -1,0 +1,447 @@
+{% extends "base.html" %}
+
+{% block title %}PDV — AAPM SENAI{% endblock %}
+
+{% block content %}
+<style>
+    /* Estilos forçados no corpo da página */
+    .pdv-container {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        height: calc(100vh - 64px);
+        width: 100%;
+        overflow: hidden;
+        background-color: #F8FAFC;
+    }
+
+    .coluna-produtos {
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #E2E8F0;
+        background-color: #F8FAFC;
+        overflow: hidden;
+    }
+
+    .busca-container {
+        padding: 16px 24px;
+        background-color: #ffffff;
+        border-bottom: 1px solid #E2E8F0;
+    }
+
+    .busca-container input {
+        width: 100%;
+        padding: 10px 16px;
+        border: 1px solid #CBD5E1;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+    }
+
+    .busca-container input:focus {
+        border-color: #FF6B35;
+    }
+
+    .grid-produtos {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 16px;
+        padding: 24px;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    .card-produto {
+        background-color: #ffffff;
+        border: 1px solid #E2E8F0;
+        border-radius: 8px;
+        padding: 12px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.15s, border-color 0.15s;
+    }
+
+    .card-produto:hover {
+        border-color: #FF6B35;
+        transform: translateY(-2px);
+    }
+
+    .card-produto img {
+        width: 100%;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        background-color: #E2E8F0;
+    }
+
+    .card-nome {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        line-height: 1.3;
+        color: #2D3748;
+    }
+
+    .card-preco {
+        font-size: 15px;
+        font-weight: 700;
+        color: #FF6B35;
+    }
+
+    .card-estoque {
+        font-size: 11px;
+        color: #718096;
+        margin-top: 4px;
+    }
+
+    .card-produto.sem-estoque {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .coluna-carrinho {
+        background-color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border-left: 1px solid #E2E8F0;
+    }
+
+    .carrinho-titulo {
+        padding: 16px 20px;
+        font-size: 15px;
+        font-weight: 700;
+        border-bottom: 1px solid #E2E8F0;
+        background-color: #ffffff;
+        color: #2D3748;
+    }
+
+    .cliente-container {
+        padding: 16px 20px;
+        border-bottom: 1px solid #E2E8F0;
+        background-color: #F8FAFC;
+    }
+
+    .cliente-container label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        color: #718096;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+
+    .cliente-container select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #CBD5E1;
+        border-radius: 6px;
+        font-size: 13px;
+        background-color: #ffffff;
+        outline: none;
+    }
+
+    .badge-desconto {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #16A34A;
+        font-weight: 600;
+        background-color: #DCFCE7;
+        padding: 4px 8px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    .carrinho-corpo {
+        flex: 1;
+        overflow-y: auto;
+        position: relative;
+    }
+
+    .carrinho-vazio {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #A0AEC0;
+        font-size: 13px;
+    }
+
+    .item-carrinho {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 20px;
+        border-bottom: 1px solid #F1F5F9;
+    }
+
+    .btn-qty {
+        width: 26px;
+        height: 26px;
+        border: 1px solid #CBD5E1;
+        background: #ffffff;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .carrinho-rodape {
+        padding: 16px 20px;
+        border-top: 1px solid #E2E8F0;
+        background-color: #ffffff;
+    }
+
+    .resumo-linha {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        margin-bottom: 6px;
+        color: #4A5568;
+    }
+
+    .resumo-linha.total {
+        font-size: 18px;
+        font-weight: 700;
+        color: #2D3748;
+        border-top: 2px solid #E2E8F0;
+        padding-top: 10px;
+        margin-top: 10px;
+    }
+
+    .obs-texto {
+        width: 100%;
+        margin: 12px 0;
+        padding: 8px 12px;
+        border: 1px solid #CBD5E1;
+        border-radius: 6px;
+        font-size: 12px;
+        resize: none;
+        outline: none;
+    }
+
+    .btn-finalizar {
+        width: 100%;
+        padding: 12px;
+        background-color: #CBD5E1;
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: not-allowed;
+    }
+
+    .btn-finalizar.ativo {
+        background-color: #FF6B35;
+        cursor: pointer;
+    }
+</style>
+
+<div class="pdv-container">
+
+    <section class="coluna-produtos">
+        <div class="busca-container">
+            <input type="text" id="busca-produto" placeholder="🔍 Buscar produto...">
+        </div>
+
+        <div class="grid-produtos" id="grid-produtos">
+            {% for p in produtos %}
+            <div class="card-produto {% if p.estoque_atual == 0 %}sem-estoque{% endif %}"
+                 data-id="{{ p.id }}"
+                 data-nome="{{ p.nome }}"
+                 data-preco="{{ p.preco }}"
+                 data-estoque="{{ p.estoque_atual }}"
+                 onclick="adicionarItem(this)">
+                
+                <img src="{{ p.imagem_url }}" alt="{{ p.nome }}" onerror="this.src='https://via.placeholder.com/150?text=Sem+Foto'">
+                <div class="card-nome">{{ p.nome }}</div>
+                <div class="card-preco">R$ {{ "%.2f"|format(p.preco) }}</div>
+                <div class="card-estoque">Estoque: {{ p.estoque_atual }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <aside class="coluna-carrinho">
+        <div class="carrinho-titulo">🛒 Carrinho de Compras</div>
+
+        <div class="cliente-container">
+            <label>Cliente</label>
+            <select id="select-cliente" onchange="alterarCliente(this)">
+                <option value="0" data-associado="false">Sem identificação</option>
+                {% for c in clientes %}
+                <option value="{{ c.id }}" data-associado="{{ 'true' if c.is_associado else 'false' }}">
+                    {{ c.nome }} {% if c.is_associado %}(ASSOCIADO){% endif %}
+                </option>
+                {% endfor %}
+            </select>
+
+            <div class="badge-desconto" id="badge-desconto" style="display: none;">
+                Desconto de Associado Ativo
+            </div>
+        </div>
+
+        <div class="carrinho-corpo">
+            <div class="carrinho-vazio" id="msg-vazio">
+                Nenhum produto adicionado
+            </div>
+            <div id="lista-carrinho"></div>
+        </div>
+
+        <div class="carrinho-rodape">
+            <div id="painel-totais" style="display: none;">
+                <div class="resumo-linha">
+                    <span>Subtotal</span>
+                    <span id="val-subtotal">R$ 0,00</span>
+                </div>
+                <div class="resumo-linha" id="linha-desconto" style="display: none; color: #16a34a;">
+                    <span id="label-desconto">Desconto</span>
+                    <span id="val-desconto">- R$ 0,00</span>
+                </div>
+                <div class="resumo-linha total">
+                    <span>Total</span>
+                    <span id="val-total">R$ 0,00</span>
+                </div>
+            </div>
+
+            <textarea class="obs-texto" id="obs-input" rows="2" placeholder="Observações..."></textarea>
+
+            <form id="form-venda" action="/pdv/finalizar" method="post">
+                <input type="hidden" name="carrinho_json" id="input-carrinho">
+                <input type="hidden" name="cliente_id" id="input-cliente-id" value="0">
+                <input type="hidden" name="observacao" id="input-obs">
+                
+                <button type="button" class="btn-finalizar" id="btn-finalizar" disabled onclick="submeterVenda()">
+                    Finalizar Venda
+                </button>
+            </form>
+        </div>
+    </aside>
+
+</div>
+
+<script>
+    let carrinho = [];
+    let clienteAtual = { id: 0, associado: false };
+    const DESCONTO_PCT = parseFloat("{{ desconto_associado|default(0) }}") || 0;
+
+    function adicionarItem(card) {
+        const id = parseInt(card.dataset.id);
+        const nome = card.dataset.nome;
+        const preco = parseFloat(card.dataset.preco);
+        const estoque = parseInt(card.dataset.estoque);
+
+        if (estoque <= 0) return;
+
+        const item = carrinho.find(i => i.produto_id === id);
+        if (item) {
+            if (item.quantidade < estoque) {
+                item.quantidade++;
+            } else {
+                alert("Limite de estoque atingido.");
+            }
+        } else {
+            carrinho.push({ produto_id: id, nome, preco, quantidade: 1, estoque_max: estoque });
+        }
+
+        atualizarTela();
+    }
+
+    function alterarQtd(id, delta) {
+        const item = carrinho.find(i => i.produto_id === id);
+        if (!item) return;
+
+        item.quantidade += delta;
+        if (item.quantidade <= 0) {
+            carrinho = carrinho.filter(i => i.produto_id !== id);
+        }
+        atualizarTela();
+    }
+
+    function alterarCliente(select) {
+        const opt = select.options[select.selectedIndex];
+        clienteAtual.id = parseInt(opt.value);
+        clienteAtual.associado = opt.dataset.associado === 'true';
+
+        document.getElementById('badge-desconto').style.display = clienteAtual.associado ? 'block' : 'none';
+        atualizarTela();
+    }
+
+    function atualizarTela() {
+        const lista = document.getElementById('lista-carrinho');
+        const vazio = document.getElementById('msg-vazio');
+        const painelTotais = document.getElementById('painel-totais');
+        const btnFinalizar = document.getElementById('btn-finalizar');
+
+        if (carrinho.length === 0) {
+            lista.innerHTML = '';
+            vazio.style.display = 'flex';
+            painelTotais.style.display = 'none';
+            btnFinalizar.disabled = true;
+            btnFinalizar.classList.remove('ativo');
+            return;
+        }
+
+        vazio.style.display = 'none';
+        painelTotais.style.display = 'block';
+        btnFinalizar.disabled = false;
+        btnFinalizar.classList.add('ativo');
+
+        lista.innerHTML = '';
+        let subtotal = 0;
+
+        carrinho.forEach(item => {
+            const itemSubtotal = item.preco * item.quantidade;
+            subtotal += itemSubtotal;
+
+            const div = document.createElement('div');
+            div.className = 'item-carrinho';
+            div.innerHTML = `
+                <div>
+                    <div style="font-weight:600; font-size:13px;">${item.nome}</div>
+                    <div style="font-size:11px; color:#718096;">R$ ${item.preco.toFixed(2)} un.</div>
+                </div>
+                <div>
+                    <button class="btn-qty" onclick="alterarQtd(${item.produto_id}, -1)">-</button>
+                    <span style="margin: 0 6px; font-weight:600;">${item.quantidade}</span>
+                    <button class="btn-qty" onclick="alterarQtd(${item.produto_id}, 1)">+</button>
+                </div>
+                <div style="font-weight:700; font-size:13px;">R$ ${itemSubtotal.toFixed(2)}</div>
+            `;
+            lista.appendChild(div);
+        });
+
+        const descontoValor = clienteAtual.associado ? subtotal * (DESCONTO_PCT / 100) : 0;
+        const total = subtotal - descontoValor;
+
+        document.getElementById('val-subtotal').textContent = `R$ ${subtotal.toFixed(2)}`;
+        document.getElementById('val-total').textContent = `R$ ${total.toFixed(2)}`;
+
+        const linhaDesc = document.getElementById('linha-desconto');
+        if (clienteAtual.associado && descontoValor > 0) {
+            linhaDesc.style.display = 'flex';
+            document.getElementById('label-desconto').textContent = `Desconto (${DESCONTO_PCT}%)`;
+            document.getElementById('val-desconto').textContent = `- R$ ${descontoValor.toFixed(2)}`;
+        } else {
+            linhaDesc.style.display = 'none';
+        }
+    }
+
+    function submeterVenda() {
+        document.getElementById('input-carrinho').value = JSON.stringify(carrinho);
+        document.getElementById('input-cliente-id').value = clienteAtual.id;
+        document.getElementById('input-obs').value = document.getElementById('obs-input').value;
+        document.getElementById('form-venda').submit();
+    }
+
+    document.getElementById('busca-produto').addEventListener('input', function() {
+        const termo = this.value.toLowerCase();
+        document.querySelectorAll('.card-produto').forEach(card => {
+            const nome = card.dataset.nome.toLowerCase();
+            card.style.display = nome.includes(termo) ? 'flex' : 'none';
+        });
+    });
+</script>
+{% endblock %}
