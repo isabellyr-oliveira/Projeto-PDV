@@ -1,79 +1,108 @@
-<!-- templates/categorias/index.html -->
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Categorias — AAPM SENAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorias - AAPM PDV</title>
+    <link rel="stylesheet" href="/static/css/categorias.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <h1>Categorias</h1>
 
-    {% if request.query_params.get('criado') == 'ok' %}
-        <p style="color:green">Categoria criada com sucesso!</p>
-    {% endif %}
+    <!-- Header Superior Oficial -->
+    <header class="app-header">
+        <div class="header-brand">
+            <img src="/static/img/logo.png" alt="Logo AAPM" class="header-logo">
+            <span>AAPM - PDV</span>
+        </div>
+        <div class="header-user">
+            <i class="fa-solid fa-circle-user"></i>
+            <span>
+                {% if usuario and usuario.username %}
+                    {{ usuario.username }}
+                {% else %}
+                    admin
+                {% endif %}
+            </span>
+        </div>
+    </header>
 
-    {% if request.query_params.get('editado') == 'ok' %}
-        <p style="color:green">Categoria atualizada com sucesso!</p>
-    {% endif %}
+    <!-- Main Container Oficial -->
+    <main class="app-main">
 
-    {% if request.query_params.get('erro') == 'produtos_vinculados' %}
-        <p style="color:red">
-            Não é possível desativar "{{ request.query_params.get('categoria') }}"
-            pois ela possui produtos ativos vinculados.
-            Desative ou mova os produtos antes.
-        </p>
-    {% endif %}
+        <!-- Card de Cabeçalho da Página -->
+        <section class="page-card header-card">
+            <div class="title-group">
+                <h2><i class="fa-solid fa-tags"></i> Gestão de Categorias</h2>
+                <p>Consulte e gerencie as categorias cadastradas no sistema.</p>
+            </div>
+            <a href="/categorias/nova" class="btn-primary">
+                <i class="fa-solid fa-plus"></i> Nova Categoria
+            </a>
+        </section>
 
-    <a href="/categorias/nova">+ Nova categoria</a>
+        <!-- Card da Tabela -->
+        <section class="page-card table-card">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>NOME</th>
+                        <th>PRODUTOS ATIVOS</th>
+                        <th>STATUS</th>
+                        <th style="text-align: center;">AÇÕES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cat in categorias %}
+                    <tr>
+                        <td class="col-name">{{ cat.nome }}</td>
+                        <td>
+                            <span class="badge-cat">
+                                {{ cat.produtos | selectattr("ativo") | list | length if cat.produtos else 0 }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if cat.ativo %}
+                                <span class="badge-stock stock-ok">Ativa</span>
+                            {% else %}
+                                <span class="badge-stock stock-low">Inativa</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="actions-wrapper">
+                                <a href="/categorias/{{ cat.id }}/editar" class="btn-icon edit" title="Editar">
+                                    <i class="fa-solid fa-pen"></i>
+                                </a>
+                                <a href="/categorias/{{ cat.id }}/deletar" 
+                                   class="btn-icon delete" 
+                                   title="Excluir"
+                                   onclick="return confirm('Tem certeza que deseja apagar a categoria {{ cat.nome }}?');">
+                                    <i class="fa-solid fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="empty-state">
+                            <i class="fa-solid fa-box-open"></i>
+                            <p>Nenhuma categoria cadastrada até o momento.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
 
-    <table border="1" cellpadding="8">
-        <thead>
-            <tr>
-                <th>Nome</th>
-                <th>Produtos ativos</th>
-                <th>Status</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for c in categorias %}
-            <tr>
-                <td>{{ c.nome }}</td>
+        <!-- Botão Voltar -->
+        <div>
+            <a href="/" style="text-decoration: none; color: #0f172a; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-arrow-left"></i> Ir para a Página Inicial
 
-                <!--
-                    c.produtos vem do relationship definido no model.
-                    Filtramos em Python para contar apenas os ativos.
-                -->
-                <td>
-                    {{ c.produtos | selectattr('ativo') | list | length }}
-                </td>
+            </a>
+        </div>
 
-                <td>{{ "Ativa" if c.ativo else "Inativa" }}</td>
+    </main>
 
-                <td>
-                    <a href="/categorias/{{ c.id }}/editar">Editar</a>
-
-                    <form action="/categorias/{{ c.id }}/toggle-ativo"
-                          method="post"
-                          style="display:inline">
-                        <button type="submit">
-                            {{ "Desativar" if c.ativo else "Ativar" }}
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-
-            {% if not categorias %}
-            <tr>
-                <td colspan="4" style="text-align:center">
-                    Nenhuma categoria cadastrada.
-                </td>
-            </tr>
-            {% endif %}
-        </tbody>
-    </table>
-
-    <p><a href="/">← Dashboard</a></p>
 </body>
 </html>

@@ -4,40 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Permite que cada tela filha insira seu próprio título dinamicamente -->
     <title>{% block title %}Sistema PDV - AAPM{% endblock %}</title>
     
-    <!-- Importa a biblioteca de ícones do Font Awesome -->
+    <!-- Ícones Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Vincula o CSS Global do sistema utilizando a função url_for do FastAPI -->
+    <!-- CSS Global -->
     <link rel="stylesheet" href="{{ url_for('static', path='CSS/style.css') }}">
 </head>
 <body>
 
-    <!-- Cabeçalho Fixo do Sistema (Navbar Superior) -->
+    <!-- Header Superior -->
     <header class="app-header">
-        <!-- Logo e nome do sistema -->
         <div class="header-brand">
             <img src="{{ url_for('static', path='IMG/logo.png') }}" alt="Logo AAPM" class="header-logo">
             <span>AAPM - PDV</span>
         </div>
-
-   
-        </nav>
         
-        <!-- Identificação do Usuário Logado -->
         <div class="header-user">
             <i class="fa-solid fa-circle-user"></i>
-            <!-- operador ternário em Jinja2: se a variável usuario existir exibe usuario.nome, senão exibe 'Usuário' -->
             <span>{{ usuario.nome if usuario else 'Usuário' }}</span>
         </div>
     </header>
 
-    <!-- Estrutura principal onde o conteúdo das páginas filhas (ex: home.html) será inserido -->
+    <!-- Conteúdo Dinâmico -->
     <main class="app-main">
         {% block content %}
-        <!-- O conteúdo dinâmico entra aqui -->
         {% endblock %}
     </main>
 

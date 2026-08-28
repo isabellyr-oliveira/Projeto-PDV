@@ -72,7 +72,7 @@ def form_novo_produto(
 
     return templates.TemplateResponse(
         request,
-        "produtos/form.html",
+        "produtos/novo.html",  # ALTERADO: chama a página completa com base.html
         {
             "request":    request,
             "usuario":    admin,
@@ -96,11 +96,10 @@ async def criar_produto(
     categorias = db.query(Categoria).filter(Categoria.ativo == True).all()
 
     # Verifica duplicidade de nome
-    # ilike() para comparação case-insensitive, evitando produtos "Camiseta" e "camiseta".
     if db.query(Produto).filter(Produto.nome.ilike(nome)).first():
         return templates.TemplateResponse(
             request,
-            "produtos/form.html",
+            "produtos/novo.html",  # ALTERADO: chama a página completa com base.html
             {
                 "request":    request,
                 "usuario":    admin,
@@ -176,7 +175,7 @@ def form_editar_produto(
 
     return templates.TemplateResponse(
         request,
-        "produtos/form.html",
+        "produtos/editar.html",  # ALTERADO: chama a página completa com base.html
         {
             "request":    request,
             "usuario":    admin,
@@ -213,7 +212,7 @@ async def editar_produto(
     if conflito:
         return templates.TemplateResponse(
             request,
-            "produtos/form.html",
+            "produtos/editar.html",  # ALTERADO: chama a página completa com base.html
             {
                 "request":    request,
                 "usuario":    admin,
@@ -242,8 +241,28 @@ async def editar_produto(
 
 
 # ============================================================
-# DESATIVAR
+# EXCLUSÃO FÍSICA E DESATIVAÇÃO
 # ============================================================
+
+@router.get("/{produto_id}/deletar")
+def deletar_produto(
+    produto_id: int,
+    db: Session = Depends(get_db),
+    admin = Depends(get_admin)
+):
+    """Remove permanentemente o produto do banco e apaga a imagem associada."""
+    produto = db.query(Produto).filter(Produto.id == produto_id).first()
+
+    if produto:
+        # Remove a imagem física da pasta uploads se existir
+        _remover_imagem(produto.imagem_path)
+        
+        # Apaga o registro da tabela
+        db.delete(produto)
+        db.commit()
+
+    return RedirectResponse(url="/produtos?deletado=ok", status_code=302)
+
 
 @router.post("/{produto_id}/desativar")
 def desativar_produto(
@@ -251,6 +270,7 @@ def desativar_produto(
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
+    """Inativa o produto sem remover do banco (Exclusão Lógica)."""
     produto = db.query(Produto).filter(Produto.id == produto_id).first()
 
     if produto:
@@ -268,31 +288,22 @@ async def _salvar_imagem(imagem: UploadFile | None) -> str | None:
     """
     Salva o arquivo enviado em /static/uploads/ e retorna
     o path relativo para guardar no banco.
-
-    Retorna None se nenhum arquivo foi enviado ou se o
-    arquivo enviado estiver vazio (campo deixado em branco).
     """
-    # UploadFile com filename vazio = campo não preenchido
     if not imagem or not imagem.filename:
         return None
 
-    # Valida a extensão — aceita apenas imagens
     extensoes_permitidas = {".jpg", ".jpeg", ".png", ".webp"}
     _, ext = os.path.splitext(imagem.filename.lower())
 
     if ext not in extensoes_permitidas:
-        return None  # ignora silenciosamente — pode virar erro em produção
+        return None
 
-    # Garante nome de arquivo único usando o nome original
-    # Em produção: use uuid4() para evitar colisões e exposição de nomes
     nome_arquivo = f"{imagem.filename}"
     caminho_completo = os.path.join(UPLOAD_DIR, nome_arquivo)
 
-    # Salva o arquivo no disco
     with open(caminho_completo, "wb") as buffer:
         shutil.copyfileobj(imagem.file, buffer)
 
-    # Retorna o path relativo ao /static (para montar a URL)
     return f"uploads/{nome_arquivo}"
 
 
