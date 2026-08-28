@@ -72,7 +72,7 @@ def form_novo_produto(
 
     return templates.TemplateResponse(
         request,
-        "produtos/form.html",
+        "produtos/novo.html",  # ALTERADO: chama a página completa com base.html
         {
             "request":    request,
             "usuario":    admin,
@@ -99,7 +99,7 @@ async def criar_produto(
     if db.query(Produto).filter(Produto.nome.ilike(nome)).first():
         return templates.TemplateResponse(
             request,
-            "produtos/form.html",
+            "produtos/novo.html",  # ALTERADO: chama a página completa com base.html
             {
                 "request":    request,
                 "usuario":    admin,
@@ -175,7 +175,7 @@ def form_editar_produto(
 
     return templates.TemplateResponse(
         request,
-        "produtos/form.html",
+        "produtos/editar.html",  # ALTERADO: chama a página completa com base.html
         {
             "request":    request,
             "usuario":    admin,
@@ -212,7 +212,7 @@ async def editar_produto(
     if conflito:
         return templates.TemplateResponse(
             request,
-            "produtos/form.html",
+            "produtos/editar.html",  # ALTERADO: chama a página completa com base.html
             {
                 "request":    request,
                 "usuario":    admin,
