@@ -1,0 +1,212 @@
+/* Container estendido com a mesma largura e proporção da Gestão de Produtos */
+.movimentacoes-wrapper {
+    width: 100% !important;
+    max-width: 1200px !important;
+    margin: 32px auto !important;
+    padding: 0 20px !important;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Card Superior Header */
+.mov-header-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 24px 32px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border: 1px solid #f1f5f9;
+}
+
+.mov-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.mov-header-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.mov-header-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.mov-header-subtitle {
+    font-size: 13.5px;
+    color: #94a3b8;
+    margin: 4px 0 0 0;
+}
+
+.mov-btn-primary {
+    background-color: #ff6b35;
+    color: #ffffff !important;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+
+.mov-btn-primary:hover {
+    background-color: #e85a26;
+}
+
+/* Filtros */
+.mov-filter-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 18px 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    margin-bottom: 20px;
+    border: 1px solid #f1f5f9;
+}
+
+.mov-filter-form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.mov-select-custom {
+    height: 42px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background-color: #ffffff;
+    padding: 0 14px;
+    font-size: 13.5px;
+    color: #475569;
+    outline: none;
+}
+
+.mov-select-custom:focus {
+    border-color: #ff6b35;
+}
+
+.mov-btn-dark {
+    background-color: #1e293b;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    height: 42px;
+    padding: 0 28px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.mov-btn-dark:hover {
+    background-color: #0f172a;
+}
+
+.mov-btn-clean {
+    color: #ff6b35;
+    font-size: 13.5px;
+    text-decoration: none;
+    margin-left: 8px;
+}
+
+/* Tabela */
+.mov-table-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+    border: 1px solid #f1f5f9;
+    width: 100%;
+}
+
+.mov-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.mov-table th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.mov-table td {
+    padding: 18px 24px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13.5px;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.mov-table tr:last-child td {
+    border-bottom: none;
+}
+
+.mov-badge-entrada {
+    background-color: #dcfce7;
+    color: #15803d;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.mov-badge-saida {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Estado Vazio */
+.mov-empty-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.mov-empty-icon {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 12px;
+    stroke: #cbd5e1;
+}
+
+/* Link Voltar */
+.mov-back-box {
+    margin-top: 20px;
+}
+
+.mov-back-link {
+    color: #1e293b;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mov-back-link:hover {
+    color: #ff6b35;
+}
