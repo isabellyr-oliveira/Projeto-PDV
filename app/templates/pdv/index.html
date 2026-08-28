@@ -1,714 +1,447 @@
-<!-- templates/pdv/index.html -->
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDV — AAPM SENAI</title>
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+{% extends "base.html" %}
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #f1f5f9;
-            color: #1e293b;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+{% block title %}PDV — AAPM SENAI{% endblock %}
 
-        /* ── Topo ── */
-        .topbar {
-            background: #1e293b;
-            color: #f8fafc;
-            padding: 0 24px;
-            height: 52px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-shrink: 0;
-        }
+{% block content %}
+<style>
+    /* Estilos forçados no corpo da página */
+    .pdv-container {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        height: calc(100vh - 64px);
+        width: 100%;
+        overflow: hidden;
+        background-color: #F8FAFC;
+    }
 
-        .topbar-title {
-            font-weight: 700;
-            font-size: 16px;
-            letter-spacing: .02em;
-        }
+    .coluna-produtos {
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #E2E8F0;
+        background-color: #F8FAFC;
+        overflow: hidden;
+    }
 
-        .topbar-links a {
-            color: #94a3b8;
-            font-size: 13px;
-            margin-left: 20px;
-            text-decoration: none;
-        }
+    .busca-container {
+        padding: 16px 24px;
+        background-color: #ffffff;
+        border-bottom: 1px solid #E2E8F0;
+    }
 
-        .topbar-links a:hover { color: #f8fafc; }
+    .busca-container input {
+        width: 100%;
+        padding: 10px 16px;
+        border: 1px solid #CBD5E1;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+    }
 
-        /* ── Layout principal ── */
-        .pdv-layout {
-            display: grid;
-            grid-template-columns: 1fr 380px;
-            flex: 1;
-            overflow: hidden;
-        }
+    .busca-container input:focus {
+        border-color: #FF6B35;
+    }
 
-        /* ── Coluna esquerda: produtos ── */
-        .produtos-col {
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid #e2e8f0;
-            overflow: hidden;
-        }
+    .grid-produtos {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 16px;
+        padding: 24px;
+        overflow-y: auto;
+        flex: 1;
+    }
 
-        .produtos-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid #e2e8f0;
-            background: #fff;
-            flex-shrink: 0;
-        }
+    .card-produto {
+        background-color: #ffffff;
+        border: 1px solid #E2E8F0;
+        border-radius: 8px;
+        padding: 12px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.15s, border-color 0.15s;
+    }
 
-        .busca-input {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color .2s;
-        }
+    .card-produto:hover {
+        border-color: #FF6B35;
+        transform: translateY(-2px);
+    }
 
-        .busca-input:focus { border-color: #3b82f6; }
+    .card-produto img {
+        width: 100%;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        background-color: #E2E8F0;
+    }
 
-        .produtos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 12px;
-            padding: 16px 20px;
-            overflow-y: auto;
-            flex: 1;
-        }
+    .card-nome {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        line-height: 1.3;
+        color: #2D3748;
+    }
 
-        .produto-card {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 14px;
-            cursor: pointer;
-            transition: border-color .15s, transform .1s, box-shadow .15s;
-            user-select: none;
-        }
+    .card-preco {
+        font-size: 15px;
+        font-weight: 700;
+        color: #FF6B35;
+    }
 
-        .produto-card:hover {
-            border-color: #3b82f6;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(59,130,246,.12);
-        }
+    .card-estoque {
+        font-size: 11px;
+        color: #718096;
+        margin-top: 4px;
+    }
 
-        .produto-card:active { transform: translateY(0); }
+    .card-produto.sem-estoque {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
 
-        .produto-card img {
-            width: 100%;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            background: #f8fafc;
-        }
+    .coluna-carrinho {
+        background-color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border-left: 1px solid #E2E8F0;
+    }
 
-        .produto-card-nome {
-            font-size: 13px;
-            font-weight: 600;
-            color: #1e293b;
-            line-height: 1.3;
-            margin-bottom: 6px;
-        }
+    .carrinho-titulo {
+        padding: 16px 20px;
+        font-size: 15px;
+        font-weight: 700;
+        border-bottom: 1px solid #E2E8F0;
+        background-color: #ffffff;
+        color: #2D3748;
+    }
 
-        .produto-card-preco {
-            font-size: 15px;
-            font-weight: 700;
-            color: #16a34a;
-        }
+    .cliente-container {
+        padding: 16px 20px;
+        border-bottom: 1px solid #E2E8F0;
+        background-color: #F8FAFC;
+    }
 
-        .produto-card-estoque {
-            font-size: 11px;
-            color: #94a3b8;
-            margin-top: 3px;
-        }
+    .cliente-container label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        color: #718096;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
 
-        .produto-card.sem-estoque {
-            opacity: .4;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
+    .cliente-container select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #CBD5E1;
+        border-radius: 6px;
+        font-size: 13px;
+        background-color: #ffffff;
+        outline: none;
+    }
 
-        /* ── Coluna direita: carrinho ── */
-        .carrinho-col {
-            display: flex;
-            flex-direction: column;
-            background: #fff;
-            overflow: hidden;
-        }
+    .badge-desconto {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #16A34A;
+        font-weight: 600;
+        background-color: #DCFCE7;
+        padding: 4px 8px;
+        border-radius: 4px;
+        display: inline-block;
+    }
 
-        .carrinho-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid #e2e8f0;
-            font-weight: 700;
-            font-size: 15px;
-            flex-shrink: 0;
-        }
+    .carrinho-corpo {
+        flex: 1;
+        overflow-y: auto;
+        position: relative;
+    }
 
-        /* ── Seleção de cliente ── */
-        .cliente-section {
-            padding: 14px 20px;
-            border-bottom: 1px solid #e2e8f0;
-            flex-shrink: 0;
-        }
+    .carrinho-vazio {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #A0AEC0;
+        font-size: 13px;
+    }
 
-        .cliente-section label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            display: block;
-            margin-bottom: 6px;
-        }
+    .item-carrinho {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 20px;
+        border-bottom: 1px solid #F1F5F9;
+    }
 
-        .cliente-select {
-            width: 100%;
-            padding: 9px 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-            cursor: pointer;
-            transition: border-color .2s;
-        }
+    .btn-qty {
+        width: 26px;
+        height: 26px;
+        border: 1px solid #CBD5E1;
+        background: #ffffff;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+    }
 
-        .cliente-select:focus { border-color: #3b82f6; }
+    .carrinho-rodape {
+        padding: 16px 20px;
+        border-top: 1px solid #E2E8F0;
+        background-color: #ffffff;
+    }
 
-        .desconto-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: #dcfce7;
-            color: #16a34a;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 999px;
-            margin-top: 8px;
-        }
+    .resumo-linha {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        margin-bottom: 6px;
+        color: #4A5568;
+    }
 
-        /* ── Lista do carrinho ── */
-        .carrinho-itens {
-            flex: 1;
-            overflow-y: auto;
-            padding: 8px 0;
-        }
+    .resumo-linha.total {
+        font-size: 18px;
+        font-weight: 700;
+        color: #2D3748;
+        border-top: 2px solid #E2E8F0;
+        padding-top: 10px;
+        margin-top: 10px;
+    }
 
-        .carrinho-vazio {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #94a3b8;
-            font-size: 14px;
-            gap: 8px;
-        }
+    .obs-texto {
+        width: 100%;
+        margin: 12px 0;
+        padding: 8px 12px;
+        border: 1px solid #CBD5E1;
+        border-radius: 6px;
+        font-size: 12px;
+        resize: none;
+        outline: none;
+    }
 
-        .carrinho-vazio-icon { font-size: 36px; }
+    .btn-finalizar {
+        width: 100%;
+        padding: 12px;
+        background-color: #CBD5E1;
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: not-allowed;
+    }
 
-        .item-carrinho {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 20px;
-            border-bottom: 1px solid #f1f5f9;
-            transition: background .1s;
-        }
+    .btn-finalizar.ativo {
+        background-color: #FF6B35;
+        cursor: pointer;
+    }
+</style>
 
-        .item-carrinho:hover { background: #f8fafc; }
+<div class="pdv-container">
 
-        .item-nome {
-            flex: 1;
-            font-size: 13px;
-            font-weight: 500;
-            color: #1e293b;
-        }
-
-        .item-preco-unit {
-            font-size: 11px;
-            color: #94a3b8;
-        }
-
-        .item-qty-ctrl {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .qty-btn {
-            width: 26px;
-            height: 26px;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            background: #fff;
-            font-size: 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background .1s;
-            font-weight: 600;
-            line-height: 1;
-        }
-
-        .qty-btn:hover { background: #f1f5f9; }
-
-        .qty-value {
-            font-size: 14px;
-            font-weight: 600;
-            min-width: 20px;
-            text-align: center;
-        }
-
-        .item-subtotal {
-            font-size: 14px;
-            font-weight: 700;
-            color: #1e293b;
-            min-width: 64px;
-            text-align: right;
-        }
-
-        .item-remover {
-            color: #ef4444;
-            cursor: pointer;
-            font-size: 18px;
-            padding: 2px 4px;
-            border-radius: 4px;
-            transition: background .1s;
-            background: none;
-            border: none;
-        }
-
-        .item-remover:hover { background: #fee2e2; }
-
-        /* ── Rodapé do carrinho ── */
-        .carrinho-footer {
-            border-top: 1px solid #e2e8f0;
-            padding: 16px 20px;
-            flex-shrink: 0;
-        }
-
-        .totais { margin-bottom: 14px; }
-
-        .total-linha {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            color: #64748b;
-            margin-bottom: 6px;
-        }
-
-        .total-linha.desconto { color: #16a34a; }
-
-        .total-linha.final {
-            font-size: 18px;
-            font-weight: 800;
-            color: #1e293b;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 2px solid #e2e8f0;
-        }
-
-        .obs-input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 12px;
-            outline: none;
-            resize: none;
-        }
-
-        .obs-input:focus { border-color: #3b82f6; }
-
-        .btn-finalizar {
-            width: 100%;
-            padding: 14px;
-            background: #16a34a;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background .15s;
-            letter-spacing: .02em;
-        }
-
-        .btn-finalizar:hover { background: #15803d; }
-        .btn-finalizar:disabled {
-            background: #e2e8f0;
-            color: #94a3b8;
-            cursor: not-allowed;
-        }
-
-        /* Alertas de erro */
-        .alerta {
-            background: #fee2e2;
-            color: #b91c1c;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin: 12px 20px;
-        }
-    </style>
-</head>
-<body>
-
-<!-- ── TOPO ── -->
-<header class="topbar">
-    <span class="topbar-title">🏪 PDV — AAPM SENAI</span>
-    <nav class="topbar-links">
-        <a href="/pdv/historico">Histórico de vendas</a>
-        <a href="/clientes">Clientes</a>
-        <a href="/dashboard">Dashboard</a>
-    </nav>
-</header>
-
-<!-- ── Alertas vindos da query string ── -->
-{% set erro = request.query_params.get('erro') %}
-{% if erro %}
-<div class="alerta">
-    {% if erro == 'vazio' %}Carrinho vazio. Adicione produtos antes de finalizar.
-    {% elif erro == 'estoque' %}Estoque insuficiente para: {{ request.query_params.get('produto') }}
-    {% elif erro == 'quantidade' %}Quantidade inválida.
-    {% else %}Ocorreu um erro. Tente novamente.
-    {% endif %}
-</div>
-{% endif %}
-
-<div class="pdv-layout">
-
-    <!-- ════════════════════════════════════════
-         COLUNA ESQUERDA — Grade de produtos
-    ════════════════════════════════════════ -->
-    <section class="produtos-col">
-        <div class="produtos-header">
-            <input class="busca-input"
-                   type="text"
-                   id="busca-produto"
-                   placeholder="🔍 Buscar produto..."
-                   autocomplete="off">
+    <section class="coluna-produtos">
+        <div class="busca-container">
+            <input type="text" id="busca-produto" placeholder="🔍 Buscar produto...">
         </div>
 
-        <div class="produtos-grid" id="grade-produtos">
+        <div class="grid-produtos" id="grid-produtos">
             {% for p in produtos %}
-            <div class="produto-card {% if p.estoque_atual == 0 %}sem-estoque{% endif %}"
+            <div class="card-produto {% if p.estoque_atual == 0 %}sem-estoque{% endif %}"
                  data-id="{{ p.id }}"
                  data-nome="{{ p.nome }}"
                  data-preco="{{ p.preco }}"
                  data-estoque="{{ p.estoque_atual }}"
-                 data-nome-lower="{{ p.nome.lower() }}"
-                 onclick="adicionarAoCarrinho(this)">
-
-                <img src="{{ p.imagem_url }}" alt="{{ p.nome }}">
-                <div class="produto-card-nome">{{ p.nome }}</div>
-                <div class="produto-card-preco">
-                    R$ {{ "%.2f"|format(p.preco) }}
-                </div>
-                <div class="produto-card-estoque">
-                    Estoque: {{ p.estoque_atual }}
-                </div>
+                 onclick="adicionarItem(this)">
+                
+                <img src="{{ p.imagem_url }}" alt="{{ p.nome }}" onerror="this.src='https://via.placeholder.com/150?text=Sem+Foto'">
+                <div class="card-nome">{{ p.nome }}</div>
+                <div class="card-preco">R$ {{ "%.2f"|format(p.preco) }}</div>
+                <div class="card-estoque">Estoque: {{ p.estoque_atual }}</div>
             </div>
             {% endfor %}
         </div>
     </section>
 
-    <!-- ════════════════════════════════════════
-         COLUNA DIREITA — Carrinho
-    ════════════════════════════════════════ -->
-    <aside class="carrinho-col">
+    <aside class="coluna-carrinho">
+        <div class="carrinho-titulo">🛒 Carrinho de Compras</div>
 
-        <div class="carrinho-header">🛒 Carrinho</div>
-
-        <!-- Seleção de cliente -->
-        <div class="cliente-section">
+        <div class="cliente-container">
             <label>Cliente</label>
-            <select class="cliente-select"
-                    id="select-cliente"
-                    onchange="atualizarCliente(this)">
-                <option value="0" data-associado="false">
-                    Sem identificação (sem desconto)
-                </option>
+            <select id="select-cliente" onchange="alterarCliente(this)">
+                <option value="0" data-associado="false">Sem identificação</option>
                 {% for c in clientes %}
-                <option value="{{ c.id }}"
-                        data-associado="{{ 'true' if c.is_associado else 'false' }}">
-                    {{ c.nome }}
-                    {% if c.matricula %}({{ c.matricula }}){% endif %}
-                    {% if c.is_associado %} — ASSOCIADO{% endif %}
+                <option value="{{ c.id }}" data-associado="{{ 'true' if c.is_associado else 'false' }}">
+                    {{ c.nome }} {% if c.is_associado %}(ASSOCIADO){% endif %}
                 </option>
                 {% endfor %}
             </select>
 
-            <!--
-                Badge aparece via JS quando um associado é selecionado.
-                desconto_associado vem do template (10.0)
-            -->
-            <div class="desconto-badge" id="badge-desconto" style="display:none">
-                ✓ {{ desconto_associado|int }}% de desconto aplicado
+            <div class="badge-desconto" id="badge-desconto" style="display: none;">
+                Desconto de Associado Ativo
             </div>
         </div>
 
-        <!-- Lista de itens -->
-        <div class="carrinho-itens" id="lista-carrinho">
+        <div class="carrinho-corpo">
             <div class="carrinho-vazio" id="msg-vazio">
-                <span class="carrinho-vazio-icon">🛒</span>
-                Clique nos produtos para adicionar
+                Nenhum produto adicionado
             </div>
+            <div id="lista-carrinho"></div>
         </div>
 
-        <!-- Totais e finalização -->
-        <div class="carrinho-footer">
-            <div class="totais" id="totais" style="display:none">
-                <div class="total-linha">
+        <div class="carrinho-rodape">
+            <div id="painel-totais" style="display: none;">
+                <div class="resumo-linha">
                     <span>Subtotal</span>
                     <span id="val-subtotal">R$ 0,00</span>
                 </div>
-                <div class="total-linha desconto" id="linha-desconto" style="display:none">
-                    <span id="label-desconto">Desconto (0%)</span>
-                    <span id="val-desconto">— R$ 0,00</span>
+                <div class="resumo-linha" id="linha-desconto" style="display: none; color: #16a34a;">
+                    <span id="label-desconto">Desconto</span>
+                    <span id="val-desconto">- R$ 0,00</span>
                 </div>
-                <div class="total-linha final">
+                <div class="resumo-linha total">
                     <span>Total</span>
                     <span id="val-total">R$ 0,00</span>
                 </div>
             </div>
 
-            <textarea class="obs-input"
-                      id="obs-input"
-                      rows="2"
-                      placeholder="Observação (opcional)..."></textarea>
+            <textarea class="obs-texto" id="obs-input" rows="2" placeholder="Observações..."></textarea>
 
-            <!--
-                O form envia:
-                - carrinho_json: array serializado em JSON pelo JS
-                - cliente_id: id do cliente selecionado (0 = balcão)
-                - observacao: texto livre
-            -->
             <form id="form-venda" action="/pdv/finalizar" method="post">
                 <input type="hidden" name="carrinho_json" id="input-carrinho">
-                <input type="hidden" name="cliente_id"   id="input-cliente-id" value="0">
-                <input type="hidden" name="observacao"   id="input-obs">
-                <button class="btn-finalizar"
-                        id="btn-finalizar"
-                        type="button"
-                        disabled
-                        onclick="finalizarVenda()">
-                    Finalizar venda
+                <input type="hidden" name="cliente_id" id="input-cliente-id" value="0">
+                <input type="hidden" name="observacao" id="input-obs">
+                
+                <button type="button" class="btn-finalizar" id="btn-finalizar" disabled onclick="submeterVenda()">
+                    Finalizar Venda
                 </button>
             </form>
         </div>
     </aside>
+
 </div>
 
 <script>
-// ============================================================
-// Estado do carrinho — array de objetos
-// ============================================================
-// Cada item: { produto_id, nome, preco, quantidade, estoque_max }
-// ============================================================
+    let carrinho = [];
+    let clienteAtual = { id: 0, associado: false };
+    const DESCONTO_PCT = parseFloat("{{ desconto_associado|default(0) }}") || 0;
 
-let carrinho = [];
-let clienteAtual = { id: 0, associado: false };
-const DESCONTO_PCT = { desconto_associado };  // vem do template
+    function adicionarItem(card) {
+        const id = parseInt(card.dataset.id);
+        const nome = card.dataset.nome;
+        const preco = parseFloat(card.dataset.preco);
+        const estoque = parseInt(card.dataset.estoque);
 
-// ── Adicionar produto ao carrinho ────────────────────────────
+        if (estoque <= 0) return;
 
-function adicionarAoCarrinho(card) {
-    const id       = parseInt(card.dataset.id);
-    const nome     = card.dataset.nome;
-    const preco    = parseFloat(card.dataset.preco);
-    const estoque  = parseInt(card.dataset.estoque);
-
-    const existente = carrinho.find(i => i.produto_id === id);
-
-    if (existente) {
-        // Produto já está no carrinho — aumenta a quantidade se tiver estoque
-        if (existente.quantidade < existente.estoque_max) {
-            existente.quantidade++;
+        const item = carrinho.find(i => i.produto_id === id);
+        if (item) {
+            if (item.quantidade < estoque) {
+                item.quantidade++;
+            } else {
+                alert("Limite de estoque atingido.");
+            }
         } else {
-            alert(`Estoque máximo atingido: ${existente.estoque_max} unidade(s).`);
+            carrinho.push({ produto_id: id, nome, preco, quantidade: 1, estoque_max: estoque });
+        }
+
+        atualizarTela();
+    }
+
+    function alterarQtd(id, delta) {
+        const item = carrinho.find(i => i.produto_id === id);
+        if (!item) return;
+
+        item.quantidade += delta;
+        if (item.quantidade <= 0) {
+            carrinho = carrinho.filter(i => i.produto_id !== id);
+        }
+        atualizarTela();
+    }
+
+    function alterarCliente(select) {
+        const opt = select.options[select.selectedIndex];
+        clienteAtual.id = parseInt(opt.value);
+        clienteAtual.associado = opt.dataset.associado === 'true';
+
+        document.getElementById('badge-desconto').style.display = clienteAtual.associado ? 'block' : 'none';
+        atualizarTela();
+    }
+
+    function atualizarTela() {
+        const lista = document.getElementById('lista-carrinho');
+        const vazio = document.getElementById('msg-vazio');
+        const painelTotais = document.getElementById('painel-totais');
+        const btnFinalizar = document.getElementById('btn-finalizar');
+
+        if (carrinho.length === 0) {
+            lista.innerHTML = '';
+            vazio.style.display = 'flex';
+            painelTotais.style.display = 'none';
+            btnFinalizar.disabled = true;
+            btnFinalizar.classList.remove('ativo');
             return;
         }
-    } else {
-        // Produto novo no carrinho
-        carrinho.push({ produto_id: id, nome, preco, quantidade: 1, estoque_max: estoque });
-    }
 
-    renderizarCarrinho();
-}
+        vazio.style.display = 'none';
+        painelTotais.style.display = 'block';
+        btnFinalizar.disabled = false;
+        btnFinalizar.classList.add('ativo');
 
-// ── Alterar quantidade ────────────────────────────────────────
-
-function alterarQtd(produtoId, delta) {
-    const item = carrinho.find(i => i.produto_id === produtoId);
-    if (!item) return;
-
-    item.quantidade += delta;
-
-    // Remove o item se a quantidade chegar a zero
-    if (item.quantidade <= 0) {
-        removerItem(produtoId);
-        return;
-    }
-
-    // Limita pelo estoque disponível
-    if (item.quantidade > item.estoque_max) {
-        item.quantidade = item.estoque_max;
-    }
-
-    renderizarCarrinho();
-}
-
-function removerItem(produtoId) {
-    carrinho = carrinho.filter(i => i.produto_id !== produtoId);
-    renderizarCarrinho();
-}
-
-// ── Atualizar cliente selecionado ─────────────────────────────
-
-function atualizarCliente(select) {
-    const opt = select.options[select.selectedIndex];
-    clienteAtual.id        = parseInt(opt.value);
-    clienteAtual.associado = opt.dataset.associado === 'true';
-
-    // Exibe ou esconde o badge de desconto
-    const badge = document.getElementById('badge-desconto');
-    badge.style.display = clienteAtual.associado ? 'inline-flex' : 'none';
-
-    // Recalcula os totais com o novo desconto
-    renderizarTotais();
-}
-
-// ── Renderizar lista do carrinho ──────────────────────────────
-
-function renderizarCarrinho() {
-    const lista    = document.getElementById('lista-carrinho');
-    const vazio    = document.getElementById('msg-vazio');
-    const totais   = document.getElementById('totais');
-    const btnFinal = document.getElementById('btn-finalizar');
-
-    if (carrinho.length === 0) {
         lista.innerHTML = '';
-        lista.appendChild(vazio);
-        vazio.style.display = 'flex';
-        totais.style.display = 'none';
-        btnFinal.disabled = true;
-        return;
-    }
+        let subtotal = 0;
 
-    vazio.style.display = 'none';
-    totais.style.display = 'block';
-    btnFinal.disabled = false;
+        carrinho.forEach(item => {
+            const itemSubtotal = item.preco * item.quantidade;
+            subtotal += itemSubtotal;
 
-    lista.innerHTML = '';
-
-    carrinho.forEach(item => {
-        const subtotal = item.preco * item.quantidade;
-        const div = document.createElement('div');
-        div.className = 'item-carrinho';
-        div.innerHTML = `
-            <div style="flex:1">
-                <div class="item-nome">${item.nome}</div>
-                <div class="item-preco-unit">
-                    R$ ${item.preco.toFixed(2).replace('.', ',')} / un.
+            const div = document.createElement('div');
+            div.className = 'item-carrinho';
+            div.innerHTML = `
+                <div>
+                    <div style="font-weight:600; font-size:13px;">${item.nome}</div>
+                    <div style="font-size:11px; color:#718096;">R$ ${item.preco.toFixed(2)} un.</div>
                 </div>
-            </div>
-            <div class="item-qty-ctrl">
-                <button class="qty-btn"
-                        onclick="alterarQtd(${item.produto_id}, -1)">−</button>
-                <span class="qty-value">${item.quantidade}</span>
-                <button class="qty-btn"
-                        onclick="alterarQtd(${item.produto_id}, +1)">+</button>
-            </div>
-            <div class="item-subtotal">
-                R$ ${subtotal.toFixed(2).replace('.', ',')}
-            </div>
-            <button class="item-remover"
-                    onclick="removerItem(${item.produto_id})"
-                    title="Remover">×</button>
-        `;
-        lista.appendChild(div);
-    });
+                <div>
+                    <button class="btn-qty" onclick="alterarQtd(${item.produto_id}, -1)">-</button>
+                    <span style="margin: 0 6px; font-weight:600;">${item.quantidade}</span>
+                    <button class="btn-qty" onclick="alterarQtd(${item.produto_id}, 1)">+</button>
+                </div>
+                <div style="font-weight:700; font-size:13px;">R$ ${itemSubtotal.toFixed(2)}</div>
+            `;
+            lista.appendChild(div);
+        });
 
-    renderizarTotais();
-}
+        const descontoValor = clienteAtual.associado ? subtotal * (DESCONTO_PCT / 100) : 0;
+        const total = subtotal - descontoValor;
 
-// ── Calcular e exibir totais ──────────────────────────────────
+        document.getElementById('val-subtotal').textContent = `R$ ${subtotal.toFixed(2)}`;
+        document.getElementById('val-total').textContent = `R$ ${total.toFixed(2)}`;
 
-function renderizarTotais() {
-    const subtotal = carrinho.reduce(
-        (acc, i) => acc + i.preco * i.quantidade, 0
-    );
-
-    const descontoValor  = clienteAtual.associado
-        ? subtotal * (DESCONTO_PCT / 100)
-        : 0;
-    const total = subtotal - descontoValor;
-
-    const fmt = v => 'R$ ' + v.toFixed(2).replace('.', ',');
-
-    document.getElementById('val-subtotal').textContent = fmt(subtotal);
-    document.getElementById('val-total').textContent    = fmt(total);
-
-    const linhaDesc  = document.getElementById('linha-desconto');
-    const labelDesc  = document.getElementById('label-desconto');
-    const valDesc    = document.getElementById('val-desconto');
-
-    if (clienteAtual.associado && descontoValor > 0) {
-        linhaDesc.style.display  = 'flex';
-        labelDesc.textContent    = `Desconto (${DESCONTO_PCT}%)`;
-        valDesc.textContent      = `− ${fmt(descontoValor)}`;
-    } else {
-        linhaDesc.style.display = 'none';
+        const linhaDesc = document.getElementById('linha-desconto');
+        if (clienteAtual.associado && descontoValor > 0) {
+            linhaDesc.style.display = 'flex';
+            document.getElementById('label-desconto').textContent = `Desconto (${DESCONTO_PCT}%)`;
+            document.getElementById('val-desconto').textContent = `- R$ ${descontoValor.toFixed(2)}`;
+        } else {
+            linhaDesc.style.display = 'none';
+        }
     }
-}
 
-// ── Submeter a venda ──────────────────────────────────────────
+    function submeterVenda() {
+        document.getElementById('input-carrinho').value = JSON.stringify(carrinho);
+        document.getElementById('input-cliente-id').value = clienteAtual.id;
+        document.getElementById('input-obs').value = document.getElementById('obs-input').value;
+        document.getElementById('form-venda').submit();
+    }
 
-function finalizarVenda() {
-    if (carrinho.length === 0) return;
-
-    // Serializa o carrinho para o campo oculto
-    document.getElementById('input-carrinho').value =
-        JSON.stringify(carrinho.map(i => ({
-            produto_id: i.produto_id,
-            nome:       i.nome,
-            preco:      i.preco,
-            quantidade: i.quantidade,
-        })));
-
-    document.getElementById('input-cliente-id').value = clienteAtual.id;
-    document.getElementById('input-obs').value =
-        document.getElementById('obs-input').value;
-
-    document.getElementById('form-venda').submit();
-}
-
-// ── Filtro de busca de produtos ───────────────────────────────
-
-document.getElementById('busca-produto').addEventListener('input', function () {
-    const termo = this.value.toLowerCase().trim();
-    document.querySelectorAll('.produto-card').forEach(card => {
-        const nome = card.dataset.nomeLower || '';
-        card.style.display = nome.includes(termo) ? '' : 'none';
+    document.getElementById('busca-produto').addEventListener('input', function() {
+        const termo = this.value.toLowerCase();
+        document.querySelectorAll('.card-produto').forEach(card => {
+            const nome = card.dataset.nome.toLowerCase();
+            card.style.display = nome.includes(termo) ? 'flex' : 'none';
+        });
     });
-});
 </script>
-</body>
-</html>
+{% endblock %}
