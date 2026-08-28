@@ -1,84 +1,254 @@
-<!-- templates/usuarios/form.html -->
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <!--
-        editando é None na criação e o objeto Usuario na edição.
-        O template usa isso para adaptar título, action e campos.
-    -->
-    <title>{{ "Editar" if editando else "Novo" }} Usuário — Estoque</title>
-</head>
-<body>
-    <h1>{{ "Editar usuário" if editando else "Novo usuário" }}</h1>
+{% block title %}{% if editando %}Editar Usuário{% else %}Novo Usuário{% endif %} — AAPM SENAI{% endblock %}
 
-    {% if erro %}
-        <p style="color: red;">{{ erro }}</p>
-    {% endif %}
+{% block content %}
+<style>
+    .page-container {
+        padding: 40px 24px;
+        max-width: 800px;
+        margin: 0 auto;
+        width: 100%;
+        box-sizing: border-box;
+    }
 
-    <!--
-        action muda dinamicamente:
-        - criação → POST /usuarios/novo
-        - edição  → POST /usuarios/{id}/editar
-    -->
-    <form action="{{ '/usuarios/' + editando.id|string + '/editar' if editando else '/usuarios/novo' }}"
-          method="post">
+    .form-card {
+        background-color: #ffffff;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    }
 
-        <label>Nome:
-            <!--
-                value recupera do objeto na edição,
-                ou do dicionário "valores" se houve erro na criação
-            -->
-            <input type="text"
-                   name="nome"
-                   value="{{ editando.nome if editando else (valores.nome if valores else '') }}"
-                   required>
-        </label>
-        <br>
+    .header-info {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 28px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #E2E8F0;
+    }
 
-        <label>E-mail:
-            <input type="email"
-                   name="email"
-                   value="{{ editando.email if editando else (valores.email if valores else '') }}"
-                   required>
-        </label>
-        <br>
+    .header-icon {
+        font-size: 28px;
+    }
 
-        <label>Senha:
-            <!--
-                Na edição o campo é opcional — deixar vazio mantém a senha atual.
-                Na criação é obrigatório.
-            -->
-            <input type="password"
-                   name="senha"
-                   {{ "placeholder='Deixe vazio para não alterar'" if editando else "required minlength='6'" }}>
-        </label>
-        <br>
+    .header-title {
+        font-size: 22px;
+        font-weight: 800;
+        color: #2D3748;
+    }
 
-        <label>Perfil de acesso:
-            <select name="role">
-                <!--
-                    selected é definido comparando com o valor atual.
-                    Na criação usa "valores.role" se voltou com erro,
-                    senão deixa "operador" como padrão.
-                -->
-                <option value="operador"
-                    {{ 'selected' if (editando and editando.role == 'operador') or (valores and valores.role == 'operador') else '' }}>
-                    Operador
-                </option>
-                <option value="admin"
-                    {{ 'selected' if (editando and editando.role == 'admin') or (valores and valores.role == 'admin') else '' }}>
-                    Administrador
-                </option>
-            </select>
-        </label>
-        <br>
+    .alert-error {
+        background-color: #FFF5F5;
+        border: 1px solid #FEB2B2;
+        color: #C53030;
+        padding: 14px 18px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 24px;
+    }
 
-        <button type="submit">
-            {{ "Salvar alterações" if editando else "Criar usuário" }}
-        </button>
-        <a href="/usuarios">Cancelar</a>
-    </form>
-</body>
-</html>
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-group.full-width {
+        grid-column: span 2;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: #718096;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1px solid #CBD5E1;
+        border-radius: 8px;
+        font-size: 15px;
+        outline: none;
+        box-sizing: border-box;
+        background-color: #ffffff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: #FF6B35;
+        box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+    }
+
+    .help-text {
+        font-size: 12px;
+        color: #64748B;
+        margin-top: 6px;
+    }
+
+    .actions-container {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 12px;
+    }
+
+    .btn-salvar {
+        flex: 1;
+        padding: 14px;
+        background-color: #FF6B35;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .btn-salvar:hover {
+        background-color: #e55a2b;
+    }
+
+    .btn-cancelar {
+        padding: 14px 28px;
+        background-color: #F1F5F9;
+        color: #475569;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        text-align: center;
+        transition: background-color 0.2s;
+    }
+
+    .btn-cancelar:hover {
+        background-color: #E2E8F0;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 24px;
+        color: #2D3748;
+        font-weight: 700;
+        font-size: 14px;
+        text-decoration: none;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        .form-group.full-width {
+            grid-column: span 1;
+        }
+    }
+</style>
+
+<div class="page-container">
+
+    <div class="form-card">
+        <div class="header-info">
+            <span class="header-icon">👤</span>
+            <div class="header-title">
+                {% if editando %}Editar Usuário{% else %}Novo Usuário{% endif %}
+            </div>
+        </div>
+
+        {% if erro %}
+        <div class="alert-error">
+            ⚠️ {{ erro }}
+        </div>
+        {% endif %}
+
+        <form action="{% if editando %}/usuarios/{{ editando.id }}/editar{% else %}/usuarios/novo{% endif %}" method="post">
+            <div class="form-grid">
+                
+                <!-- Nome -->
+                <div class="form-group full-width">
+                    <label for="nome">Nome Completo</label>
+                    <input 
+                        type="text" 
+                        id="nome" 
+                        name="nome" 
+                        placeholder="Ex: João Silva" 
+                        value="{% if editando %}{{ editando.nome }}{% elif valores %}{{ valores.nome }}{% endif %}" 
+                        required 
+                        autofocus
+                    >
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="exemplo@senai.br" 
+                        value="{% if editando %}{{ editando.email }}{% elif valores %}{{ valores.email }}{% endif %}" 
+                        required
+                    >
+                </div>
+
+                <!-- Perfil / Role -->
+                <div class="form-group">
+                    <label for="role">Perfil de Acesso</label>
+                    <select id="role" name="role" required>
+                        {% set current_role = editando.role if editando else (valores.role if valores else 'operador') %}
+                        <option value="operador" {% if current_role == 'operador' %}selected{% endif %}>Operador</option>
+                        <option value="admin" {% if current_role == 'admin' %}selected{% endif %}>Administrador</option>
+                    </select>
+                </div>
+
+                <!-- Senha -->
+                <div class="form-group full-width">
+                    <label for="senha">Senha</label>
+                    <input 
+                        type="password" 
+                        id="senha" 
+                        name="senha" 
+                        placeholder="{% if editando %}Deixe em branco para manter a senha atual{% else %}Digite a senha inicial{% endif %}" 
+                        {% if not editando %}required{% endif %}
+                    >
+                    {% if editando %}
+                    <p class="help-text">Preencha apenas se desejar alterar a senha deste usuário.</p>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <div class="actions-container">
+                <button type="submit" class="btn-salvar">
+                    {% if editando %}Salvar alterações{% else %}Criar usuário{% endif %}
+                </button>
+                <a href="/usuarios" class="btn-cancelar">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    <a href="/usuarios" class="back-link">
+        ← Voltar para a lista de usuários
+    </a>
+
+</div>
+{% endblock %}

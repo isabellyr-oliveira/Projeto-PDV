@@ -1,53 +1,183 @@
-<!-- templates/categorias/form.html -->
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ "Editar" if editando else "Nova" }} Categoria — AAPM SENAI</title>
-</head>
-<body>
-    <h1>{{ "Editar categoria" if editando else "Nova categoria" }}</h1>
+{% extends "base.html" %}
 
-    {% if erro %}
-        <p style="color:red">{{ erro }}</p>
-    {% endif %}
+{% block title %}{% if editando %}Editar Categoria{% else %}Nova Categoria{% endif %} — AAPM SENAI{% endblock %}
 
-    <form action="{{ '/categorias/' + editando.id|string + '/editar' if editando else '/categorias/nova' }}"
-          method="post">
+{% block content %}
+<style>
+    .page-container {
+        padding: 40px 24px;
+        max-width: 800px;
+        margin: 0 auto;
+        width: 100%;
+        box-sizing: border-box;
+    }
 
-        <label>Nome:
-            <input type="text"
-                   name="nome"
-                   value="{{ editando.nome if editando else (valores.nome if valores else '') }}"
-                   required
-                   autofocus>
-        </label>
-        <br>
+    .form-card {
+        background-color: #ffffff;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    }
 
-        <button type="submit">
-            {{ "Salvar alterações" if editando else "Criar categoria" }}
-        </button>
-        <a href="/categorias">Cancelar</a>
-    </form>
+    .header-info {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 28px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #E2E8F0;
+    }
 
-    <!--
-        Na edição, exibe os produtos vinculados para o admin
-        ter contexto antes de fazer alterações.
-    -->
-    {% if editando and editando.produtos %}
-        <hr>
-        <h3>Produtos vinculados a esta categoria</h3>
-        <ul>
-            {% for p in editando.produtos if p.ativo %}
-                <li>
-                    <a href="/produtos/{{ p.id }}">{{ p.nome }}</a>
-                    — R$ {{ "%.2f"|format(p.preco) }}
-                </li>
-            {% else %}
-                <li>Nenhum produto ativo vinculado.</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+    .header-icon {
+        font-size: 28px;
+    }
 
-</body>
-</html>
+    .header-title {
+        font-size: 22px;
+        font-weight: 800;
+        color: #2D3748;
+    }
+
+    .alert-error {
+        background-color: #FFF5F5;
+        border: 1px solid #FEB2B2;
+        color: #C53030;
+        padding: 14px 18px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: #718096;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1px solid #CBD5E1;
+        border-radius: 8px;
+        font-size: 15px;
+        outline: none;
+        box-sizing: border-box;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus {
+        border-color: #FF6B35;
+        box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+    }
+
+    .actions-container {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 32px;
+    }
+
+    .btn-salvar {
+        flex: 1;
+        padding: 14px;
+        background-color: #FF6B35;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .btn-salvar:hover {
+        background-color: #e55a2b;
+    }
+
+    .btn-cancelar {
+        padding: 14px 28px;
+        background-color: #F1F5F9;
+        color: #475569;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        text-align: center;
+        transition: background-color 0.2s;
+    }
+
+    .btn-cancelar:hover {
+        background-color: #E2E8F0;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 24px;
+        color: #2D3748;
+        font-weight: 700;
+        font-size: 14px;
+        text-decoration: none;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="page-container">
+
+    <div class="form-card">
+        <div class="header-info">
+            <span class="header-icon">🏷️</span>
+            <div class="header-title">
+                {% if editando %}Editar Categoria{% else %}Nova Categoria{% endif %}
+            </div>
+        </div>
+
+        {% if erro %}
+        <div class="alert-error">
+            ⚠️ {{ erro }}
+        </div>
+        {% endif %}
+
+        <form action="{% if editando %}/categorias/{{ editando.id }}/editar{% else %}/categorias/nova{% endif %}" method="post">
+            <div class="form-group">
+                <label for="nome">Nome</label>
+                <input 
+                    type="text" 
+                    id="nome" 
+                    name="nome" 
+                    placeholder="Digite o nome da categoria" 
+                    value="{% if editando %}{{ editando.nome }}{% elif valores %}{{ valores.nome }}{% endif %}" 
+                    required 
+                    autofocus
+                >
+            </div>
+
+            <div class="actions-container">
+                <button type="submit" class="btn-salvar">
+                    {% if editando %}Salvar alterações{% else %}Criar categoria{% endif %}
+                </button>
+                <a href="/categorias" class="btn-cancelar">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    <a href="/categorias" class="back-link">
+        ← Ir para Categorias
+    </a>
+
+</div>
+{% endblock %}
