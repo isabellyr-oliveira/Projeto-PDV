@@ -32,14 +32,14 @@
         <p>Registrar e consultar vendas</p>
     </a>
 
-    <a href="/clientes" class="dash-card">
-        <i class="fa-solid fa-address-book"></i>
-        <h3>Clientes</h3>
-        <p>Gerenciar cadastro de clientes</p>
-    </a>
-
     <!-- ROTAS RESTRITAS: Visíveis APENAS para Admin -->
     {% if usuario.role == 'admin' %}
+        <a href="/clientes" class="dash-card">
+            <i class="fa-solid fa-address-book"></i>
+            <h3>Clientes</h3>
+            <p>Gerenciar cadastro de clientes</p>
+        </a>
+
         <a href="/categorias" class="dash-card">
             <i class="fa-solid fa-tags"></i>
             <h3>Categorias</h3>

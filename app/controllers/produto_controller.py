@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.produto import Produto
 from app.models.categoria import Categoria
+from app.models.movimentacao import Movimentacao  # Importado para remover histórico de movimentações
 from app.auth import get_usuario_logado, get_admin
 
 router = APIRouter(prefix="/produtos", tags=["Produtos"])
@@ -72,7 +73,7 @@ def form_novo_produto(
 
     return templates.TemplateResponse(
         request,
-        "produtos/novo.html",  # ALTERADO: chama a página completa com base.html
+        "produtos/novo.html",
         {
             "request":    request,
             "usuario":    admin,
@@ -99,7 +100,7 @@ async def criar_produto(
     if db.query(Produto).filter(Produto.nome.ilike(nome)).first():
         return templates.TemplateResponse(
             request,
-            "produtos/novo.html",  # ALTERADO: chama a página completa com base.html
+            "produtos/novo.html",
             {
                 "request":    request,
                 "usuario":    admin,
@@ -138,6 +139,7 @@ async def criar_produto(
 def detalhe_produto(
     produto_id: int,
     request: Request,
+    editado: str = "",  # Captura o parâmetro ?editado=ok da URL
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado)
 ):
@@ -152,7 +154,12 @@ def detalhe_produto(
     return templates.TemplateResponse(
         request,
         "produtos/detalhe.html",
-        {"request": request, "usuario": usuario, "produto": produto}
+        {
+            "request": request, 
+            "usuario": usuario, 
+            "produto": produto,
+            "editado": editado
+        }
     )
 
 
@@ -175,7 +182,7 @@ def form_editar_produto(
 
     return templates.TemplateResponse(
         request,
-        "produtos/editar.html",  # ALTERADO: chama a página completa com base.html
+        "produtos/editar.html",
         {
             "request":    request,
             "usuario":    admin,
@@ -212,7 +219,7 @@ async def editar_produto(
     if conflito:
         return templates.TemplateResponse(
             request,
-            "produtos/editar.html",  # ALTERADO: chama a página completa com base.html
+            "produtos/editar.html",
             {
                 "request":    request,
                 "usuario":    admin,
@@ -254,10 +261,14 @@ def deletar_produto(
     produto = db.query(Produto).filter(Produto.id == produto_id).first()
 
     if produto:
-        # Remove a imagem física da pasta uploads se existir
+        # 1. Remove primeiro todas as movimentações associadas a este produto
+        # Evita a violação da restrição NOT NULL em movimentacoes.produto_id
+        db.query(Movimentacao).filter(Movimentacao.produto_id == produto_id).delete(synchronize_session=False)
+
+        # 2. Remove a imagem física da pasta uploads se existir
         _remover_imagem(produto.imagem_path)
         
-        # Apaga o registro da tabela
+        # 3. Apaga o registro do produto
         db.delete(produto)
         db.commit()
 

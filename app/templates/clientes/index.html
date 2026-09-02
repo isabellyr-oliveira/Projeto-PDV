@@ -1,78 +1,111 @@
-<!-- template/clientes/index.html -->
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="UTF-8"><title>Clientes — AAPM SENAI</title></head>
-<body>
-    <h1>Clientes</h1>
+{% extends "base.html" %}
 
-    {% if request.query_params.get('criado') == 'ok' %}
-        <p style="color:green">Cliente cadastrado!</p>
-    {% endif %}
-    {% if request.query_params.get('editado') == 'ok' %}
-        <p style="color:green">Cliente atualizado!</p>
-    {% endif %}
+{% block title %}Clientes — AAPM SENAI{% endblock %}
 
-    <p>Associados ativos: <strong>{{ total_associados }}</strong></p>
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', path='CSS/clientes.css') }}">
 
-    <form method="get" action="/clientes">
-        <input type="text" name="busca"
-               placeholder="Buscar por nome ou matrícula..."
-               value="{{ busca }}">
-        <label>
-            <input type="checkbox" name="apenas_associados" value="true"
-                {{ 'checked' if apenas_associados }}>
-            Apenas associados
+<!-- Card de Cabeçalho da Página -->
+<section class="page-card header-card">
+    <div class="title-group">
+        <h2><i class="fa-solid fa-users"></i> Gestão de Clientes</h2>
+        <p>Consulte e gerencie os clientes e associados da AAPM.</p>
+    </div>
+    <a href="/clientes/novo" class="btn-primary">
+        <i class="fa-solid fa-plus"></i> Novo Cliente
+    </a>
+</section>
+
+<!-- Barra de Busca e Filtros -->
+<section class="page-card filter-card">
+    <form method="get" action="/clientes" class="filter-form">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" name="busca" placeholder="Buscar por nome..." value="{{ busca or '' }}">
+        </div>
+
+        <label class="checkbox-filter">
+            <input type="checkbox" name="apenas_associados" value="true" {{ 'checked' if apenas_associados }}>
+            <span>Apenas associados</span>
         </label>
-        <button type="submit">Filtrar</button>
-        {% if busca or apenas_associados %}
-            <a href="/clientes">Limpar</a>
-        {% endif %}
+
+        <div class="filter-actions">
+            <button type="submit" class="btn-filter">
+                <i class="fa-solid fa-filter"></i> Filtrar
+            </button>
+            {% if busca or apenas_associados %}
+                <a href="/clientes" class="btn-clear">Limpar</a>
+            {% endif %}
+        </div>
     </form>
+</section>
 
-    <a href="/clientes/novo">+ Novo cliente</a>
-
-    <table border="1" cellpadding="8">
+<!-- Card da Tabela -->
+<section class="page-card table-card">
+    <table class="custom-table">
         <thead>
             <tr>
-                <th>Nome</th>
-                <th>Matrícula</th>
-                <th>Telefone</th>
-                <th>Associado</th>
-                <th>Status</th>
-                <th>Ações</th>
+                <th>NOME</th>
+                <th>ASSOCIADO</th>
+                <th>STATUS</th>
+                <th style="text-align: center;">AÇÕES</th>
             </tr>
         </thead>
         <tbody>
             {% for c in clientes %}
             <tr>
-                <td>{{ c.nome }}</td>
-                <td>{{ c.matricula or "—" }}</td>
-                <td>{{ c.telefone or "—" }}</td>
+                <td class="col-name">{{ c.nome }}</td>
                 <td>
                     {% if c.is_associado %}
-                        <span style="color:green">✓ Sim (10% desc.)</span>
+                        <span class="badge-cat"><i class="fa-solid fa-check"></i> Sim (10%)</span>
                     {% else %}
-                        Não
+                        <span class="badge-gray">Não</span>
                     {% endif %}
                 </td>
-                <td>{{ "Ativo" if c.ativo else "Inativo" }}</td>
                 <td>
-                    <a href="/clientes/{{ c.id }}/editar">Editar</a>
-                    <form action="/clientes/{{ c.id }}/toggle-ativo"
-                          method="post" style="display:inline">
-                        <button type="submit">
-                            {{ "Desativar" if c.ativo else "Ativar" }}
-                        </button>
-                    </form>
+                    {% if c.ativo %}
+                        <span class="badge-stock stock-ok">Ativo</span>
+                    {% else %}
+                        <span class="badge-stock stock-low">Inativo</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="actions-wrapper">
+                        <a href="/clientes/{{ c.id }}/editar" class="btn-icon edit" title="Editar">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                        <form action="/clientes/{{ c.id }}/toggle-ativo" method="post" style="display:inline">
+                            {% if c.ativo %}
+                                <button type="submit" class="btn-icon delete" title="Desativar" 
+                                        onclick="return confirm('Deseja realmente desativar este cliente?');">
+                                    <i class="fa-solid fa-user-xmark"></i>
+                                </button>
+                            {% else %}
+                                <button type="submit" class="btn-icon enable" title="Ativar" 
+                                        onclick="return confirm('Deseja realmente ativar este cliente?');">
+                                    <i class="fa-solid fa-user-check"></i>
+                                </button>
+                            {% endif %}
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="empty-state">
+                    <i class="fa-solid fa-users-slash"></i>
+                    <p>Nenhum cliente cadastrado até o momento.</p>
                 </td>
             </tr>
             {% endfor %}
-            {% if not clientes %}
-            <tr><td colspan="6" style="text-align:center">Nenhum cliente.</td></tr>
-            {% endif %}
         </tbody>
     </table>
+</section>
 
-    <p><a href="/">← Dashboard</a></p>
-</body>
-</html>
+<!-- Botão Voltar -->
+<div style="margin-top: 15px;">
+    <a href="/" style="text-decoration: none; color: #0f172a; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-arrow-left"></i> Ir para a Página Inicial
+    </a>
+</div>
+{% endblock %}

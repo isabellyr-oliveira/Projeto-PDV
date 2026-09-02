@@ -1,108 +1,78 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Categorias - AAPM PDV</title>
-    <link rel="stylesheet" href="/static/css/categorias.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+{% extends "base.html" %}
 
-    <!-- Header Superior Oficial -->
-    <header class="app-header">
-        <div class="header-brand">
-            <img src="/static/img/logo.png" alt="Logo AAPM" class="header-logo">
-            <span>AAPM - PDV</span>
-        </div>
-        <div class="header-user">
-            <i class="fa-solid fa-circle-user"></i>
-            <span>
-                {% if usuario and usuario.username %}
-                    {{ usuario.username }}
-                {% else %}
-                    admin
-                {% endif %}
-            </span>
-        </div>
-    </header>
+{% block title %}Categorias — AAPM SENAI{% endblock %}
 
-    <!-- Main Container Oficial -->
-    <main class="app-main">
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', path='CSS_Categorias/categorias.css') }}">
 
-        <!-- Card de Cabeçalho da Página -->
-        <section class="page-card header-card">
-            <div class="title-group">
-                <h2><i class="fa-solid fa-tags"></i> Gestão de Categorias</h2>
-                <p>Consulte e gerencie as categorias cadastradas no sistema.</p>
-            </div>
-            <a href="/categorias/nova" class="btn-primary">
-                <i class="fa-solid fa-plus"></i> Nova Categoria
-            </a>
-        </section>
+<!-- Card de Cabeçalho da Página -->
+<section class="page-card header-card">
+    <div class="title-group">
+        <h2><i class="fa-solid fa-tags"></i> Gestão de Categorias</h2>
+        <p>Consulte e gerencie as categorias cadastradas no sistema.</p>
+    </div>
+    <a href="/categorias/nova" class="btn-primary">
+        <i class="fa-solid fa-plus"></i> Nova Categoria
+    </a>
+</section>
 
-        <!-- Card da Tabela -->
-        <section class="page-card table-card">
-            <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th>NOME</th>
-                        <th>PRODUTOS ATIVOS</th>
-                        <th>STATUS</th>
-                        <th style="text-align: center;">AÇÕES</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for cat in categorias %}
-                    <tr>
-                        <td class="col-name">{{ cat.nome }}</td>
-                        <td>
-                            <span class="badge-cat">
-                                {{ cat.produtos | selectattr("ativo") | list | length if cat.produtos else 0 }}
-                            </span>
-                        </td>
-                        <td>
-                            {% if cat.ativo %}
-                                <span class="badge-stock stock-ok">Ativa</span>
-                            {% else %}
-                                <span class="badge-stock stock-low">Inativa</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="actions-wrapper">
-                                <a href="/categorias/{{ cat.id }}/editar" class="btn-icon edit" title="Editar">
-                                    <i class="fa-solid fa-pen"></i>
-                                </a>
-                                <a href="/categorias/{{ cat.id }}/deletar" 
-                                   class="btn-icon delete" 
-                                   title="Excluir"
-                                   onclick="return confirm('Tem certeza que deseja apagar a categoria {{ cat.nome }}?');">
-                                    <i class="fa-solid fa-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
+<!-- Card da Tabela -->
+<section class="page-card table-card">
+    <table class="custom-table">
+        <thead>
+            <tr>
+                <th>NOME</th>
+                <th>PRODUTOS ATIVOS</th>
+                <th>STATUS</th>
+                <th style="text-align: center;">AÇÕES</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cat in categorias %}
+            <tr>
+                <td class="col-name">{{ cat.nome }}</td>
+                <td>
+                    <span class="badge-cat">
+                        {{ cat.produtos | selectattr("ativo") | list | length if cat.produtos else 0 }}
+                    </span>
+                </td>
+                <td>
+                    {% if cat.ativo %}
+                        <span class="badge-stock stock-ok">Ativa</span>
                     {% else %}
-                    <tr>
-                        <td colspan="4" class="empty-state">
-                            <i class="fa-solid fa-box-open"></i>
-                            <p>Nenhuma categoria cadastrada até o momento.</p>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </section>
+                        <span class="badge-stock stock-low">Inativa</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="actions-wrapper">
+                        <a href="/categorias/{{ cat.id }}/editar" class="btn-icon edit" title="Editar">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                        <a href="/categorias/{{ cat.id }}/deletar" 
+                           class="btn-icon delete" 
+                           title="Excluir"
+                           onclick="return confirm('Tem certeza que deseja apagar a categoria {{ cat.nome }}?');">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="empty-state">
+                    <i class="fa-solid fa-box-open"></i>
+                    <p>Nenhuma categoria cadastrada até o momento.</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
 
-        <!-- Botão Voltar -->
-        <div>
-            <a href="/" style="text-decoration: none; color: #0f172a; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-arrow-left"></i> Ir para a Página Inicial
-
-            </a>
-        </div>
-
-    </main>
-
-</body>
-</html>
+<!-- Botão Voltar -->
+<div style="margin-top: 15px;">
+    <a href="/pdv" style="text-decoration: none; color: #0f172a; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-arrow-left"></i> Ir para a Página Inicial
+    </a>
+</div>
+{% endblock %}
