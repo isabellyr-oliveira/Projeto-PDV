@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}{{ status_code }} - {{ titulo_erro }}{% endblock %}
+
+{% block content %}
+<style>
+    .error-container {
+        max-width: 500px;
+        margin: 80px auto;
+        padding: 40px;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        border: 1px solid #e2e8f0;
+        text-align: center;
+    }
+
+    .error-icon {
+        font-size: 60px;
+        color: #ef4444;
+        margin-bottom: 20px;
+    }
+
+    .error-title {
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 12px;
+    }
+
+    .error-message {
+        font-size: 15px;
+        color: #64748b;
+        line-height: 1.5;
+        margin-bottom: 28px;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .btn-home {
+        background-color: #ff6b00;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+
+    .btn-home:hover {
+        background-color: #e05e00;
+    }
+</style>
+
+<div class="error-container">
+    <div class="error-icon">
+        {% if status_code == 404 %}
+            <i class="fa-solid fa-compass-drafting"></i>
+        {% else %}
+            <i class="fa-solid fa-shield-halved"></i>
+        {% endif %}
+    </div>
+
+    <h2 class="error-title">{{ status_code }} — {{ titulo_erro }}</h2>
+    
+    <p class="error-message">
+        {{ mensagem }}
+    </p>
+
+    <div class="error-actions">
+        <a href="/" class="btn-home">
+            <i class="fa-solid fa-house"></i> Voltar ao Início
+        </a>
+    </div>
+</div>
+{% endblock %}

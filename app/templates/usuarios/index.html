@@ -5,27 +5,47 @@
 {% block content %}
 <style>
     .page-container {
-        padding: 32px;
+        padding: 32px 0;
         max-width: 1100px;
         margin: 0 auto;
         width: 100%;
         box-sizing: border-box;
     }
 
-    .page-header {
+    /* Card Padrão de Cabeçalho */
+    .page-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        border: 1px solid #E2E8F0;
+    }
+
+    .header-card {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 24px;
     }
 
-    .page-title {
-        font-size: 24px;
+    .title-group h2 {
+        font-size: 20px;
         font-weight: 800;
-        color: #2D3748;
+        color: #0f172a;
+        margin: 0;
         display: flex;
         align-items: center;
         gap: 10px;
+    }
+
+    .title-group h2 i {
+        color: #ff6b00;
+    }
+
+    .title-group p {
+        margin: 4px 0 0 0;
+        color: #64748b;
+        font-size: 14px;
     }
 
     .btn-novo {
@@ -46,6 +66,7 @@
         background-color: #e55a2b;
     }
 
+    /* Feedback Mensagens */
     .alert-banner {
         padding: 12px 16px;
         border-radius: 8px;
@@ -69,6 +90,7 @@
         border: 1px solid #FBD5D5;
     }
 
+    /* Tabela */
     .card-table {
         background-color: #ffffff;
         border: 1px solid #E2E8F0;
@@ -202,11 +224,11 @@
     .back-link {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        margin-top: 24px;
-        color: #2D3748;
-        font-weight: 700;
-        font-size: 14px;
+        gap: 8px;
+        margin-top: 15px;
+        color: #0f172a;
+        font-weight: 600;
+        font-size: 0.9rem;
         text-decoration: none;
     }
 
@@ -217,31 +239,33 @@
 
 <div class="page-container">
 
-    <div class="page-header">
-        <h1 class="page-title">
-            👤 Gerenciamento de Usuários
-        </h1>
+    <!-- Card de Cabeçalho da Página (Igual Categorias) -->
+    <section class="page-card header-card">
+        <div class="title-group">
+            <h2><i class="fa-solid fa-users"></i> Gerenciamento de Usuários</h2>
+            <p>Consulte e gerencie os usuários cadastrados no sistema.</p>
+        </div>
         <a href="/usuarios/novo" class="btn-novo">
-            <span>+</span> Novo Usuário
+            <i class="fa-solid fa-plus"></i> Novo Usuário
         </a>
-    </div>
+    </section>
 
     <!-- Feedback Mensagens Query Params -->
     {% if request.query_params.get('criado') == 'ok' %}
     <div class="alert-banner alert-success">
-        ✅ Usuário cadastrado com sucesso!
+        <i class="fa-solid fa-circle-check"></i> Usuário cadastrado com sucesso!
     </div>
     {% endif %}
 
     {% if request.query_params.get('editado') == 'ok' %}
     <div class="alert-banner alert-success">
-        ✅ Usuário atualizado com sucesso!
+        <i class="fa-solid fa-circle-check"></i> Usuário atualizado com sucesso!
     </div>
     {% endif %}
 
     {% if request.query_params.get('erro') == 'autoproprio' %}
     <div class="alert-banner alert-danger">
-        ⚠️ Você não pode desativar seu próprio usuário.
+        <i class="fa-solid fa-triangle-exclamation"></i> Você não pode desativar seu próprio usuário.
     </div>
     {% endif %}
 
@@ -297,8 +321,8 @@
     </div>
 
     <!-- Botão de voltar para a Home -->
-    <a href="/" class="back-link">
-        ← Ir para Início
+    <a href="/pdv" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> Ir para a Página Inicial
     </a>
 
 </div>

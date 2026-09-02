@@ -29,17 +29,17 @@
             <a href="/pdv" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-cash-register" style="color: #ff6b00;"></i> PDV
             </a>
+
+            <a href="/produtos" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-box" style="color: #ff6b00;"></i> Produtos
+            </a>
             
-            <a href="/pdv/historico" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+            <a href="/movimentacoes" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-cart-shopping" style="color: #ff6b00;"></i> Movimentações
             </a>
 
             <!-- Rotas de Admin (Validação por role / perfil / is_admin) -->
             {% if usuario and (usuario.role == 'admin' or usuario.perfil == 'admin' or usuario.is_admin or usuario == 'admin' or (usuario is mapping and usuario.role == 'admin')) %}
-            <a href="/produtos" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                <i class="fa-solid fa-box" style="color: #ff6b00;"></i> Produtos
-            </a>
-            
             <a href="/clientes" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-address-book" style="color: #ff6b00;"></i> Clientes
             </a>
@@ -54,9 +54,7 @@
             {% endif %}
         </nav>
 
-     
-        </div>
-         <!-- Informações do Usuário + Botão de Logout -->
+        <!-- Informações do Usuário + Botão de Logout -->
         <div style="display: flex; align-items: center; gap: 15px;">
             <div class="header-user">
                 <i class="fa-solid fa-circle-user"></i>
@@ -66,6 +64,7 @@
             <a href="/auth/logout" style="text-decoration: none; color: #dc2626; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; background-color: #fef2f2; border: 1px solid #fecaca;" title="Sair do sistema">
                 <i class="fa-solid fa-right-from-bracket"></i> Sair
             </a>
+        </div>
         
     </header>
 
