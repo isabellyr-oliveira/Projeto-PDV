@@ -1,47 +1,200 @@
-<!-- template/clientes/form.html -->
-<!DOCTYPE html>
-<html lang="pt-br">
-<head><meta charset="UTF-8">
-<title>{{ "Editar" if editando else "Novo" }} Cliente — AAPM SENAI</title>
-</head>
-<body>
-    <h1>{{ "Editar cliente" if editando else "Novo cliente" }}</h1>
+{% extends "base.html" %}
 
-    {% if erro %}<p style="color:red">{{ erro }}</p>{% endif %}
-    {% if request.query_params.get('erro') == 'matricula' %}
-        <p style="color:red">Esta matrícula já está em uso.</p>
-    {% endif %}
+{% block title %}{% if editando %}Editar Cliente{% else %}Novo Cliente{% endif %} — AAPM SENAI{% endblock %}
 
-    <form action="{{ '/clientes/' + editando.id|string + '/editar' if editando else '/clientes/novo' }}"
-          method="post">
+{% block content %}
+<style>
+    .page-container {
+        padding: 40px 24px;
+        max-width: 800px;
+        margin: 0 auto;
+        width: 100%;
+        box-sizing: border-box;
+    }
 
-        <label>Nome completo:
-            <input type="text" name="nome" required autofocus
-                   value="{{ editando.nome if editando else (valores.nome if valores else '') }}">
-        </label><br>
+    .form-card {
+        background-color: #ffffff;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    }
 
-        <label>Matrícula SENAI (opcional):
-            <input type="text" name="matricula"
-                   placeholder="Ex: 2024001"
-                   value="{{ editando.matricula if editando else (valores.matricula if valores else '') }}">
-        </label><br>
+    .header-info {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 28px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #E2E8F0;
+    }
 
-        <label>Telefone (opcional):
-            <input type="text" name="telefone"
-                   placeholder="Ex: (11) 99999-9999"
-                   value="{{ editando.telefone if editando else (valores.telefone if valores else '') }}">
-        </label><br>
+    .header-icon {
+        font-size: 28px;
+        color: #ff6b2b;
+    }
 
-        <label>
-            <input type="checkbox" name="is_associado" value="true"
-                {{ 'checked' if (editando and editando.is_associado) or (valores and valores.is_associado) }}>
-            É associado AAPM (recebe 10% de desconto)
-        </label><br><br>
+    .header-title {
+        font-size: 22px;
+        font-weight: 800;
+        color: #2D3748;
+    }
 
-        <button type="submit">
-            {{ "Salvar alterações" if editando else "Cadastrar cliente" }}
-        </button>
-        <a href="/clientes">Cancelar</a>
-    </form>
-</body>
-</html>
+    .alert-error {
+        background-color: #FFF5F5;
+        border: 1px solid #FEB2B2;
+        color: #C53030;
+        padding: 14px 18px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: #718096;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+    }
+
+    .form-group input[type="text"] {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1px solid #CBD5E1;
+        border-radius: 8px;
+        font-size: 15px;
+        outline: none;
+        box-sizing: border-box;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input[type="text"]:focus {
+        border-color: #ff6b2b;
+        box-shadow: 0 0 0 3px rgba(255, 107, 43, 0.15);
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+    }
+
+    .checkbox-group input {
+        accent-color: #ff6b2b;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    .actions-container {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 32px;
+    }
+
+    .btn-salvar {
+        flex: 1;
+        padding: 14px;
+        background-color: #ff6b2b;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .btn-salvar:hover {
+        background-color: #e55a1c;
+    }
+
+    .btn-cancelar {
+        padding: 14px 28px;
+        background-color: #F1F5F9;
+        color: #475569;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        text-align: center;
+        transition: background-color 0.2s;
+    }
+
+    .btn-cancelar:hover {
+        background-color: #E2E8F0;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 24px;
+        color: #2D3748;
+        font-weight: 700;
+        font-size: 14px;
+        text-decoration: none;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="page-container">
+
+    <div class="form-card">
+        <div class="header-info">
+            <i class="fa-solid fa-user-plus header-icon"></i>
+            <div class="header-title">
+                {% if editando %}Editar Cliente{% else %}Novo Cliente{% endif %}
+            </div>
+        </div>
+
+        {% if erro %}
+        <div class="alert-error">
+            ⚠️ {{ erro }}
+        </div>
+        {% endif %}
+
+        <form action="{% if editando %}/clientes/{{ editando.id }}/editar{% else %}/clientes/novo{% endif %}" method="post">
+            
+            <div class="form-group">
+                <label for="nome">Nome Completo *</label>
+                <input type="text" id="nome" name="nome" placeholder="Digite o nome do cliente" 
+                       value="{% if editando %}{{ editando.nome }}{% elif valores %}{{ valores.nome }}{% endif %}" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-group">
+                    <input type="checkbox" name="is_associado" value="true"
+                        {{ 'checked' if (editando and editando.is_associado) or (valores and valores.is_associado) }}>
+                    <span>É associado AAPM (recebe 10% de desconto)</span>
+                </label>
+            </div>
+
+            <div class="actions-container">
+                <button type="submit" class="btn-salvar">
+                    {% if editando %}Salvar alterações{% else %}Cadastrar cliente{% endif %}
+                </button>
+                <a href="/clientes" class="btn-cancelar">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    <a href="/clientes" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> Voltar para Clientes
+    </a>
+
+</div>
+{% endblock %}
