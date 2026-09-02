@@ -139,6 +139,7 @@ async def criar_produto(
 def detalhe_produto(
     produto_id: int,
     request: Request,
+    editado: str = "",  # Captura o parâmetro ?editado=ok da URL
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado)
 ):
@@ -153,7 +154,12 @@ def detalhe_produto(
     return templates.TemplateResponse(
         request,
         "produtos/detalhe.html",
-        {"request": request, "usuario": usuario, "produto": produto}
+        {
+            "request": request, 
+            "usuario": usuario, 
+            "produto": produto,
+            "editado": editado
+        }
     )
 
 

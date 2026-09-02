@@ -15,16 +15,58 @@
 <body>
 
     <!-- Header Superior -->
-    <header class="app-header">
+    <header class="app-header" style="display: flex; justify-content: space-between; align-items: center; padding: 0 30px; height: 60px;">
+        
+        <!-- Logo e Marca -->
         <div class="header-brand">
             <img src="{{ url_for('static', path='IMG/logo.png') }}" alt="Logo AAPM" class="header-logo">
             <span>AAPM - PDV</span>
         </div>
         
-        <div class="header-user">
-            <i class="fa-solid fa-circle-user"></i>
-            <span>{{ usuario.nome if usuario else 'Usuário' }}</span>
+        <!-- Navbar Centralizada -->
+        <nav style="display: flex; gap: 24px; align-items: center;">
+            <!-- Rotas públicas/operadores -->
+            <a href="/pdv" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-cash-register" style="color: #ff6b00;"></i> PDV
+            </a>
+            
+            <a href="/pdv/historico" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-cart-shopping" style="color: #ff6b00;"></i> Movimentações
+            </a>
+
+            <!-- Rotas de Admin (Validação por role / perfil / is_admin) -->
+            {% if usuario and (usuario.role == 'admin' or usuario.perfil == 'admin' or usuario.is_admin or usuario == 'admin' or (usuario is mapping and usuario.role == 'admin')) %}
+            <a href="/produtos" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-box" style="color: #ff6b00;"></i> Produtos
+            </a>
+            
+            <a href="/clientes" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-address-book" style="color: #ff6b00;"></i> Clientes
+            </a>
+
+            <a href="/categorias" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-tag" style="color: #ff6b00;"></i> Categorias
+            </a>
+
+            <a href="/usuarios" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-users" style="color: #ff6b00;"></i> Usuários
+            </a>
+            {% endif %}
+        </nav>
+
+     
         </div>
+         <!-- Informações do Usuário + Botão de Logout -->
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="header-user">
+                <i class="fa-solid fa-circle-user"></i>
+                <span>{{ usuario.nome if usuario else 'Usuário' }}</span>
+            </div>
+
+            <a href="/auth/logout" style="text-decoration: none; color: #dc2626; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; background-color: #fef2f2; border: 1px solid #fecaca;" title="Sair do sistema">
+                <i class="fa-solid fa-right-from-bracket"></i> Sair
+            </a>
+        
     </header>
 
     <!-- Conteúdo Dinâmico -->
