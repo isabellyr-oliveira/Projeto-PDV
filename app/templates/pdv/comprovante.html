@@ -1,94 +1,313 @@
-<!-- templates/pdv/comprovante.html -->
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Comprovante #{{ venda.id }} — AAPM SENAI</title>
-    <style>
-        body { font-family: 'Courier New', monospace; max-width: 400px;
-               margin: 40px auto; background: #f8fafc; color: #1e293b; }
-        .cupom { background: #fff; border: 1px solid #e2e8f0;
-                 border-radius: 12px; padding: 28px; }
-        .titulo { text-align: center; font-weight: 700;
-                  font-size: 18px; margin-bottom: 4px; }
-        .subtitulo { text-align: center; color: #64748b;
-                     font-size: 12px; margin-bottom: 20px; }
-        .linha-sep { border: none; border-top: 1px dashed #e2e8f0;
-                     margin: 14px 0; }
-        .item-linha { display: flex; justify-content: space-between;
-                      font-size: 13px; margin-bottom: 6px; }
-        .item-desc { color: #64748b; font-size: 11px; margin-bottom: 8px; }
-        .total-linha { display: flex; justify-content: space-between;
-                       font-size: 13px; margin-bottom: 6px; color: #64748b; }
-        .total-final { display: flex; justify-content: space-between;
-                       font-size: 18px; font-weight: 800; margin-top: 10px; }
-        .desc-linha { color: #16a34a; }
-        .btn { display: block; text-align: center; margin-top: 20px;
-               padding: 12px; border-radius: 8px; font-weight: 700;
-               font-size: 14px; text-decoration: none; }
-        .btn-nova { background: #1e293b; color: #fff; }
-        .btn-hist  { background: #f1f5f9; color: #1e293b; margin-top: 8px; }
-    </style>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}Comprovante #{{ venda.id }} — AAPM SENAI{% endblock %}
+
+{% block content %}
+<style>
+    .conteudo-comprovante {
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        max-width: 620px;
+        margin: 30px auto;
+        color: #0f172a;
+    }
+    
+    .cupom {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 36px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Cabeçalho */
+    .cupom-header {
+        text-align: center;
+        padding-bottom: 20px;
+        border-bottom: 2px dashed #cbd5e1;
+    }
+    
+    .empresa-nome {
+        font-size: 26px;
+        font-weight: 800;
+        color: #005ca9;
+        letter-spacing: -0.5px;
+        margin-bottom: 2px;
+    }
+
+    .empresa-sub {
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .badge-cupom {
+        display: inline-block;
+        background: #f1f5f9;
+        color: #334155;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 20px;
+        margin: 12px 0 16px;
+        letter-spacing: 0.5px;
+    }
+
+    .info-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        color: #475569;
+        font-weight: 600;
+        background: #f8fafc;
+        padding: 10px 14px;
+        border-radius: 8px;
+    }
+
+    /* Tabela de Produtos */
+    .cupom-body {
+        padding: 20px 0;
+    }
+
+    .tabela-itens {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 12px;
+    }
+
+    .tabela-itens th {
+        text-align: left;
+        font-size: 11px;
+        text-transform: uppercase;
+        color: #94a3b8;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e2e8f0;
+        letter-spacing: 0.5px;
+    }
+
+    .tabela-itens th.text-right, .tabela-itens td.text-right {
+        text-align: right;
+    }
+
+    .tabela-itens th.text-center, .tabela-itens td.text-center {
+        text-align: center;
+    }
+
+    .tabela-itens td {
+        padding: 12px 0 4px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .item-detalhe {
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 500;
+        padding-bottom: 10px;
+        border-bottom: 1px dashed #f1f5f9;
+    }
+
+    /* Totais */
+    .cupom-totais {
+        border-top: 2px dashed #cbd5e1;
+        padding-top: 16px;
+    }
+
+    .linha-total {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        color: #64748b;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .linha-desconto {
+        color: #16a34a;
+    }
+
+    .linha-final {
+        display: flex;
+        justify-content: space-between;
+        font-size: 26px;
+        font-weight: 800;
+        color: #005ca9;
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 2px solid #005ca9;
+    }
+
+    /* Rodapé */
+    .cupom-footer {
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px dashed #cbd5e1;
+        text-align: center;
+    }
+
+    .mensagem-agradecimento {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 2px;
+    }
+
+    .sub-agradecimento {
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    /* Botões */
+    .area-botoes {
+        margin-top: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .btn {
+        display: block;
+        text-align: center;
+        padding: 14px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 15px;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        box-sizing: border-box;
+        font-family: inherit;
+        transition: all 0.2s ease;
+    }
+
+    .btn-imprimir { background: #005ca9; color: #ffffff; }
+    .btn-imprimir:hover { background: #004885; }
+    .btn-nova { background: #0f172a; color: #ffffff; }
+    .btn-hist { background: #f1f5f9; color: #0f172a; }
+
+    /* Estilos para Impressão */
+    @media print {
+        @page {
+            margin: 5mm;
+        }
+        nav, .navbar, header, footer, .area-botoes {
+            display: none !important;
+        }
+        body, main {
+            background: #ffffff !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .conteudo-comprovante {
+            margin: 0 auto !important;
+            max-width: 100% !important;
+            width: 100% !important;
+        }
+        .cupom {
+            box-shadow: none !important;
+            border: 1px solid #000000 !important;
+            padding: 24px !important;
+            border-radius: 0 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+
+<div class="conteudo-comprovante">
     <div class="cupom">
-        <div class="titulo">AAPM SENAI</div>
-        <div class="subtitulo">
-            Venda #{{ venda.id }} —
-            {{ venda.criado_em.strftime('%d/%m/%Y %H:%M') }}
-        </div>
-        <hr class="linha-sep">
-
-        {% if venda.cliente %}
-        <div class="item-linha">
-            <span>Cliente</span>
-            <span>{{ venda.cliente.nome }}</span>
-        </div>
-        {% if venda.cliente.is_associado %}
-        <div class="item-linha desc-linha">
-            <span>Associado</span>
-            <span>✓ {{ venda.desconto_percentual|int }}% desc.</span>
-        </div>
-        {% endif %}
-        <hr class="linha-sep">
-        {% endif %}
-
-        {% for item in venda.itens %}
-        <div class="item-linha">
-            <span>{{ item.produto_nome }}</span>
-            <span>R$ {{ "%.2f"|format(item.subtotal) }}</span>
-        </div>
-        <div class="item-desc">
-            {{ item.quantidade }} × R$ {{ "%.2f"|format(item.preco_unitario) }}
-        </div>
-        {% endfor %}
-
-        <hr class="linha-sep">
-
-        <div class="total-linha">
-            <span>Subtotal</span>
-            <span>R$ {{ "%.2f"|format(venda.total_bruto) }}</span>
+        
+        <!-- CABEÇALHO -->
+        <div class="cupom-header">
+            <div class="empresa-nome">AAPM SENAI</div>
+            <div class="empresa-sub">Associação de Alunos e Pais do SENAI</div>
+            <div class="badge-cupom">COMPROVANTE DE VENDA — NÃO FISCAL</div>
+            
+            <div class="info-meta">
+                <span>Venda <strong>#{{ venda.id }}</strong></span>
+                <span>{{ venda.criado_em.strftime('%d/%m/%Y às %H:%M') }}</span>
+            </div>
         </div>
 
-        {% if venda.desconto_valor > 0 %}
-        <div class="total-linha desc-linha">
-            <span>Desconto ({{ venda.desconto_percentual|int }}%)</span>
-            <span>− R$ {{ "%.2f"|format(venda.desconto_valor) }}</span>
-        </div>
-        {% endif %}
+        <!-- CORPO / LISTA DE PRODUTOS -->
+        <div class="cupom-body">
+            {% if venda.cliente %}
+            <div style="font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 12px;">
+                Cliente: <span style="font-weight: 500;">{{ venda.cliente.nome }}</span>
+                {% if venda.cliente.is_associado %}
+                <span style="color: #16a34a; font-size: 11px; font-weight: 700; margin-left: 6px;">(Associado ✓)</span>
+                {% endif %}
+            </div>
+            {% endif %}
 
-        <div class="total-final">
-            <span>TOTAL</span>
-            <span>R$ {{ "%.2f"|format(venda.total_liquido) }}</span>
+            <table class="tabela-itens">
+                <thead>
+                    <tr>
+                        <th>Item / Descrição</th>
+                        <th class="text-center">Qtd</th>
+                        <th class="text-right">Unitário</th>
+                        <th class="text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in venda.itens %}
+                    <tr>
+                        <td colspan="2"><strong>{{ item.produto_nome }}</strong></td>
+                        <td class="text-right">R$ {{ "%.2f"|format(item.preco_unitario) }}</td>
+                        <td class="text-right">R$ {{ "%.2f"|format(item.subtotal) }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="item-detalhe">
+                            Qtd: {{ item.quantidade }} un x R$ {{ "%.2f"|format(item.preco_unitario) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
 
-        {% if venda.observacao %}
-        <hr class="linha-sep">
-        <div style="font-size:12px; color:#64748b">{{ venda.observacao }}</div>
-        {% endif %}
+        <!-- TOTAIS -->
+        <div class="cupom-totais">
+            <div class="linha-total">
+                <span>Subtotal</span>
+                <span>R$ {{ "%.2f"|format(venda.total_bruto) }}</span>
+            </div>
+
+            {% if venda.desconto_valor > 0 %}
+            <div class="linha-total linha-desconto">
+                <span>Desconto ({{ venda.desconto_percentual|int }}%)</span>
+                <span>− R$ {{ "%.2f"|format(venda.desconto_valor) }}</span>
+            </div>
+            {% endif %}
+
+            <div class="linha-final">
+                <span>TOTAL</span>
+                <span>R$ {{ "%.2f"|format(venda.total_liquido) }}</span>
+            </div>
+
+            {% if venda.observacao %}
+            <div style="margin-top: 12px; font-size: 12px; color: #64748b; background: #f8fafc; padding: 8px 12px; border-radius: 6px;">
+                <strong>Obs:</strong> {{ venda.observacao }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- RODAPÉ -->
+        <div class="cupom-footer">
+            <div class="mensagem-agradecimento">Obrigado pela preferência!</div>
+            <div class="sub-agradecimento">SENAI AAPM — Volte Sempre</div>
+        </div>
+
     </div>
 
-    <a href="/pdv" class="btn btn-nova">+ Nova venda</a>
-    <a href="/pdv/historico" class="btn btn-hist">Ver histórico</a>
-</body>
-</html>
+    <!-- BOTÕES -->
+    <div class="area-botoes">
+        <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir comprovante</button>
+        <a href="/pdv" class="btn btn-nova">+ Nova venda</a>
+        <a href="/pdv/historico" class="btn btn-hist">Ver histórico</a>
+    </div>
+</div>
+{% endblock %}
