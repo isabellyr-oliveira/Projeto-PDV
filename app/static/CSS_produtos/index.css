@@ -316,6 +316,148 @@ input[type="text"]:focus, select:focus {
     color: var(--text-muted);
 }
 
+/* ============================================================
+   PAGINAÇÃO
+   ============================================================ */
+
+.pagination-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+    padding: 18px 22px;
+
+    background: #ffffff;
+    border-radius: 12px;
+
+    box-sizing: border-box;
+}
+
+/* Informações da paginação */
+.pagination-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pagination-info p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.pagination-info strong {
+    color: #0f172a;
+}
+
+
+/* Área dos botões */
+.pagination-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+/* Botões Anterior e Próximo */
+.pagination-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    min-width: 105px;
+    height: 40px;
+    padding: 0 15px;
+
+    border: 1px solid #dbe2ea;
+    border-radius: 8px;
+
+    background: #ffffff;
+    color: #0f172a;
+
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    transition: all 0.2s ease;
+}
+
+
+/* Hover dos botões */
+.pagination-button:hover {
+    background: #ff6b35;
+    border-color: #ff6b35;
+    color: #ffffff;
+}
+
+
+/* Botão desativado */
+.pagination-button.disabled {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #94a3b8;
+
+    cursor: not-allowed;
+}
+
+
+/* Números das páginas */
+.pagination-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+
+    border: 1px solid #dbe2ea;
+    border-radius: 8px;
+
+    background: #ffffff;
+    color: #0f172a;
+
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    transition: all 0.2s ease;
+}
+
+
+/* Hover número */
+.pagination-number:hover {
+    background: #ff6b35;
+    border-color: #ff6b35;
+    color: #ffffff;
+}
+
+
+/* Página atual */
+.pagination-number.active {
+    background: #ff6b35;
+    border-color: #ff6b35;
+    color: #ffffff;
+}
+
+
+/* Responsividade */
+@media (max-width: 700px) {
+
+    .pagination-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .pagination-buttons {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+}
+
 /* ==============================
    RESPONSIVIDADE
 ============================== */

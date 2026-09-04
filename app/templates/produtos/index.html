@@ -1,126 +1,3 @@
-<<<<<<< HEAD
-<!DOCTYPE html>
-<html lang="pt-br">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ request.url_for('static', path='CSS_produtos/index.css') }}">
-    <title>Produtos — AAPM SENAI</title>
-</head>
-
-<body>
-
-    <header class="pdv-header">
-        <div class="header-title">
-            <h1>Gestão de Produtos</h1>
-            <span class="badge-pdv">PDV AAPM</span>
-        </div>
-        <a href="/" class="btn-secondary">← Dashboard</a>
-    </header>
-
-    <main class="container">
-        <!-- Banners de Notificação -->
-        {% if request.query_params.get('criado') == 'ok' %}
-        <div class="alert alert-success">✓ Produto criado com sucesso!</div>
-        {% endif %}
-        {% if request.query_params.get('desativado') == 'ok' %}
-        <div class="alert alert-warning">⚠ Produto desativado com sucesso.</div>
-        {% endif %}
-
-        <!-- Control Bar (Filtros e Ações) -->
-        <div class="toolbar">
-            <form method="get" action="/produtos" class="search-form" id="filterForm">
-                <div class="input-group">
-                    <input type="text" id="searchInput" name="busca" placeholder="Buscar por nome ou código..."
-                        value="{{ busca }}" autocomplete="off">
-                </div>
-
-                <div class="select-group">
-                    <select name="categoria_id" id="categorySelect">
-                        <option value="0">Todas as categorias</option>
-                        {% for c in categorias %}
-                        <option value="{{ c.id }}" {{ 'selected' if categoria_id==c.id else '' }}>
-                            {{ c.nome }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <button type="submit" class="btn-primary">Filtrar</button>
-
-                {% if busca or categoria_id %}
-                <a href="/produtos" class="btn-link">Limpar Filtros</a>
-                {% endif %}
-            </form>
-
-            {% if usuario.role == 'admin' %}
-            <a href="/produtos/novo" class="btn-action">+ Novo Produto</a>
-            {% endif %}
-        </div>
-
-        <!-- Tabela de Produtos -->
-        <div class="table-card">
-            <table class="pdv-table">
-                <thead>
-                    <tr>
-                        <th width="80">Imagem</th>
-                        <th>Nome</th>
-                        <th>Categoria</th>
-                        <th>Preço</th>
-                        <th>Estoque</th>
-                        <th text-align="right">Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="productTableBody">
-                    {% for p in produtos %}
-                    <tr class="product-row" data-name="{{ p.nome|lower }}"
-                        data-category="{{ p.categoria_id if p.categoria else 0 }}">
-                        <td>
-                            <div class="img-wrapper">
-                                <img src="{{ request.url_for('static', path='IMG/' ~ p.imagem_url) if p.imagem_url else request.url_for('static', path='IMG/camisa.jpg') }}"
-                                    alt="{{ p.nome }}" loading="lazy">
-                            </div>
-                        </td>
-                        <td>
-                            <a href="/produtos/{{ p.id }}" class="product-title">{{ p.nome }}</a>
-                        </td>
-                        <td><span class="category-badge">{{ p.categoria.nome if p.categoria else "Geral" }}</span></td>
-                        <td class="price">R$ {{ "%.2f"|format(p.preco) }}</td>
-                        <td>
-                            <span class="stock-badge {{ 'low-stock' if p.estoque_atual < 5 else 'ok-stock' }}">
-                                {{ p.estoque_atual }} un
-                            </span>
-                        </td>
-                        <td class="actions-cell">
-                            {% if usuario.role == 'admin' %}
-                            <a href="/produtos/{{ p.id }}/editar" class="btn-icon edit" title="Editar">Editar</a>
-                            <form action="/produtos/{{ p.id }}/desativar" method="post" class="inline-form"
-                                onsubmit="return confirm('Tem certeza que deseja desativar {{ p.nome }}?')">
-                                <button type="submit" class="btn-icon delete">Desativar</button>
-                            </form>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-
-                    {% if not produtos %}
-                    <tr class="empty-row">
-                        <td colspan="6">
-                            Nenhum produto encontrado.
-                        </td>
-                    </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-        </div>
-    </main>
-
-    <script src="{{ request.url_for('static', path='JS_produtos/index.js') }}"></script>
-</body>
-
-</html>
-=======
 {% extends "base.html" %}
 
 {% block title %}Produtos - AAPM{% endblock %}
@@ -231,6 +108,26 @@
     </table>
 </div>
 
+    <br><br>
+    {% if total_paginas > 1 %}
+    <div>
+        <p> {{ total_produtos }} produtos </p>
+        <p>Página {{ pagina }} de {{ total_paginas }}</p>
+
+        {% if pagina > 1 %}
+            <a href="/produtos/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}">
+                 Anterior</a>
+        {% endif %}
+
+        {% if pagina < total_paginas %}
+            <a href="/produtos/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}">
+                 Próximo</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    <br><br>
+
+
 <!-- Botão Voltar Padronizado -->
 <div>
     <a href="/" style="text-decoration: none; color: #0f172a; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
@@ -238,4 +135,3 @@
     </a>
 </div>
 {% endblock %}
->>>>>>> origin/main
