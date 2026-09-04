@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Histórico de Vendas - AAPM{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 30px auto; padding: 0 20px; font-family: Arial, sans-serif;">
+    
+    <!-- Cabeçalho e Link Voltar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <div>
+            <a href="/pdv" style="color: #6c757d; text-decoration: none; font-weight: bold; font-size: 14px; display: inline-block; margin-bottom: 8px;">
+                ← Voltar ao PDV
+            </a>
+            <h2 style="margin: 0; color: #222; font-size: 26px;">Histórico de Vendas</h2>
+        </div>
+    </div>
+
+    <!-- Tabela em Card Embutido -->
+    <div style="background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;">
+        
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+            <thead>
+                <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6; color: #495057;">
+                    <th style="padding: 14px 18px; width: 80px;">#</th>
+                    <th style="padding: 14px 18px;">Data</th>
+                    <th style="padding: 14px 18px;">Cliente</th>
+                    <th style="padding: 14px 18px; text-align: center;">Itens</th>
+                    <th style="padding: 14px 18px; text-align: center;">Desconto</th>
+                    <th style="padding: 14px 18px; text-align: right;">Total</th>
+                    <th style="padding: 14px 18px;">Operador</th>
+                    <th style="padding: 14px 18px; text-align: center; width: 100px;">Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venda in vendas %}
+                <tr style="border-bottom: 1px solid #e9ecef; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='transparent'">
+                    
+                    <!-- ID da Venda -->
+                    <td style="padding: 14px 18px; font-weight: bold; color: #ff6b00;">
+                        #{{ venda.id }}
+                    </td>
+
+                    <!-- Data -->
+                    <td style="padding: 14px 18px; color: #555;">
+                        {{ venda.criado_em.strftime('%d/%m/%Y %H:%M') if venda.criado_em else '—' }}
+                    </td>
+
+                    <!-- Cliente -->
+                    <td style="padding: 14px 18px; color: #333; font-weight: 500;">
+                        {% if venda.cliente %}
+                            {{ venda.cliente.nome }}
+                        {% else %}
+                            <span style="color: #6c757d; font-style: italic;">Balcão</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Total de Itens -->
+                    <td style="padding: 14px 18px; text-align: center;">
+                        <span style="background-color: #e9ecef; color: #495057; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 12px;">
+                            {{ venda.itens|length }}
+                        </span>
+                    </td>
+
+                    <!-- Desconto -->
+                    <td style="padding: 14px 18px; text-align: center; color: #666;">
+                        {% if venda.desconto_percentual > 0 %}
+                            <span style="color: #dc3545; font-weight: bold;">{{ "%.0f"|format(venda.desconto_percentual) }}%</span>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    <!-- Total Líquido -->
+                    <td style="padding: 14px 18px; text-align: right; font-weight: bold; color: #28a745; font-size: 15px;">
+                        R$ {{ "%.2f"|format(venda.total_liquido) }}
+                    </td>
+
+                    <!-- Operador -->
+                    <td style="padding: 14px 18px; color: #555;">
+                        {% if venda.usuario %}
+                            {{ venda.usuario.nome if venda.usuario.nome else venda.usuario.username }}
+                        {% else %}
+                            <span style="color: #aaa;">—</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Botão do Comprovante -->
+                    <td style="padding: 14px 18px; text-align: center;">
+                        <a href="/pdv/venda/{{ venda.id }}" style="background-color: #17a2b8; color: #fff; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: bold; display: inline-block;">
+                            Ver Detalhes
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" style="padding: 30px; text-align: center; color: #999;">
+                        Nenhuma venda registrada até o momento.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+{% endblock %}

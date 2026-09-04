@@ -1,0 +1,189 @@
+/* Wrapper principal do formulário */
+.form-movimentacao-wrapper {
+    width: 100% !important;
+    max-width: 1200px !important;
+    margin: 32px auto !important;
+    padding: 0 20px !important;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Card Header */
+.form-header-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 24px 32px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    border: 1px solid #f1f5f9;
+}
+
+.form-header-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.form-header-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.form-header-subtitle {
+    font-size: 13.5px;
+    color: #94a3b8;
+    margin: 4px 0 0 0;
+}
+
+/* Mensagem de Erro */
+.alert-error {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Card Principal do Formulário */
+.form-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    border: 1px solid #f1f5f9;
+}
+
+/* Grid de Formulário */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group.full-width {
+    grid-column: span 2;
+}
+
+.form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.form-control {
+    height: 42px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background-color: #ffffff;
+    padding: 0 14px;
+    font-size: 13.5px;
+    color: #1e293b;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    border-color: #ff6b35;
+}
+
+/* Caixas Informativas (Estoque e Subtotal) */
+.info-box {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13.5px;
+    color: #475569;
+    margin-top: -8px;
+}
+
+.info-box strong {
+    color: #1e293b;
+    font-weight: 700;
+}
+
+.info-box-highlight {
+    background-color: #fff7ed;
+    border-color: #ffedd5;
+    color: #c2410c;
+}
+
+.info-box-highlight strong {
+    color: #ea580c;
+}
+
+/* Footer com Botões */
+.form-actions {
+    margin-top: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-submit {
+    background-color: #ff6b35;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    height: 42px;
+    padding: 0 28px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-submit:hover {
+    background-color: #e85a26;
+}
+
+.btn-cancel {
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.btn-cancel:hover {
+    background-color: #f1f5f9;
+    color: #1e293b;
+}
+
+/* Link Inferior */
+.mov-back-box {
+    margin-top: 20px;
+}
+
+.mov-back-link {
+    color: #1e293b;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mov-back-link:hover {
+    color: #ff6b35;
+}

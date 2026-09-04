@@ -1,0 +1,130 @@
+/* Reset Básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Fundo Laranja idêntico ao da tela de início */
+body {
+    background-color: #ff6b2b; /* Laranja da Tela Inicial */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Card Branco Estilo Modal/Sobre */
+.login-card {
+    background-color: #ffffff;
+    padding: 40px 30px;
+    border-radius: 16px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    text-align: center;
+}
+
+/* Cabeçalho com a Logo */
+.brand-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.logo-img {
+    height: 45px;
+    width: auto;
+}
+
+.brand-header h1 {
+    color: #ff6b2b;
+    font-size: 1.8rem;
+    font-weight: 800;
+}
+
+.login-card h2 {
+    color: #4a4a4a;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+/* Mensagem de Erro */
+.mensagem-erro {
+    background-color: #ffe6e6;
+    color: #d93025;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    border: 1px solid #ffcdd2;
+}
+
+/* Formulário e Inputs */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #555555;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+    background-color: #f9f9f9;
+}
+
+.input-group input:focus {
+    border-color: #3b52f6; /* Azul do botão */
+    background-color: #ffffff;
+}
+
+/* Botão Azul com Sombra Glow (igual o 'ENTRAR' da home) */
+.btn-entrar {
+    background: linear-gradient(135deg, #4263eb, #3b52f6);
+    color: #ffffff;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(59, 82, 246, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 10px;
+}
+
+.btn-entrar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 82, 246, 0.6);
+}
+
+/* Rodapé */
+footer p {
+    margin-top: 25px;
+    font-size: 0.75rem;
+    color: #888888;
+}

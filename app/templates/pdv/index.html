@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}PDV - Vendas{% endblock %}
+
+{% block content %}
+<div style="width: 100%; max-width: 1400px; margin: 0 auto; padding: 20px; box-sizing: border-box; font-family: Arial, sans-serif;">
+    
+    <!-- Alertas de Erro (retornados pela URL) -->
+    <div id="container-alertas"></div>
+
+    <div style="display: flex; gap: 20px; align-items: flex-start;">
+        
+        <!-- SEÇÃO ESQUERDA: Busca + Catálogo de Produtos -->
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
+            
+            <!-- Campo de Busca Instantânea -->
+            <div style="background: #fff; padding: 12px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                <input type="text" id="busca-produto" onkeyup="filtrarProdutos()" placeholder="🔍 Buscar produto por nome..." style="width: 100%; padding: 10px 14px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; outline: none;">
+            </div>
+
+            <!-- Grade de Produtos Compacta -->
+            <div id="grade-produtos" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); max-height: calc(100vh - 180px); overflow-y: auto;">
+                {% for produto in produtos %}
+                <div class="card-produto" data-nome="{{ produto.nome|lower }}" onclick="adicionarAoCarrinho({{ produto.id }}, '{{ produto.nome }}', {{ produto.preco }}, {{ produto.estoque_atual }})" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; background: #fff; display: flex; flex-direction: column; justify-content: space-between; height: 210px; box-sizing: border-box;">
+                    
+                    <!-- Container da Imagem -->
+                    <div style="height: 90px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+                        {% if produto.imagem_path %}
+                            <img src="/static/{{ produto.imagem_path }}" alt="{{ produto.nome }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                        {% else %}
+                            <i class="fa-regular fa-image" style="font-size: 32px; color: #ccc;"></i>
+                        {% endif %}
+                    </div>
+
+                    <!-- Nome do Produto -->
+                    <div style="font-weight: bold; font-size: 13px; color: #333; line-height: 1.2; height: 32px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        {{ produto.nome }}
+                    </div>
+
+                    <!-- Preço e Estoque -->
+                    <div style="margin-top: 5px;">
+                        <div style="color: #ff6b00; font-weight: bold; font-size: 15px;">
+                            R$ {{ "%.2f"|format(produto.preco) }}
+                        </div>
+                        <div style="color: #888; font-size: 11px; margin-top: 2px;">
+                            Estoque: {{ produto.estoque_atual }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- SEÇÃO DIREITA: Carrinho de Compras e Envio -->
+        <div style="width: 360px; background: #fff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); padding: 18px; display: flex; flex-direction: column; height: calc(100vh - 120px); box-sizing: border-box; position: sticky; top: 20px;">
+            
+            <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <span><i class="fa-solid fa-cart-shopping" style="color: #ff6b00; margin-right: 8px;"></i> Carrinho</span>
+                <button onclick="limparCarrinho()" style="background: none; border: none; color: #dc3545; font-size: 12px; cursor: pointer; text-decoration: underline;">Limpar</button>
+            </h3>
+
+            <!-- Form oculto que enviará a requisição POST oficial -->
+            <form id="form-pdv" action="/pdv/finalizar" method="POST" style="display: flex; flex-direction: column; height: 100%;">
+                
+                <input type="hidden" name="carrinho_json" id="carrinho_json">
+
+                <!-- Seleção de Cliente -->
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 11px; font-weight: bold; color: #666; text-transform: uppercase;">Cliente</label>
+                    <select name="cliente_id" id="cliente-id" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 13px; margin-top: 4px; outline: none;">
+                        <option value="0">Sem identificação (Balcão)</option>
+                        {% for cliente in clientes %}
+                            <option value="{{ cliente.id }}">
+                                {{ cliente.nome }} {% if cliente.is_associado %}(Desconto {{ desconto_associado }}%){% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Lista de Itens Dinâmica -->
+                <div id="lista-carrinho" style="flex: 1; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; padding: 10px; margin-bottom: 12px; background: #fafafa;">
+                    <div id="carrinho-vazio" style="text-align: center; color: #aaa; margin-top: 40px; font-size: 13px;">
+                        Nenhum produto adicionado
+                    </div>
+                </div>
+
+                <!-- Totais, Observações e Botão -->
+                <div style="border-top: 1px solid #eee; padding-top: 10px;">
+                    <textarea name="observacao" id="observacao" placeholder="Observações do pedido..." style="width: 100%; height: 45px; border: 1px solid #ccc; border-radius: 5px; padding: 6px; font-size: 12px; resize: none; box-sizing: border-box; outline: none; margin-bottom: 10px;"></textarea>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span style="font-size: 15px; font-weight: bold; color: #444;">Total:</span>
+                        <span id="valor-total" style="font-size: 20px; font-weight: bold; color: #28a745;">R$ 0,00</span>
+                    </div>
+
+                    <button type="button" onclick="submeterVenda()" style="width: 100%; background: #ff6b00; color: #fff; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; transition: background 0.2s;">
+                        Finalizar Venda
+                    </button>
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .card-produto:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        border-color: #ff6b00 !important;
+    }
+    .item-carrinho-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #eef;
+        font-size: 13px;
+    }
+    .btn-qtd {
+        background: #e9ecef;
+        border: 1px solid #ced4da;
+        width: 22px;
+        height: 22px;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    let carrinho = JSON.parse(sessionStorage.getItem('pdv_carrinho')) || [];
+
+    document.addEventListener("DOMContentLoaded", function() {
+        renderizarCarrinho();
+        verificarErrosURL();
+    });
+
+    function adicionarAoCarrinho(id, nome, preco, estoqueMax) {
+        const itemExistente = carrinho.find(item => item.produto_id === id);
+
+        if (itemExistente) {
+            if (itemExistente.quantidade < estoqueMax) {
+                itemExistente.quantidade++;
+            } else {
+                alert("Estoque máximo atingido para este produto!");
+                return;
+            }
+        } else {
+            carrinho.push({
+                produto_id: id,
+                nome: nome,
+                preco: preco,
+                quantidade: 1,
+                estoque_max: estoqueMax
+            });
+        }
+        salvarERenderizar();
+    }
+
+    function alterarQuantidade(id, delta) {
+        const item = carrinho.find(item => item.produto_id === id);
+        if (!item) return;
+
+        item.quantidade += delta;
+
+        if (item.quantidade <= 0) {
+            carrinho = carrinho.filter(i => i.produto_id !== id);
+        } else if (item.quantidade > item.estoque_max) {
+            alert("Quantidade superior ao estoque disponível!");
+            item.quantidade = item.estoque_max;
+        }
+
+        salvarERenderizar();
+    }
+
+    function removerItem(id) {
+        carrinho = carrinho.filter(item => item.produto_id !== id);
+        salvarERenderizar();
+    }
+
+    function limparCarrinho() {
+        carrinho = [];
+        salvarERenderizar();
+    }
+
+    function salvarERenderizar() {
+        sessionStorage.setItem('pdv_carrinho', JSON.stringify(carrinho));
+        renderizarCarrinho();
+    }
+
+    function renderizarCarrinho() {
+        const container = document.getElementById("lista-carrinho");
+        const totalElement = document.getElementById("valor-total");
+
+        if (carrinho.length === 0) {
+            container.innerHTML = `<div id="carrinho-vazio" style="text-align: center; color: #aaa; margin-top: 40px; font-size: 13px;">Nenhum produto adicionado</div>`;
+            totalElement.innerText = "R$ 0,00";
+            return;
+        }
+
+        let html = '';
+        let total = 0;
+
+        carrinho.forEach(item => {
+            const subtotal = item.preco * item.quantidade;
+            total += subtotal;
+
+            html += `
+                <div class="item-carrinho-row">
+                    <div style="flex: 1; padding-right: 5px;">
+                        <strong style="color: #333; display: block; font-size: 12px;">${item.nome}</strong>
+                        <span style="color: #28a745; font-size: 11px;">R$ ${item.preco.toFixed(2)}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <button type="button" class="btn-qtd" onclick="alterarQuantidade(${item.produto_id}, -1)">-</button>
+                        <span style="font-weight: bold; font-size: 12px; width: 18px; text-align: center;">${item.quantidade}</span>
+                        <button type="button" class="btn-qtd" onclick="alterarQuantidade(${item.produto_id}, 1)">+</button>
+                    </div>
+                    <div style="width: 25px; text-align: right; margin-left: 5px;">
+                        <button type="button" onclick="removerItem(${item.produto_id})" style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 14px;">&times;</button>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+        totalElement.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
+
+    function filtrarProdutos() {
+        const termo = document.getElementById("busca-produto").value.toLowerCase();
+        const cards = document.querySelectorAll(".card-produto");
+
+        cards.forEach(card => {
+            const nome = card.getAttribute("data-nome");
+            if (nome.includes(termo)) {
+                card.style.display = "flex";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    }
+
+    function submeterVenda() {
+        if (carrinho.length === 0) {
+            alert("Adicione pelo menos um produto ao carrinho antes de finalizar!");
+            return;
+        }
+
+        // Formata os itens para o padrão que o controller espera
+        const payload = carrinho.map(item => ({
+            produto_id: item.produto_id,
+            nome: item.nome,
+            preco: item.preco,
+            quantidade: item.quantidade
+        }));
+
+        document.getElementById("carrinho_json").value = JSON.stringify(payload);
+        
+        // Limpa o armazenamento local ao enviar com sucesso
+        sessionStorage.removeItem('pdv_carrinho');
+        document.getElementById("form-pdv").submit();
+    }
+
+    function verificarErrosURL() {
+        const params = new URLSearchParams(window.location.search);
+        const erro = params.get('erro');
+        if (!erro) return;
+
+        let msg = "Erro ao processar venda.";
+        if (erro === 'vazio') msg = "O carrinho está vazio!";
+        if (erro === 'json') msg = "Dados de produtos inválidos.";
+        if (erro === 'quantidade') msg = "Quantidade inválida selecionada.";
+        if (erro === 'estoque') msg = `Estoque insuficiente para o produto: ${params.get('produto') || ''}`;
+
+        document.getElementById("container-alertas").innerHTML = `
+            <div style="background-color: #f8d7da; color: #721c24; padding: 12px 20px; border-radius: 6px; border: 1px solid #f5c6cb; margin-bottom: 15px; font-size: 14px;">
+                ⚠️ ${msg}
+            </div>
+        `;
+    }
+</script>
+{% endblock %}

@@ -31,7 +31,7 @@ def listar_movimentacoes(
     produto_id: int = 0,     # filtra por produto específico
     tipo: str = "",          # "entrada" ou "saida"
     db: Session = Depends(get_db),
-    admin = Depends(get_admin)
+    admin = Depends(get_usuario_logado)
 ):
     """
     Exibe o histórico completo de movimentações com filtros

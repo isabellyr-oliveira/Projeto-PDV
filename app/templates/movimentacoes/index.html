@@ -1,91 +1,116 @@
-<!-- templates/movimentacoes/index.html -->
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Movimentações — AAPM SENAI</title>
-</head>
-<body>
-    <h1>Histórico de movimentações</h1>
+{% extends "base.html" %}
 
-    <!-- Filtros -->
-    <form method="get" action="/movimentacoes">
-        <select name="produto_id">
-            <option value="0">Todos os produtos</option>
-            {% for p in produtos %}
-                <option value="{{ p.id }}"
-                    {{ 'selected' if produto_id == p.id else '' }}>
-                    {{ p.nome }}
-                </option>
-            {% endfor %}
-        </select>
+{% block title %}Movimentações - AAPM{% endblock %}
 
-        <select name="tipo">
-            <option value="">Todos os tipos</option>
-            <option value="entrada" {{ 'selected' if tipo == 'entrada' else '' }}>
-                Entrada
-            </option>
-            <option value="saida" {{ 'selected' if tipo == 'saida' else '' }}>
-                Saída
-            </option>
-        </select>
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', path='CSS/movimentacoes.css') }}">
 
-        <button type="submit">Filtrar</button>
 
-        {% if produto_id or tipo %}
-            <a href="/movimentacoes">Limpar</a>
-        {% endif %}
-    </form>
+<div class="movimentacoes-wrapper">
 
-    <a href="/movimentacoes/nova">+ Registrar movimentação</a>
+    <!-- Card de Cabeçalho -->
+    <div class="mov-header-card">
+        <div class="mov-header-left">
+            <svg class="mov-header-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 11H5M19 11C20.1046 11 21 11.8954 21 13V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V13C3 11.8954 3.89543 11 5 11M19 11V9C19 7.89543 18.1046 7 17 7M5 11V9C5 7.89543 5.89543 7 7 7M7 7V5C7 3.89543 7.89543 3 9 3H15C16.1046 3 17 3.89543 17 5V7M7 7H17" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div>
+                <h1 class="mov-header-title">Movimentações</h1>
+                <p class="mov-header-subtitle">Consulte e gerencie as entradas e saídas do estoque</p>
+            </div>
+        </div>
+        <a href="/movimentacoes/nova" class="mov-btn-primary">
+            + Registrar Movimentação
+        </a>
+    </div>
 
-    <table border="1" cellpadding="8">
-        <thead>
-            <tr>
-                <th>Data</th>
-                <th>Produto</th>
-                <th>Tipo</th>
-                <th>Quantidade</th>
-                <th>Preço unit.</th>
-                <th>Total</th>
-                <th>Observação</th>
-                <th>Registrado por</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for m in movimentacoes %}
-            <tr>
-                <td>{{ m.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
-                <td>
-                    <a href="/produtos/{{ m.produto_id }}">
-                        {{ m.produto.nome }}
-                    </a>
-                </td>
-                <td>
-                    {% if m.tipo.value == 'entrada' %}
-                        <span style="color:green">▲ Entrada</span>
-                    {% else %}
-                        <span style="color:red">▼ Saída</span>
-                    {% endif %}
-                </td>
-                <td>{{ m.quantidade }}</td>
-                <td>R$ {{ "%.2f"|format(m.preco_unitario) }}</td>
-                <td>R$ {{ "%.2f"|format(m.valor_total) }}</td>
-                <td>{{ m.observacao or "—" }}</td>
-                <td>{{ m.usuario.nome if m.usuario else "—" }}</td>
-            </tr>
-            {% endfor %}
+    <!-- Card de Filtros -->
+    <div class="mov-filter-card">
+        <form method="get" action="/movimentacoes" class="mov-filter-form">
+            <select name="produto_id" class="mov-select-custom" style="flex: 1;">
+                <option value="0">Todos os produtos</option>
+                {% for p in produtos %}
+                    <option value="{{ p.id }}" {{ 'selected' if produto_id == p.id else '' }}>
+                        {{ p.nome }}
+                    </option>
+                {% endfor %}
+            </select>
 
-            {% if not movimentacoes %}
-            <tr>
-                <td colspan="8" style="text-align:center">
-                    Nenhuma movimentação encontrada.
-                </td>
-            </tr>
+            <select name="tipo" class="mov-select-custom" style="width: 220px;">
+                <option value="">Todos os tipos</option>
+                <option value="entrada" {{ 'selected' if tipo == 'entrada' else '' }}>Entrada</option>
+                <option value="saida" {{ 'selected' if tipo == 'saida' else '' }}>Saída</option>
+            </select>
+
+            <button type="submit" class="mov-btn-dark">Filtrar</button>
+
+            {% if produto_id or tipo %}
+                <a href="/movimentacoes" class="mov-btn-clean">Limpar</a>
             {% endif %}
-        </tbody>
-    </table>
+        </form>
+    </div>
 
-    <p><a href="/">← Dashboard</a></p>
-</body>
-</html>
+    <!-- Tabela de Movimentações -->
+    <div class="mov-table-card">
+        <table class="mov-table">
+            <thead>
+                <tr>
+                    <th>DATA</th>
+                    <th>PRODUTO</th>
+                    <th>TIPO</th>
+                    <th style="text-align: center;">QTDE.</th>
+                    <th style="text-align: right;">PREÇO UNIT.</th>
+                    <th style="text-align: right;">TOTAL</th>
+                    <th>REGISTRADO POR</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in movimentacoes %}
+                <tr>
+                    <td style="color: #64748b;">{{ m.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>
+                        <a href="/produtos/{{ m.produto_id }}" style="color: #1e293b; font-weight: 600; text-decoration: none;">
+                            {{ m.produto.nome }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if m.tipo.value == 'entrada' or m.tipo == 'entrada' %}
+                            <span class="mov-badge-entrada">▲ Entrada</span>
+                        {% else %}
+                            <span class="mov-badge-saida">▼ Saída</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center; font-weight: 600;">{{ m.quantidade }}</td>
+                    <td style="text-align: right; font-weight: 600;">R$ {{ "%.2f"|format(m.preco_unitario) }}</td>
+                    <td style="text-align: right; font-weight: 600;">R$ {{ "%.2f"|format(m.valor_total) }}</td>
+                    <td style="color: #64748b;">{{ m.usuario.nome if m.usuario else "—" }}</td>
+                </tr>
+                {% endfor %}
+
+                {% if not movimentacoes %}
+                <tr>
+                    <td colspan="7">
+                        <div class="mov-empty-state">
+                            <svg class="mov-empty-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M52 20L32 8L12 20V44L32 56L52 44V20Z" stroke-width="2.5" stroke-linejoin="round"/>
+                                <path d="M12 20L32 32L52 20" stroke-width="2.5" stroke-linejoin="round"/>
+                                <path d="M32 32V56" stroke-width="2.5" stroke-linejoin="round"/>
+                            </svg>
+                            <p style="margin: 0; font-size: 14px; color: #64748b;">Nenhuma movimentação cadastrada até o momento.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Link Voltar -->
+    <div class="mov-back-box">
+        <a href="/" class="mov-back-link">
+            ← Ir para a Página Inicial
+        </a>
+    </div>
+
+</div>
+{% endblock %}

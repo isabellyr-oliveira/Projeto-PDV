@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Produto - AAPM{% endblock %}
+
+{% block content %}
+<!-- Topo da Edicao -->
+<div class="page-card header-card">
+    <div class="title-group">
+        <h2><i class="fa-solid fa-pen-to-square"></i> Editar Produto</h2>
+        <p>Altere as informações do produto selecionado</p>
+    </div>
+</div>
+
+<!-- Formulario de Edicao -->
+<div class="page-card">
+    {% include "produtos/form.html" %}
+</div>
+
+<!-- Botao Voltar Padronizado -->
+<div>
+    <a href="/produtos" style="text-decoration: none; color: #0f172a; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-arrow-left"></i> Voltar para Produtos
+    </a>
+</div>
+{% endblock %}

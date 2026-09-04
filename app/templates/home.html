@@ -1,9 +1,63 @@
 {% extends "base.html" %}
 
-{% block title %}Pós - login{% endblock %}
+{% block title %}Início - AAPM{% endblock %}
 
 {% block content %}
-    <h1>Olá, {{ usuario.nome }}</h1>
-    <p>Perfil: {{ usuario.role }}</p>
-    <a href="/auth/logout">Sair</a>
+<div class="welcome-card">
+    <div class="welcome-header">
+        <h1>Olá, {{ usuario.nome }}! 👋</h1>
+        <span class="badge-role">{{ usuario.role }}</span>
+    </div>
+    <p>Seja bem-vindo ao Painel de Controle da AAPM.</p>
+</div>
+
+<div class="dashboard-grid">
+    
+    <!-- ROTAS LIVRES: Acessíveis por Operador e Admin -->
+    <a href="/pdv" class="dash-card">
+        <i class="fa-solid fa-cash-register"></i>
+        <h3>PDV (Caixa)</h3>
+        <p>Frente de caixa e vendas rápidas</p>
+    </a>
+
+    <a href="/produtos" class="dash-card">
+        <i class="fa-solid fa-box-archive"></i>
+        <h3>Produtos</h3>
+        <p>Gerenciar estoque e itens</p>
+    </a>
+
+    <a href="/movimentacoes" class="dash-card">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <h3>Movimentações</h3>
+        <p>Registrar e consultar vendas</p>
+    </a>
+
+    <!-- ROTAS RESTRITAS: Visíveis APENAS para Admin -->
+    {% if usuario.role == 'admin' %}
+        <a href="/clientes" class="dash-card">
+            <i class="fa-solid fa-address-book"></i>
+            <h3>Clientes</h3>
+            <p>Gerenciar cadastro de clientes</p>
+        </a>
+
+        <a href="/categorias" class="dash-card">
+            <i class="fa-solid fa-tags"></i>
+            <h3>Categorias</h3>
+            <p>Organizar catálogo de produtos</p>
+        </a>
+
+        <a href="/usuarios" class="dash-card">
+            <i class="fa-solid fa-users"></i>
+            <h3>Usuários</h3>
+            <p>Gerenciar acessos do sistema</p>
+        </a>
+    {% endif %}
+
+</div>
+
+<div class="logout-wrapper">
+    <a href="/auth/logout" class="btn-logout">
+        <i class="fa-solid fa-right-from-bracket"></i> Sair da Conta
+    </a>
+</div>
 {% endblock %}

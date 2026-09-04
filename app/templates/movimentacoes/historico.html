@@ -1,78 +1,101 @@
-<!-- templates/movimentacoes/historico.html -->
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Histórico — {{ produto.nome }}</title>
-</head>
-<body>
-    <h1>Histórico — {{ produto.nome }}</h1>
+{% extends "base.html" %}
 
-    <!-- Resumo do produto -->
-    <table border="1" cellpadding="8">
-        <tr>
-            <td><strong>Estoque atual</strong></td>
-            <td>{{ produto.estoque_atual }}</td>
-        </tr>
-        <tr>
-            <td><strong>Total de entradas</strong></td>
-            <td style="color:green">+ {{ total_entradas }}</td>
-        </tr>
-        <tr>
-            <td><strong>Total de saídas</strong></td>
-            <td style="color:red">- {{ total_saidas }}</td>
-        </tr>
-    </table>
+{% block title %}Histórico — {{ produto.nome }}{% endblock %}
 
-    <br>
-    <a href="/movimentacoes/nova?produto_id={{ produto.id }}">
-        + Registrar movimentação
-    </a>
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', path='css/historico_produtos.css') }}">
 
-    <!-- Histórico de movimentações -->
-    <table border="1" cellpadding="8">
-        <thead>
-            <tr>
-                <th>Data</th>
-                <th>Tipo</th>
-                <th>Quantidade</th>
-                <th>Preço unit.</th>
-                <th>Total</th>
-                <th>Observação</th>
-                <th>Registrado por</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for m in movimentacoes %}
-            <tr>
-                <td>{{ m.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
-                <td>
-                    {% if m.tipo.value == 'entrada' %}
-                        <span style="color:green">▲ Entrada</span>
-                    {% else %}
-                        <span style="color:red">▼ Saída</span>
-                    {% endif %}
-                </td>
-                <td>{{ m.quantidade }}</td>
-                <td>R$ {{ "%.2f"|format(m.preco_unitario) }}</td>
-                <td>R$ {{ "%.2f"|format(m.valor_total) }}</td>
-                <td>{{ m.observacao or "—" }}</td>
-                <td>{{ m.usuario.nome if m.usuario else "—" }}</td>
-            </tr>
-            {% endfor %}
+<div class="historico-wrapper">
 
-            {% if not movimentacoes %}
-            <tr>
-                <td colspan="7" style="text-align:center">
-                    Nenhuma movimentação registrada.
-                </td>
-            </tr>
-            {% endif %}
-        </tbody>
-    </table>
+    <!-- Card de Cabeçalho -->
+    <div class="hist-header-card">
+        <div class="hist-header-left">
+            <svg class="hist-header-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 11H5M19 11C20.1046 11 21 11.8954 21 13V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V13C3 11.8954 3.89543 11 5 11M19 11V9C19 7.89543 18.1046 7 17 7M5 11V9C5 7.89543 5.89543 7 7 7M7 7V5C7 3.89543 7.89543 3 9 3H15C16.1046 3 17 3.89543 17 5V7M7 7H17" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div>
+                <h1 class="hist-header-title">Histórico — {{ produto.nome }}</h1>
+                <p class="hist-header-subtitle">Registro detalhado de movimentações deste item</p>
+            </div>
+        </div>
+        <a href="/movimentacoes/nova?produto_id={{ produto.id }}" class="hist-btn-primary">
+            + Registrar Movimentação
+        </a>
+    </div>
 
-    <p>
-        <a href="/produtos/{{ produto.id }}">← Voltar ao produto</a>
-    </p>
-</body>
-</html>
+    <!-- Cards de Resumo Metrics -->
+    <div class="hist-metrics-grid">
+        <div class="metric-card">
+            <span class="metric-label">Estoque Atual</span>
+            <span class="metric-value">{{ produto.estoque_atual }}</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-label">Total de Entradas</span>
+            <span class="metric-value entrada">+ {{ total_entradas }}</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-label">Total de Saídas</span>
+            <span class="metric-value saida">- {{ total_saidas }}</span>
+        </div>
+    </div>
+
+    <!-- Tabela de Histórico -->
+    <div class="hist-table-card">
+        <table class="hist-table">
+            <thead>
+                <tr>
+                    <th>DATA</th>
+                    <th>TIPO</th>
+                    <th style="text-align: center;">QTDE.</th>
+                    <th style="text-align: right;">PREÇO UNIT.</th>
+                    <th style="text-align: right;">TOTAL</th>
+                    <th>OBSERVAÇÃO</th>
+                    <th>REGISTRADO POR</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in movimentacoes %}
+                <tr>
+                    <td style="color: #64748b;">{{ m.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>
+                        {% if m.tipo.value == 'entrada' or m.tipo == 'entrada' %}
+                            <span class="hist-badge-entrada">▲ Entrada</span>
+                        {% else %}
+                            <span class="hist-badge-saida">▼ Saída</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center; font-weight: 600;">{{ m.quantidade }}</td>
+                    <td style="text-align: right; font-weight: 600;">R$ {{ "%.2f"|format(m.preco_unitario) }}</td>
+                    <td style="text-align: right; font-weight: 600;">R$ {{ "%.2f"|format(m.valor_total) }}</td>
+                    <td style="color: #64748b;">{{ m.observacao or "—" }}</td>
+                    <td style="color: #64748b;">{{ m.usuario.nome if m.usuario else "—" }}</td>
+                </tr>
+                {% endfor %}
+
+                {% if not movimentacoes %}
+                <tr>
+                    <td colspan="7">
+                        <div class="hist-empty-state">
+                            <svg class="hist-empty-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M52 20L32 8L12 20V44L32 56L52 44V20Z" stroke-width="2.5" stroke-linejoin="round"/>
+                                <path d="M12 20L32 32L52 20" stroke-width="2.5" stroke-linejoin="round"/>
+                                <path d="M32 32V56" stroke-width="2.5" stroke-linejoin="round"/>
+                            </svg>
+                            <p style="margin: 0; font-size: 14px; color: #64748b;">Nenhuma movimentação registrada para este produto.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Link Voltar -->
+    <div class="hist-back-box">
+        <a href="/produtos/{{ produto.id }}" class="hist-back-link">
+            ← Voltar ao produto
+        </a>
+    </div>
+
+</div>
+{% endblock %}

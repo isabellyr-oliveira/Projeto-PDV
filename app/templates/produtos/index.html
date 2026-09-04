@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -119,3 +120,122 @@
 </body>
 
 </html>
+=======
+{% extends "base.html" %}
+
+{% block title %}Produtos - AAPM{% endblock %}
+
+{% block content %}
+<!-- Topo da Gestão -->
+<div class="page-card header-card">
+    <div class="title-group">
+        <h2><i class="fa-solid fa-boxes-stacked"></i> Gestão de Produtos</h2>
+        <p>Consulte e gerencie o estoque do sistema</p>
+    </div>
+    {% if usuario and usuario.role == 'admin' %}
+    <a href="/produtos/novo" class="btn-primary">
+        <i class="fa-solid fa-plus"></i> Novo Produto
+    </a>
+    {% endif %}
+</div>
+
+<!-- Filtro de Busca -->
+<div class="page-card filter-card">
+    <form method="get" action="/produtos" class="filter-form">
+        <div class="search-input-wrapper">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input 
+                type="text" 
+                name="busca" 
+                placeholder="Buscar por nome..." 
+                value="{{ busca if busca else '' }}"
+                class="input-control">
+        </div>
+
+        <select name="categoria_id" class="select-control">
+            <option value="0">Todas as Categorias</option>
+            {% for cat in categorias %}
+                <option value="{{ cat.id }}" {% if categoria_id == cat.id %}selected{% endif %}>
+                    {{ cat.nome }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn-secondary">
+            Filtrar
+        </button>
+    </form>
+</div>
+
+<!-- Tabela de Produtos -->
+<div class="page-card table-card">
+    <table class="custom-table">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Imagem</th>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Preço</th>
+                <th>Estoque</th>
+                <th style="text-align: center;">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for produto in produtos %}
+            <tr>
+                <td class="col-id">#{{ produto.id }}</td>
+                <td>
+                    {% if produto.imagem_path %}
+                        <img src="/static/{{ produto.imagem_path }}" alt="{{ produto.nome }}" class="table-img">
+                    {% else %}
+                        <div class="table-img-placeholder"><i class="fa-solid fa-image"></i></div>
+                    {% endif %}
+                </td>
+                <td class="col-name">{{ produto.nome }}</td>
+                <td>
+                    <span class="badge-cat">
+                        {{ produto.categoria.nome if produto.categoria else 'Sem Categoria' }}
+                    </span>
+                </td>
+                <td class="col-price">R$ {{ "%.2f"|format(produto.preco) }}</td>
+                <td>
+                    {% if produto.estoque_atual <= 5 %}
+                        <span class="badge-stock stock-low">{{ produto.estoque_atual }} un</span>
+                    {% else %}
+                        <span class="badge-stock stock-ok">{{ produto.estoque_atual }} un</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="actions-wrapper">
+                        <a href="/produtos/{{ produto.id }}/editar" class="btn-icon edit" title="Editar">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                        {% if usuario and usuario.role == 'admin' %}
+                        <a href="/produtos/{{ produto.id }}/deletar" class="btn-icon delete" title="Excluir" onclick="return confirm('Deseja realmente desativar este produto?');">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="empty-state">
+                    <i class="fa-solid fa-box-open"></i>
+                    <p>Nenhum produto cadastrado até o momento.</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Botão Voltar Padronizado -->
+<div>
+    <a href="/" style="text-decoration: none; color: #0f172a; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-arrow-left"></i> Ir para a Página Inicial
+    </a>
+</div>
+{% endblock %}
+>>>>>>> origin/main

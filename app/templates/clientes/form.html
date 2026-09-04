@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{% if editando %}Editar Categoria{% else %}Nova Categoria{% endif %} — AAPM SENAI{% endblock %}
+{% block title %}{% if editando %}Editar Cliente{% else %}Novo Cliente{% endif %} — AAPM SENAI{% endblock %}
 
 {% block content %}
 <style>
@@ -31,6 +31,7 @@
 
     .header-icon {
         font-size: 28px;
+        color: #ff6b2b;
     }
 
     .header-title {
@@ -64,7 +65,7 @@
         margin-bottom: 10px;
     }
 
-    .form-group input {
+    .form-group input[type="text"] {
         width: 100%;
         padding: 14px 16px;
         border: 1px solid #CBD5E1;
@@ -75,9 +76,23 @@
         transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .form-group input:focus {
-        border-color: #FF6B35;
-        box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+    .form-group input[type="text"]:focus {
+        border-color: #ff6b2b;
+        box-shadow: 0 0 0 3px rgba(255, 107, 43, 0.15);
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+    }
+
+    .checkbox-group input {
+        accent-color: #ff6b2b;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
     }
 
     .actions-container {
@@ -90,7 +105,7 @@
     .btn-salvar {
         flex: 1;
         padding: 14px;
-        background-color: #FF6B35;
+        background-color: #ff6b2b;
         color: #ffffff;
         border: none;
         border-radius: 8px;
@@ -101,7 +116,7 @@
     }
 
     .btn-salvar:hover {
-        background-color: #e55a2b;
+        background-color: #e55a1c;
     }
 
     .btn-cancelar {
@@ -140,9 +155,9 @@
 
     <div class="form-card">
         <div class="header-info">
-            <span class="header-icon">🏷️</span>
+            <i class="fa-solid fa-user-plus header-icon"></i>
             <div class="header-title">
-                {% if editando %}Editar Categoria{% else %}Nova Categoria{% endif %}
+                {% if editando %}Editar Cliente{% else %}Novo Cliente{% endif %}
             </div>
         </div>
 
@@ -152,31 +167,33 @@
         </div>
         {% endif %}
 
-        <form action="{% if editando %}/categorias/{{ editando.id }}/editar{% else %}/categorias/nova{% endif %}" method="post">
+        <form action="{% if editando %}/clientes/{{ editando.id }}/editar{% else %}/clientes/novo{% endif %}" method="post">
+            
             <div class="form-group">
-                <label for="nome">Nome</label>
-                <input 
-                    type="text" 
-                    id="nome" 
-                    name="nome" 
-                    placeholder="Digite o nome da categoria" 
-                    value="{% if editando %}{{ editando.nome }}{% elif valores %}{{ valores.nome }}{% endif %}" 
-                    required 
-                    autofocus
-                >
+                <label for="nome">Nome Completo *</label>
+                <input type="text" id="nome" name="nome" placeholder="Digite o nome do cliente" 
+                       value="{% if editando %}{{ editando.nome }}{% elif valores %}{{ valores.nome }}{% endif %}" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-group">
+                    <input type="checkbox" name="is_associado" value="true"
+                        {{ 'checked' if (editando and editando.is_associado) or (valores and valores.is_associado) }}>
+                    <span>É associado AAPM (recebe 10% de desconto)</span>
+                </label>
             </div>
 
             <div class="actions-container">
                 <button type="submit" class="btn-salvar">
-                    {% if editando %}Salvar alterações{% else %}Criar categoria{% endif %}
+                    {% if editando %}Salvar alterações{% else %}Cadastrar cliente{% endif %}
                 </button>
-                <a href="/categorias" class="btn-cancelar">Cancelar</a>
+                <a href="/clientes" class="btn-cancelar">Cancelar</a>
             </div>
         </form>
     </div>
 
-    <a href="/categorias" class="back-link">
-        ← Ir para Categorias
+    <a href="/clientes" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> Voltar para Clientes
     </a>
 
 </div>
