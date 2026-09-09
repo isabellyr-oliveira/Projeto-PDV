@@ -39,6 +39,12 @@
             </a>
 
             <!-- Rotas de Admin (Validação por role / perfil / is_admin) -->
+
+             <a href="/pdv/historico" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-clock-rotate-left" style="color: #ff6b00;"></i> Histórico
+        
+            </a>
+
             {% if usuario and (usuario.role == 'admin' or usuario.perfil == 'admin' or usuario.is_admin or usuario == 'admin' or (usuario is mapping and usuario.role == 'admin')) %}
             <a href="/clientes" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-address-book" style="color: #ff6b00;"></i> Clientes
