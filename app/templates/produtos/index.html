@@ -89,9 +89,9 @@
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
                         {% if usuario and usuario.role == 'admin' %}
-                        <a href="/produtos/{{ produto.id }}/deletar" class="btn-icon delete" title="Excluir" onclick="return confirm('Deseja realmente desativar este produto?');">
+                        <button type="button" class="btn-icon delete" title="Desativar" onclick="abrirModalDesativar('/produtos/{{ produto.id }}/deletar')">
                             <i class="fa-solid fa-trash-can"></i>
-                        </a>
+                        </button>
                         {% endif %}
                     </div>
                 </td>
@@ -114,4 +114,45 @@
         <i class="fa-solid fa-arrow-left"></i> Ir para a Página Inicial
     </a>
 </div>
+
+<!-- Modal de Confirmação de Desativação -->
+<div id="modal-confirmacao" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+        <div class="modal-icon">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h3>Desativar Produto</h3>
+        <p>Deseja realmente desativar este produto?</p>
+        
+        <div class="modal-actions">
+            <button type="button" class="btn-cancelar" onclick="fecharModalDesativar()">Cancelar</button>
+            <a id="btn-confirmar-desativar" href="#" class="btn-confirmar">Sim, desativar</a>
+        </div>
+    </div>
+</div>
+
+<script>
+function abrirModalDesativar(urlDeletar) {
+    var modal = document.getElementById('modal-confirmacao');
+    var btnConfirmar = document.getElementById('btn-confirmar-desativar');
+    if (modal && btnConfirmar) {
+        btnConfirmar.setAttribute('href', urlDeletar);
+        modal.style.display = 'flex';
+    }
+}
+
+function fecharModalDesativar() {
+    var modal = document.getElementById('modal-confirmacao');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+window.onclick = function(event) {
+    var modal = document.getElementById('modal-confirmacao');
+    if (event.target === modal) {
+        fecharModalDesativar();
+    }
+};
+</script>
 {% endblock %}
