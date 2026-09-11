@@ -3,6 +3,7 @@
 {% block title %}PDV - Vendas{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', path='CSS_produtos/index.css') }}">
 <div style="width: 100%; max-width: 1400px; margin: 0 auto; padding: 20px; box-sizing: border-box; font-family: Arial, sans-serif;">
     
     <!-- Alertas de Erro (retornados pela URL) -->
@@ -21,7 +22,7 @@
             <!-- Grade de Produtos Compacta -->
             <div id="grade-produtos" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); max-height: calc(100vh - 180px); overflow-y: auto;">
                 {% for produto in produtos %}
-                <div class="card-produto" data-nome="{{ produto.nome|lower }}" onclick="adicionarAoCarrinho({{ produto.id }}, '{{ produto.nome }}', {{ produto.preco }}, {{ produto.estoque_atual }})" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; background: #fff; display: flex; flex-direction: column; justify-content: space-between; height: 210px; box-sizing: border-box;">
+                <div class="card-produto" data-nome="{{ produto.nome|lower }}" onclick="adicionarAoCarrinho('{{ produto.id }}', '{{ produto.nome }}', '{{ produto.preco }}', '{{ produto.estoque_atual }}')" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; background: #fff; display: flex; flex-direction: column; justify-content: space-between; height: 210px; box-sizing: border-box;">
                     
                     <!-- Container da Imagem -->
                     <div style="height: 90px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
@@ -282,4 +283,55 @@
         `;
     }
 </script>
+
+<!-- Bloco de Paginação  -->
+{% if total_paginas > 1 %}
+<div class="pagination-wrapper">
+    <div class="pagination-subtitle">
+        Página {{ pagina }} de {{ total_paginas }}
+    </div>
+
+    <div class="pagination-container">
+        <!-- Botão Voltar -->
+        {% if pagina > 1 %}
+        <a href="/produtos/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
+            class="btn-page-pill">
+            <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
+        </a>
+        {% else %}
+        <span class="btn-page-pill disabled">
+            <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
+        </span>
+        {% endif %}
+
+        <!-- Números e Reticências -->
+        <div class="pagination-numbers">
+            {% for item in intervalo_paginas %}
+            {% if item == "..." %}
+            <span class="page-dots">...</span>
+            {% elif item == pagina %}
+            <span class="page-num active">{{ item }}</span>
+            {% else %}
+            <a href="/produtos/?pagina={{ item }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
+                class="page-num">{{ item }}</a>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Botão Próximo -->
+        {% if pagina < total_paginas %} <a
+            href="/produtos/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
+            class="btn-page-pill">
+            Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
+            </a>
+            {% else %}
+            <span class="btn-page-pill disabled">
+                Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
+            </span>
+            {% endif %}
+    </div>
+</div>
+{% endif %}
+
+
 {% endblock %}

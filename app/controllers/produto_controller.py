@@ -102,6 +102,7 @@ def listar_produtos(
             "categorias":   categorias,
             "busca":        busca,
             "categoria_id": categoria_id,
+            
             "pagina":       pagina,
             "por_pagina":   por_pagina,
             "total_paginas": total_paginas,

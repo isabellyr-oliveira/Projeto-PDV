@@ -210,3 +210,96 @@
 .mov-back-link:hover {
     color: #ff6b35;
 }
+
+/* ==============================
+   PAGINAÇÃO ESTILO LAYOUT MODERNO
+============================== */
+.pagination-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin: 2.5rem 0 1.5rem 0;
+}
+
+.pagination-subtitle {
+    font-size: 0.95rem;
+    color: #475569;
+    font-weight: 500;
+}
+
+.pagination-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.pagination-numbers {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Botões pílula (Voltar / Próximo) */
+.btn-page-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    border: 1px solid #94a3b8;
+    background-color: transparent;
+    color: #1e293b;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-page-pill:hover:not(.disabled) {
+    background-color: #f1f5f9;
+    border-color: #64748b;
+}
+
+.btn-page-pill.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    border-color: #cbd5e1;
+}
+
+/* Bolinhas numéricas */
+.page-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #334155;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.page-num:hover:not(.active) {
+    background-color: #e2e8f0;
+}
+
+.page-num.active {
+    background-color: #2563eb; /* Azul igual ao da imagem */
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+}
+
+.page-dots {
+    color: #64748b;
+    font-weight: 700;
+    padding: 0 4px;
+}
+
+.icon-sm {
+    font-size: 0.75rem;
+}

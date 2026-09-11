@@ -5,14 +5,15 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', path='CSS/movimentacoes.css') }}">
 
-
 <div class="movimentacoes-wrapper">
 
     <!-- Card de Cabeçalho -->
     <div class="mov-header-card">
         <div class="mov-header-left">
             <svg class="mov-header-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M19 11H5M19 11C20.1046 11 21 11.8954 21 13V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V13C3 11.8954 3.89543 11 5 11M19 11V9C19 7.89543 18.1046 7 17 7M5 11V9C5 7.89543 5.89543 7 7 7M7 7V5C7 3.89543 7.89543 3 9 3H15C16.1046 3 17 3.89543 17 5V7M7 7H17" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path
+                    d="M19 11H5M19 11C20.1046 11 21 11.8954 21 13V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V13C3 11.8954 3.89543 11 5 11M19 11V9C19 7.89543 18.1046 7 17 7M5 11V9C5 7.89543 5.89543 7 7 7M7 7V5C7 3.89543 7.89543 3 9 3H15C16.1046 3 17 3.89543 17 5V7M7 7H17"
+                    stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             <div>
                 <h1 class="mov-header-title">Movimentações</h1>
@@ -30,22 +31,22 @@
             <select name="produto_id" class="mov-select-custom" style="flex: 1;">
                 <option value="0">Todos os produtos</option>
                 {% for p in produtos %}
-                    <option value="{{ p.id }}" {{ 'selected' if produto_id == p.id else '' }}>
-                        {{ p.nome }}
-                    </option>
+                <option value="{{ p.id }}" {{ 'selected' if produto_id==p.id else '' }}>
+                    {{ p.nome }}
+                </option>
                 {% endfor %}
             </select>
 
             <select name="tipo" class="mov-select-custom" style="width: 220px;">
                 <option value="">Todos os tipos</option>
-                <option value="entrada" {{ 'selected' if tipo == 'entrada' else '' }}>Entrada</option>
-                <option value="saida" {{ 'selected' if tipo == 'saida' else '' }}>Saída</option>
+                <option value="entrada" {{ 'selected' if tipo=='entrada' else '' }}>Entrada</option>
+                <option value="saida" {{ 'selected' if tipo=='saida' else '' }}>Saída</option>
             </select>
 
             <button type="submit" class="mov-btn-dark">Filtrar</button>
 
             {% if produto_id or tipo %}
-                <a href="/movimentacoes" class="mov-btn-clean">Limpar</a>
+            <a href="/movimentacoes" class="mov-btn-clean">Limpar</a>
             {% endif %}
         </form>
     </div>
@@ -69,15 +70,16 @@
                 <tr>
                     <td style="color: #64748b;">{{ m.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
                     <td>
-                        <a href="/produtos/{{ m.produto_id }}" style="color: #1e293b; font-weight: 600; text-decoration: none;">
+                        <a href="/produtos/{{ m.produto_id }}"
+                            style="color: #1e293b; font-weight: 600; text-decoration: none;">
                             {{ m.produto.nome }}
                         </a>
                     </td>
                     <td>
                         {% if m.tipo.value == 'entrada' or m.tipo == 'entrada' %}
-                            <span class="mov-badge-entrada">▲ Entrada</span>
+                        <span class="mov-badge-entrada">▲ Entrada</span>
                         {% else %}
-                            <span class="mov-badge-saida">▼ Saída</span>
+                        <span class="mov-badge-saida">▼ Saída</span>
                         {% endif %}
                     </td>
                     <td style="text-align: center; font-weight: 600;">{{ m.quantidade }}</td>
@@ -91,12 +93,15 @@
                 <tr>
                     <td colspan="7">
                         <div class="mov-empty-state">
-                            <svg class="mov-empty-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M52 20L32 8L12 20V44L32 56L52 44V20Z" stroke-width="2.5" stroke-linejoin="round"/>
-                                <path d="M12 20L32 32L52 20" stroke-width="2.5" stroke-linejoin="round"/>
-                                <path d="M32 32V56" stroke-width="2.5" stroke-linejoin="round"/>
+                            <svg class="mov-empty-icon" viewBox="0 0 64 64" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M52 20L32 8L12 20V44L32 56L52 44V20Z" stroke-width="2.5"
+                                    stroke-linejoin="round" />
+                                <path d="M12 20L32 32L52 20" stroke-width="2.5" stroke-linejoin="round" />
+                                <path d="M32 32V56" stroke-width="2.5" stroke-linejoin="round" />
                             </svg>
-                            <p style="margin: 0; font-size: 14px; color: #64748b;">Nenhuma movimentação cadastrada até o momento.</p>
+                            <p style="margin: 0; font-size: 14px; color: #64748b;">Nenhuma movimentação cadastrada até o
+                                momento.</p>
                         </div>
                     </td>
                 </tr>
@@ -104,6 +109,55 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Bloco de Paginação  -->
+    {% if total_paginas > 1 %}
+    <div class="pagination-wrapper">
+        <div class="pagination-subtitle">
+            Página {{ pagina }} de {{ total_paginas }}
+        </div>
+
+        <div class="pagination-container">
+            <!-- Botão Voltar -->
+            {% if pagina > 1 %}
+            <a href="/produtos/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
+                class="btn-page-pill">
+                <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
+            </a>
+            {% else %}
+            <span class="btn-page-pill disabled">
+                <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
+            </span>
+            {% endif %}
+
+            <!-- Números e Reticências -->
+            <div class="pagination-numbers">
+                {% for item in intervalo_paginas %}
+                {% if item == "..." %}
+                <span class="page-dots">...</span>
+                {% elif item == pagina %}
+                <span class="page-num active">{{ item }}</span>
+                {% else %}
+                <a href="/produtos/?pagina={{ item }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
+                    class="page-num">{{ item }}</a>
+                {% endif %}
+                {% endfor %}
+            </div>
+
+            <!-- Botão Próximo -->
+            {% if pagina < total_paginas %} <a
+                href="/produtos/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
+                class="btn-page-pill">
+                Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
+                </a>
+                {% else %}
+                <span class="btn-page-pill disabled">
+                    Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
+                </span>
+                {% endif %}
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Link Voltar -->
     <div class="mov-back-box">

@@ -9,6 +9,7 @@
 # ============================================================
 
 import json
+import math  # <--- IMPORTADO AQUI
 from fastapi import APIRouter, Depends, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -26,28 +27,78 @@ templates = Jinja2Templates(directory="app/templates")
 DESCONTO_ASSOCIADO = 10.0  # percentual fixo
 
 
+def gerar_intervalo_paginas(pagina: int, total_paginas: int, limite: int = 2):
+    pagina = max(1, int(pagina) if pagina else 1)
+    total_paginas = max(1, int(total_paginas) if total_paginas else 1)
+
+    if total_paginas <= 1:
+        return [1]
+
+    paginas = set()
+    paginas.add(1)
+    paginas.add(total_paginas)
+
+    for i in range(max(1, pagina - limite), min(total_paginas, pagina + limite) + 1):
+        paginas.add(i)
+
+    resultado = sorted(list(paginas))
+
+    intervalo_com_dots = []
+    prev = None
+    for p in resultado:
+        if prev is not None:
+            if p - prev == 2:
+                intervalo_com_dots.append(prev + 1)
+            elif p - prev > 2:
+                intervalo_com_dots.append("...")
+        intervalo_com_dots.append(p)
+        prev = p
+
+    return intervalo_com_dots
+
+
 @router.get("/")
 def tela_pdv(
     request: Request,
     db: Session = Depends(get_db),
-    usuario = Depends(get_usuario_logado)
+    usuario = Depends(get_usuario_logado),
+    pagina: int = 1,
+    por_pagina: int = 2,
 ):
     """
-    Carrega a tela do PDV com todos os produtos ativos
+    Carrega a tela do PDV com produtos paginados
     e a lista de clientes para o campo de busca.
     """
-    produtos  = (
+    # 1. Monta a query base dos produtos ativos e com estoque
+    query_produtos = (
         db.query(Produto)
         .filter(Produto.ativo == True, Produto.estoque_atual > 0)
         .order_by(Produto.nome)
-        .all()
     )
-    clientes  = (
+
+    # 2. Contagem total para a paginação
+    total_produtos = query_produtos.count()
+
+    # 3. Cálculo das páginas
+    pagina = max(pagina, 1)
+    por_pagina = max(por_pagina, 1)
+
+    total_paginas = math.ceil(total_produtos / por_pagina) if total_produtos else 1
+    offset = (pagina - 1) * por_pagina
+
+    # 4. Busca apenas a fatia (página) de produtos
+    produtos = query_produtos.offset(offset).limit(por_pagina).all()
+
+    # 5. Busca clientes
+    clientes = (
         db.query(Cliente)
         .filter(Cliente.ativo == True)
         .order_by(Cliente.nome)
         .all()
     )
+
+    # 6. Gera o intervalo das páginas (ex: [1, '...', 4, 5, 6])
+    intervalo_paginas = gerar_intervalo_paginas(pagina, total_paginas)
 
     return templates.TemplateResponse(
         request,
@@ -58,6 +109,11 @@ def tela_pdv(
             "produtos":            produtos,
             "clientes":            clientes,
             "desconto_associado":  DESCONTO_ASSOCIADO,
+            "pagina":              pagina,
+            "por_pagina":          por_pagina,
+            "total_produtos":      total_produtos,
+            "total_paginas":       total_paginas,
+            "intervalo_paginas":   intervalo_paginas
         }
     )
 
@@ -73,12 +129,6 @@ def finalizar_venda(
 ):
     """
     Recebe o carrinho como JSON, valida e persiste a venda.
-
-    Formato esperado do carrinho_json:
-    [
-        {"produto_id": 1, "nome": "Caneta", "preco": 2.50, "quantidade": 3},
-        {"produto_id": 2, "nome": "Caderno", "preco": 15.00, "quantidade": 1}
-    ]
     """
     try:
         itens = json.loads(carrinho_json)

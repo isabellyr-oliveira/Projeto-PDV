@@ -3,6 +3,7 @@
 {% block title %}Usuários — AAPM SENAI{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', path='CSS_produtos/index.css') }}">
 <style>
     .page-container {
         padding: 32px 0;
@@ -287,7 +288,8 @@
                     <td style="font-weight: 600;">{{ u.nome }}</td>
                     <td>{{ u.email }}</td>
                     <td>
-                        <span class="badge-role {% if u.role == 'admin' %}badge-admin{% else %}badge-operador{% endif %}">
+                        <span
+                            class="badge-role {% if u.role == 'admin' %}badge-admin{% else %}badge-operador{% endif %}">
                             {{ u.role }}
                         </span>
                     </td>
@@ -299,12 +301,14 @@
                     <td>
                         <div class="actions-cell">
                             <a href="/usuarios/{{ u.id }}/editar" class="btn-action btn-edit">Editar</a>
-                            
+
                             <form action="/usuarios/{{ u.id }}/toggle-ativo" method="post" style="display: inline;">
                                 {% if u.ativo %}
-                                    <button type="submit" class="btn-action btn-toggle-off" title="Desativar usuário">Desativar</button>
+                                <button type="submit" class="btn-action btn-toggle-off"
+                                    title="Desativar usuário">Desativar</button>
                                 {% else %}
-                                    <button type="submit" class="btn-action btn-toggle-on" title="Ativar usuário">Ativar</button>
+                                <button type="submit" class="btn-action btn-toggle-on"
+                                    title="Ativar usuário">Ativar</button>
                                 {% endif %}
                             </form>
                         </div>
@@ -319,6 +323,55 @@
         </div>
         {% endif %}
     </div>
+
+    <!-- Bloco de Paginação  -->
+    {% if total_paginas > 1 %}
+    <div class="pagination-wrapper">
+        <div class="pagination-subtitle">
+            Página {{ pagina }} de {{ total_paginas }}
+        </div>
+
+        <div class="pagination-container">
+            <!-- Botão Voltar -->
+            {% if pagina > 1 %}
+            <a href="/produtos/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
+                class="btn-page-pill">
+                <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
+            </a>
+            {% else %}
+            <span class="btn-page-pill disabled">
+                <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
+            </span>
+            {% endif %}
+
+            <!-- Números e Reticências -->
+            <div class="pagination-numbers">
+                {% for item in intervalo_paginas %}
+                {% if item == "..." %}
+                <span class="page-dots">...</span>
+                {% elif item == pagina %}
+                <span class="page-num active">{{ item }}</span>
+                {% else %}
+                <a href="/produtos/?pagina={{ item }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
+                    class="page-num">{{ item }}</a>
+                {% endif %}
+                {% endfor %}
+            </div>
+
+            <!-- Botão Próximo -->
+            {% if pagina < total_paginas %} <a
+                href="/produtos/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
+                class="btn-page-pill">
+                Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
+                </a>
+                {% else %}
+                <span class="btn-page-pill disabled">
+                    Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
+                </span>
+                {% endif %}
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Botão de voltar para a Home -->
     <a href="/pdv" class="back-link">

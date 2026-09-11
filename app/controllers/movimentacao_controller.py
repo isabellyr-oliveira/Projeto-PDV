@@ -6,6 +6,7 @@
 # os produtos — operadores veem apenas suas próprias.
 # ============================================================
 
+import math  # Importado para cálculos da paginação
 from fastapi import APIRouter, Depends, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -21,6 +22,36 @@ router = APIRouter(prefix="/movimentacoes", tags=["Movimentações"])
 templates = Jinja2Templates(directory="app/templates")
 
 
+def gerar_intervalo_paginas(pagina: int, total_paginas: int, limite: int = 2):
+    pagina = max(1, int(pagina) if pagina else 1)
+    total_paginas = max(1, int(total_paginas) if total_paginas else 1)
+
+    if total_paginas <= 1:
+        return [1]
+
+    paginas = set()
+    paginas.add(1)
+    paginas.add(total_paginas)
+
+    for i in range(max(1, pagina - limite), min(total_paginas, pagina + limite) + 1):
+        paginas.add(i)
+
+    resultado = sorted(list(paginas))
+
+    intervalo_com_dots = []
+    prev = None
+    for p in resultado:
+        if prev is not None:
+            if p - prev == 2:
+                intervalo_com_dots.append(prev + 1)
+            elif p - prev > 2:
+                intervalo_com_dots.append("...")
+        intervalo_com_dots.append(p)
+        prev = p
+
+    return intervalo_com_dots
+
+
 # ============================================================
 # HISTÓRICO GERAL — somente admin
 # ============================================================
@@ -29,14 +60,17 @@ templates = Jinja2Templates(directory="app/templates")
 def listar_movimentacoes(
     request: Request,
     produto_id: int = 0,     # filtra por produto específico
-    tipo: str = "",          # "entrada" ou "saida"
+    tipo: str = "",          # "entrada", "saida", etc.
     db: Session = Depends(get_db),
-    admin = Depends(get_usuario_logado)
+    admin = Depends(get_admin),  # Apenas admins podem ver o histórico completo
+    pagina: int = 1,
+    por_pagina: int = 10,
 ):
     """
-    Exibe o histórico completo de movimentações com filtros
-    por produto e tipo. Acessível apenas por admins.
+    Exibe o histórico completo de movimentações com paginação e
+    filtros por produto e tipo.
     """
+    # 1. Monta a query base com filtros
     query = db.query(Movimentacao).order_by(Movimentacao.criado_em.desc())
 
     if produto_id:
@@ -45,19 +79,40 @@ def listar_movimentacoes(
     if tipo in ("entrada", "saida", "cancelamento", "ajuste"):
         query = query.filter(Movimentacao.tipo == tipo)
 
-    movimentacoes = query.limit(200).all()  # limita para não sobrecarregar
-    produtos      = db.query(Produto).filter(Produto.ativo == True).all()
+    # 2. Total de registros filtrados para a paginação
+    total_movimentacoes = query.count()
+
+    # 3. Ajuste de páginas e offset
+    pagina = max(pagina, 1)
+    por_pagina = max(por_pagina, 1)
+
+    total_paginas = math.ceil(total_movimentacoes / por_pagina) if total_movimentacoes else 1
+    offset = (pagina - 1) * por_pagina
+
+    # 4. Busca os registros da página atual
+    movimentacoes = query.offset(offset).limit(por_pagina).all()
+
+    # 5. Busca produtos ativos para preencher o select do filtro no HTML
+    produtos = db.query(Produto).filter(Produto.ativo == True).all()
+
+    # 6. Gera o intervalo da paginação (ex: [1, 2, '...', 10])
+    intervalo_paginas = gerar_intervalo_paginas(pagina, total_paginas)
 
     return templates.TemplateResponse(
         request,
         "movimentacoes/index.html",
         {
-            "request":        request,
-            "usuario":        admin,
-            "movimentacoes":  movimentacoes,
-            "produtos":       produtos,
-            "produto_id":     produto_id,
-            "tipo":           tipo,
+            "request":             request,
+            "usuario":             admin,
+            "movimentacoes":       movimentacoes,
+            "produtos":            produtos,
+            "produto_id":          produto_id,
+            "tipo":                tipo,
+            "pagina":              pagina,
+            "por_pagina":          por_pagina,
+            "total_paginas":       total_paginas,
+            "total_movimentacoes": total_movimentacoes,
+            "intervalo_paginas":   intervalo_paginas,
         }
     )
 
@@ -107,9 +162,6 @@ def registrar_movimentacao(
     """
     Registra a movimentação e atualiza o estoque do produto
     em uma única transação — garante consistência.
-
-    Se qualquer operação falhar, o rollback desfaz tudo:
-    nem a movimentação é salva nem o estoque é alterado.
     """
     produtos = db.query(Produto).filter(Produto.ativo == True).all()
 
@@ -144,9 +196,7 @@ def registrar_movimentacao(
             status_code=400
         )
 
-    # Busca o produto com lock para evitar race condition:
-    # se dois usuários registrarem saída ao mesmo tempo,
-    # with_for_update() garante que um espera o outro terminar.
+    # Busca o produto com lock para evitar race condition
     produto = db.query(Produto).filter(
         Produto.id == produto_id
     ).with_for_update().first()
@@ -173,17 +223,13 @@ def registrar_movimentacao(
             status_code=400
         )
 
-    # ----------------------------------------------------------
     # Atualiza o estoque do produto
-    # ----------------------------------------------------------
     if tipo == TipoMovimentacao.ENTRADA:
         produto.estoque_atual += quantidade
     else:
         produto.estoque_atual -= quantidade
 
-    # ----------------------------------------------------------
     # Registra a movimentação no histórico
-    # ----------------------------------------------------------
     movimentacao = Movimentacao(
         tipo           = tipo,
         quantidade     = quantidade,
@@ -194,7 +240,7 @@ def registrar_movimentacao(
     )
 
     db.add(movimentacao)
-    db.commit()  # salva produto (estoque) + movimentação juntos
+    db.commit()
 
     return RedirectResponse(
         url=f"/produtos/{produto_id}?movimentacao=ok",
@@ -229,7 +275,6 @@ def historico_produto(
         .all()
     )
 
-    # Resumo calculado em Python a partir do histórico
     total_entradas = sum(
         m.quantidade for m in movimentacoes
         if m.tipo == TipoMovimentacao.ENTRADA
