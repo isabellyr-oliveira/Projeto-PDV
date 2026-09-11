@@ -3,6 +3,9 @@
 {% block title %}Produtos - AAPM{% endblock %}
 
 {% block content %}
+<!-- Importação do CSS da página de produtos -->
+<link rel="stylesheet" href="{{ url_for('static', path='CSS_produtos/index.css') }}">
+
 <!-- Topo da Gestão -->
 <div class="page-card header-card">
     <div class="title-group">
@@ -21,20 +24,16 @@
     <form method="get" action="/produtos" class="filter-form">
         <div class="search-input-wrapper">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input 
-                type="text" 
-                name="busca" 
-                placeholder="Buscar por nome..." 
-                value="{{ busca if busca else '' }}"
+            <input type="text" name="busca" placeholder="Buscar por nome..." value="{{ busca if busca else '' }}"
                 class="input-control">
         </div>
 
         <select name="categoria_id" class="select-control">
             <option value="0">Todas as Categorias</option>
             {% for cat in categorias %}
-                <option value="{{ cat.id }}" {% if categoria_id == cat.id %}selected{% endif %}>
-                    {{ cat.nome }}
-                </option>
+            <option value="{{ cat.id }}" {% if categoria_id==cat.id %}selected{% endif %}>
+                {{ cat.nome }}
+            </option>
             {% endfor %}
         </select>
 
@@ -64,9 +63,9 @@
                 <td class="col-id">#{{ produto.id }}</td>
                 <td>
                     {% if produto.imagem_path %}
-                        <img src="/static/{{ produto.imagem_path }}" alt="{{ produto.nome }}" class="table-img">
+                    <img src="/static/{{ produto.imagem_path }}" alt="{{ produto.nome }}" class="table-img">
                     {% else %}
-                        <div class="table-img-placeholder"><i class="fa-solid fa-image"></i></div>
+                    <div class="table-img-placeholder"><i class="fa-solid fa-image"></i></div>
                     {% endif %}
                 </td>
                 <td class="col-name">{{ produto.nome }}</td>
@@ -77,11 +76,11 @@
                 </td>
                 <td class="col-price">R$ {{ "%.2f"|format(produto.preco) }}</td>
                 <td>
-                    {% if produto.estoque_atual <= 5 %}
-                        <span class="badge-stock stock-low">{{ produto.estoque_atual }} un</span>
-                    {% else %}
+                    {% if produto.estoque_atual <= 5 %} <span class="badge-stock stock-low">{{ produto.estoque_atual }}
+                        un</span>
+                        {% else %}
                         <span class="badge-stock stock-ok">{{ produto.estoque_atual }} un</span>
-                    {% endif %}
+                        {% endif %}
                 </td>
                 <td>
                     <div class="actions-wrapper">
@@ -89,7 +88,8 @@
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
                         {% if usuario and usuario.role == 'admin' %}
-                        <a href="/produtos/{{ produto.id }}/deletar" class="btn-icon delete" title="Excluir" onclick="return confirm('Deseja realmente desativar este produto?');">
+                        <a href="/produtos/{{ produto.id }}/deletar" class="btn-icon delete" title="Excluir"
+                            onclick="return confirm('Deseja realmente desativar este produto?');">
                             <i class="fa-solid fa-trash-can"></i>
                         </a>
                         {% endif %}
@@ -108,32 +108,63 @@
     </table>
 </div>
 
+
+<!-- Bloco de Paginação  -->
+{% if total_paginas > 1 %}
+<div class="pagination-wrapper">
+    <div class="pagination-subtitle">
+        Página {{ pagina }} de {{ total_paginas }}
+    </div>
+
+    <div class="pagination-container">
+        <!-- Botão Voltar -->
+        {% if pagina > 1 %}
+        <a href="/produtos/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
+            class="btn-page-pill">
+            <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
+        </a>
+        {% else %}
+        <span class="btn-page-pill disabled">
+            <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
+        </span>
+        {% endif %}
+
+        <!-- Números e Reticências -->
+        <div class="pagination-numbers">
+            {% for item in intervalo_paginas %}
+            {% if item == "..." %}
+            <span class="page-dots">...</span>
+            {% elif item == pagina %}
+            <span class="page-num active">{{ item }}</span>
+            {% else %}
+            <a href="/produtos/?pagina={{ item }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
+                class="page-num">{{ item }}</a>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Botão Próximo -->
+        {% if pagina < total_paginas %} <a
+            href="/produtos/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
+            class="btn-page-pill">
+            Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
+            </a>
+            {% else %}
+            <span class="btn-page-pill disabled">
+                Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
+            </span>
+            {% endif %}
+    </div>
+</div>
+{% endif %}
+
+
 <!-- Botão Voltar Padronizado -->
 <div>
-    <a href="/" style="text-decoration: none; color: #0f172a; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
+    <a href="/"
+        style="text-decoration: none; color: #0f172a; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
         <i class="fa-solid fa-arrow-left"></i> Ir para a Página Inicial
     </a>
 </div>
-
-    <br><br>
-    {% if total_paginas > 1 %}
-    <div>
-        <p> {{ total_produtos }} produtos </p>
-        <p>Página {{ pagina }} de {{ total_paginas }}</p>
-
-        {% if pagina > 1 %}
-            <a href="/produtos/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}">
-                 Anterior</a>
-        {% endif %}
-
-        {% if pagina < total_paginas %}
-            <a href="/produtos/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}">
-                 Próximo</a>
-        {% endif %}
-    </div>
-    {% endif %}
-    <br><br>
-
-
 
 {% endblock %}

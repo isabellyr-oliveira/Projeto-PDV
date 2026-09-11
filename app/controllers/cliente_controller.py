@@ -37,6 +37,8 @@ def listar_clientes(
         Cliente.ativo == True
     ).count()
 
+    
+
     return templates.TemplateResponse(
         request,
         "clientes/index.html",

@@ -22,6 +22,37 @@ UPLOAD_DIR = "app/static/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)  # cria a pasta se não existir
 
 
+def gerar_intervalo_paginas(pagina: int, total_paginas: int, limite: int = 2):
+    pagina = max(1, int(pagina) if pagina else 1)
+    total_paginas = max(1, int(total_paginas) if total_paginas else 1)
+
+    if total_paginas <= 1:
+        return [1]
+
+    paginas = set()
+    paginas.add(1)
+    paginas.add(total_paginas)
+
+    for i in range(max(1, pagina - limite), min(total_paginas, pagina + limite) + 1):
+        paginas.add(i)
+
+    resultado = sorted(list(paginas))
+
+    intervalo_com_dots = []
+    prev = None
+    for p in resultado:
+        if prev is not None:
+            if p - prev == 2:
+                intervalo_com_dots.append(prev + 1)
+            elif p - prev > 2:
+                intervalo_com_dots.append("...")
+        intervalo_com_dots.append(p)
+        prev = p
+
+    return intervalo_com_dots
+
+
+
 # ============================================================
 # LISTAGEM
 # ============================================================
@@ -58,6 +89,9 @@ def listar_produtos(
     produtos = query.offset(offset).limit(por_pagina).all()
     categorias  = db.query(Categoria).filter(Categoria.ativo == True).all()
 
+    # Gera o intervalo com números e '...'
+    intervalo_paginas = gerar_intervalo_paginas(pagina, total_paginas)
+
     return templates.TemplateResponse(
         request,
         "produtos/index.html",
@@ -71,7 +105,8 @@ def listar_produtos(
             "pagina":       pagina,
             "por_pagina":   por_pagina,
             "total_paginas": total_paginas,
-            "total_produtos": total_produtos
+            "total_produtos": total_produtos,
+            "intervalo_paginas": intervalo_paginas
         }
     )
 
