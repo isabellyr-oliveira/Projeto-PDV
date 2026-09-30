@@ -119,7 +119,7 @@
     <div class="pagination-container">
         <!-- Botão Voltar -->
         {% if pagina > 1 %}
-        <a href="/produtos/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
+        <a href="/produtos/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id or 0 }}"
             class="btn-page-pill">
             <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
         </a>

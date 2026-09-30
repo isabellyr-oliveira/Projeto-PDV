@@ -4,6 +4,8 @@
 # Operadores apenas visualizam (via select no form de produto).
 # ============================================================
 
+import math
+
 from fastapi import APIRouter, Depends, Request, Form
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -19,29 +21,125 @@ templates = Jinja2Templates(directory="app/templates")
 
 
 # ============================================================
+# FUNÇÃO PARA GERAR INTERVALO DE PÁGINAS
+# ============================================================
+
+def gerar_intervalo_paginas(
+    pagina: int,
+    total_paginas: int,
+    limite: int = 2
+):
+    pagina = max(1, int(pagina) if pagina else 1)
+    total_paginas = max(
+        1,
+        int(total_paginas) if total_paginas else 1
+    )
+
+    if total_paginas <= 1:
+        return [1]
+
+    paginas = set()
+
+    # Primeira e última página
+    paginas.add(1)
+    paginas.add(total_paginas)
+
+    # Páginas próximas da página atual
+    for i in range(
+        max(1, pagina - limite),
+        min(total_paginas, pagina + limite) + 1
+    ):
+        paginas.add(i)
+
+    resultado = sorted(list(paginas))
+
+    intervalo_com_dots = []
+    prev = None
+
+    for p in resultado:
+        if prev is not None:
+
+            if p - prev == 2:
+                intervalo_com_dots.append(prev + 1)
+
+            elif p - prev > 2:
+                intervalo_com_dots.append("...")
+
+        intervalo_com_dots.append(p)
+        prev = p
+
+    return intervalo_com_dots
+
+
+# ============================================================
 # LISTAGEM
 # ============================================================
 
 @router.get("/")
 def listar_categorias(
     request: Request,
+    pagina: int = 1,
+    por_pagina: int = 10,
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
     """
-    Lista todas as categorias ordenadas por nome.
-    Inclui a contagem de produtos de cada categoria
-    para dar contexto ao admin antes de desativar.
+    Lista as categorias ordenadas por nome
+    com paginação.
     """
-    categorias = db.query(Categoria).order_by(Categoria.nome).all()
+
+    # Garante valores válidos
+    pagina = max(pagina, 1)
+    por_pagina = max(por_pagina, 1)
+
+    # Query base
+    query = db.query(Categoria).order_by(Categoria.nome)
+
+    # Total de categorias
+    total_categorias = query.count()
+
+    # Calcula quantidade de páginas
+    total_paginas = (
+        math.ceil(total_categorias / por_pagina)
+        if total_categorias
+        else 1
+    )
+
+    # Evita acessar uma página que não existe
+    if pagina > total_paginas:
+        pagina = total_paginas
+
+    # Calcula o deslocamento
+    offset = (pagina - 1) * por_pagina
+
+    # Busca somente as categorias da página atual
+    categorias = (
+        query
+        .offset(offset)
+        .limit(por_pagina)
+        .all()
+    )
+
+    # Gera os números da paginação
+    intervalo_paginas = gerar_intervalo_paginas(
+        pagina,
+        total_paginas
+    )
 
     return templates.TemplateResponse(
         request,
         "categorias/index.html",
         {
-            "request":    request,
-            "usuario":    admin,
+            "request": request,
+            "usuario": admin,
             "categorias": categorias,
+
+            # Paginação
+            "pagina": pagina,
+            "por_pagina": por_pagina,
+            "total_paginas": total_paginas,
+            "total_categorias": total_categorias,
+            "intervalo_paginas": intervalo_paginas,
         }
     )
 
@@ -56,12 +154,13 @@ def form_nova_categoria(
     admin = Depends(get_admin)
 ):
     """Exibe o formulário de cadastro de categoria."""
+
     return templates.TemplateResponse(
         request,
         "categorias/form.html",
         {
-            "request":  request,
-            "usuario":  admin,
+            "request": request,
+            "usuario": admin,
             "editando": None,
         }
     )
@@ -85,11 +184,11 @@ def criar_categoria(
             request,
             "categorias/form.html",
             {
-                "request":  request,
-                "usuario":  admin,
+                "request": request,
+                "usuario": admin,
                 "editando": None,
-                "erro":     "Já existe uma categoria com este nome.",
-                "valores":  {"nome": nome},
+                "erro": "Já existe uma categoria com este nome.",
+                "valores": {"nome": nome},
             },
             status_code=400
         )
@@ -97,7 +196,10 @@ def criar_categoria(
     db.add(Categoria(nome=nome.strip()))
     db.commit()
 
-    return RedirectResponse(url="/categorias?criado=ok", status_code=302)
+    return RedirectResponse(
+        url="/categorias?criado=ok",
+        status_code=302
+    )
 
 
 # ============================================================
@@ -112,19 +214,23 @@ def form_editar_categoria(
     admin = Depends(get_admin)
 ):
     """Exibe o formulário preenchido com os dados da categoria."""
+
     editando = db.query(Categoria).filter(
         Categoria.id == categoria_id
     ).first()
 
     if not editando:
-        return RedirectResponse(url="/categorias", status_code=302)
+        return RedirectResponse(
+            url="/categorias",
+            status_code=302
+        )
 
     return templates.TemplateResponse(
         request,
         "categorias/form.html",
         {
-            "request":  request,
-            "usuario":  admin,
+            "request": request,
+            "usuario": admin,
             "editando": editando,
         }
     )
@@ -139,14 +245,17 @@ def editar_categoria(
     admin = Depends(get_admin)
 ):
     """Atualiza o nome da categoria."""
+
     editando = db.query(Categoria).filter(
         Categoria.id == categoria_id
     ).first()
 
     if not editando:
-        return RedirectResponse(url="/categorias", status_code=302)
+        return RedirectResponse(
+            url="/categorias",
+            status_code=302
+        )
 
-    # Verifica conflito com outra categoria (ignora a própria)
     conflito = db.query(Categoria).filter(
         Categoria.nome.ilike(nome),
         Categoria.id != categoria_id
@@ -157,10 +266,10 @@ def editar_categoria(
             request,
             "categorias/form.html",
             {
-                "request":  request,
-                "usuario":  admin,
+                "request": request,
+                "usuario": admin,
                 "editando": editando,
-                "erro":     "Já existe outra categoria com este nome.",
+                "erro": "Já existe outra categoria com este nome.",
             },
             status_code=400
         )
@@ -168,7 +277,10 @@ def editar_categoria(
     editando.nome = nome.strip()
     db.commit()
 
-    return RedirectResponse(url="/categorias?editado=ok", status_code=302)
+    return RedirectResponse(
+        url="/categorias?editado=ok",
+        status_code=302
+    )
 
 
 # ============================================================
@@ -182,6 +294,7 @@ def deletar_categoria(
     admin = Depends(get_admin)
 ):
     """Apaga permanentemente a categoria do banco de dados."""
+
     categoria = db.query(Categoria).filter(
         Categoria.id == categoria_id
     ).first()
@@ -190,7 +303,10 @@ def deletar_categoria(
         db.delete(categoria)
         db.commit()
 
-    return RedirectResponse(url="/categorias?deletado=ok", status_code=302)
+    return RedirectResponse(
+        url="/categorias?deletado=ok",
+        status_code=302
+    )
 
 
 # ============================================================
@@ -205,21 +321,23 @@ def toggle_ativo(
 ):
     """
     Ativa ou desativa uma categoria.
-
-    Não deletamos pois a categoria pode estar vinculada
-    a produtos existentes. Desativar apenas esconde do
-    select do formulário de produto — os vínculos permanecem.
     """
+
     categoria = db.query(Categoria).filter(
         Categoria.id == categoria_id
     ).first()
 
     if not categoria:
-        return RedirectResponse(url="/categorias", status_code=302)
+        return RedirectResponse(
+            url="/categorias",
+            status_code=302
+        )
 
-    # Bloqueia desativação se houver produtos ativos vinculados
     if categoria.ativo:
-        produtos_ativos = [p for p in categoria.produtos if p.ativo]
+        produtos_ativos = [
+            p for p in categoria.produtos
+            if p.ativo
+        ]
 
         if produtos_ativos:
             return RedirectResponse(
@@ -230,4 +348,7 @@ def toggle_ativo(
     categoria.ativo = not categoria.ativo
     db.commit()
 
-    return RedirectResponse(url="/categorias", status_code=302)
+    return RedirectResponse(
+        url="/categorias",
+        status_code=302
+    )

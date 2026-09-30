@@ -3,76 +3,248 @@
 {% block title %}Categorias — AAPM SENAI{% endblock %}
 
 {% block content %}
+
 <link rel="stylesheet" href="{{ url_for('static', path='CSS_Categorias/categorias.css') }}">
 
 <!-- Card de Cabeçalho da Página -->
 <section class="page-card header-card">
+
     <div class="title-group">
-        <h2><i class="fa-solid fa-tags"></i> Gestão de Categorias</h2>
-        <p>Consulte e gerencie as categorias cadastradas no sistema.</p>
+
+        <h2>
+            <i class="fa-solid fa-tags"></i>
+            Gestão de Categorias
+        </h2>
+
+        <p>
+            Consulte e gerencie as categorias cadastradas no sistema.
+        </p>
+
     </div>
+
     <a href="/categorias/nova" class="btn-primary">
-        <i class="fa-solid fa-plus"></i> Nova Categoria
+        <i class="fa-solid fa-plus"></i>
+        Nova Categoria
     </a>
+
 </section>
+
 
 <!-- Card da Tabela -->
 <section class="page-card table-card">
+
     <table class="custom-table">
+
         <thead>
+
             <tr>
                 <th>NOME</th>
                 <th>PRODUTOS ATIVOS</th>
                 <th>STATUS</th>
                 <th style="text-align: center;">AÇÕES</th>
             </tr>
+
         </thead>
+
         <tbody>
+
             {% for cat in categorias %}
+
             <tr>
-                <td class="col-name">{{ cat.nome }}</td>
+
+                <td class="col-name">
+                    {{ cat.nome }}
+                </td>
+
                 <td>
+
                     <span class="badge-cat">
+
                         {{ cat.produtos | selectattr("ativo") | list | length if cat.produtos else 0 }}
+
                     </span>
+
                 </td>
+
                 <td>
+
                     {% if cat.ativo %}
-                        <span class="badge-stock stock-ok">Ativa</span>
+
+                        <span class="badge-stock stock-ok">
+                            Ativa
+                        </span>
+
                     {% else %}
-                        <span class="badge-stock stock-low">Inativa</span>
+
+                        <span class="badge-stock stock-low">
+                            Inativa
+                        </span>
+
                     {% endif %}
+
                 </td>
+
                 <td>
+
                     <div class="actions-wrapper">
-                        <a href="/categorias/{{ cat.id }}/editar" class="btn-icon edit" title="Editar">
+
+                        <a
+                            href="/categorias/{{ cat.id }}/editar"
+                            class="btn-icon edit"
+                            title="Editar"
+                        >
                             <i class="fa-solid fa-pen"></i>
                         </a>
-                        <a href="/categorias/{{ cat.id }}/deletar" 
-                           class="btn-icon delete" 
-                           title="Excluir"
-                           onclick="return confirm('Tem certeza que deseja apagar a categoria {{ cat.nome }}?');">
+
+                        <a
+                            href="/categorias/{{ cat.id }}/deletar"
+                            class="btn-icon delete"
+                            title="Excluir"
+                            onclick="return confirm('Tem certeza que deseja apagar a categoria {{ cat.nome }}?');"
+                        >
                             <i class="fa-solid fa-trash"></i>
                         </a>
+
                     </div>
+
                 </td>
+
             </tr>
+
             {% else %}
+
             <tr>
+
                 <td colspan="4" class="empty-state">
+
                     <i class="fa-solid fa-box-open"></i>
-                    <p>Nenhuma categoria cadastrada até o momento.</p>
+
+                    <p>
+                        Nenhuma categoria cadastrada até o momento.
+                    </p>
+
                 </td>
+
             </tr>
+
             {% endfor %}
+
         </tbody>
+
     </table>
+
 </section>
 
-<!-- Botão Voltar -->
-<div style="margin-top: 15px;">
-    <a href="/pdv" style="text-decoration: none; color: #0f172a; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
-        <i class="fa-solid fa-arrow-left"></i> Ir para a Página Inicial
-    </a>
+
+<!-- ===================================================== -->
+<!-- PAGINAÇÃO -->
+<!-- ===================================================== -->
+
+<div class="pagination-wrapper">
+
+    <div class="pagination-subtitle">
+        Página {{ pagina }} de {{ total_paginas }}
+    </div>
+
+
+    <div class="pagination-container">
+
+        <!-- BOTÃO VOLTAR -->
+
+        {% if pagina > 1 %}
+
+            <a
+                href="/categorias/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}"
+                class="btn-page-pill"
+            >
+                <i class="fa-solid fa-chevron-left icon-sm"></i>
+                Voltar
+            </a>
+
+        {% else %}
+
+            <span class="btn-page-pill disabled">
+                <i class="fa-solid fa-chevron-left icon-sm"></i>
+                Voltar
+            </span>
+
+        {% endif %}
+
+
+        <!-- NÚMEROS DAS PÁGINAS -->
+
+        <div class="pagination-numbers">
+
+            {% for item in intervalo_paginas %}
+
+                {% if item == "..." %}
+
+                    <span class="page-dots">
+                        ...
+                    </span>
+
+                {% elif item == pagina %}
+
+                    <span class="page-num active">
+                        {{ item }}
+                    </span>
+
+                {% else %}
+
+                    <a
+                        href="/categorias/?pagina={{ item }}&por_pagina={{ por_pagina }}"
+                        class="page-num"
+                    >
+                        {{ item }}
+                    </a>
+
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- BOTÃO PRÓXIMO -->
+
+        {% if pagina < total_paginas %}
+
+            <a
+                href="/categorias/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}"
+                class="btn-page-pill"
+            >
+                Próximo
+                <i class="fa-solid fa-chevron-right icon-sm"></i>
+            </a>
+
+        {% else %}
+
+            <span class="btn-page-pill disabled">
+                Próximo
+                <i class="fa-solid fa-chevron-right icon-sm"></i>
+            </span>
+
+        {% endif %}
+
+    </div>
+
 </div>
+
+
+<!-- Botão Voltar -->
+
+<div style="margin-top: 15px;">
+
+    <a
+        href="/pdv"
+        style="text-decoration: none; color: #0f172a; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;"
+    >
+
+        <i class="fa-solid fa-arrow-left"></i>
+        Ir para a Página Inicial
+
+    </a>
+
+</div>
+
 {% endblock %}

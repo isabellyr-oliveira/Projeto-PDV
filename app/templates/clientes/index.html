@@ -102,6 +102,97 @@
     </table>
 </section>
 
+<!-- Paginação -->
+<div class="pagination-wrapper">
+
+    <div class="pagination-subtitle">
+        Página {{ pagina }} de {{ total_paginas }}
+    </div>
+
+    <div class="pagination-container">
+
+        <!-- BOTÃO VOLTAR -->
+        {% if pagina > 1 %}
+
+        <a href="/clientes/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&apenas_associados={{ 'true' if apenas_associados else 'false' }}"
+            class="btn-page-pill">
+
+            <i class="fa-solid fa-chevron-left icon-sm"></i>
+            Voltar
+
+        </a>
+
+        {% else %}
+
+        <span class="btn-page-pill disabled">
+
+            <i class="fa-solid fa-chevron-left icon-sm"></i>
+            Voltar
+
+        </span>
+
+        {% endif %}
+
+
+        <!-- NÚMEROS DAS PÁGINAS -->
+        <div class="pagination-numbers">
+
+            {% for item in intervalo_paginas %}
+
+                {% if item == "..." %}
+
+                    <span class="page-dots">
+                        ...
+                    </span>
+
+                {% elif item == pagina %}
+
+                    <span class="page-num active">
+                        {{ item }}
+                    </span>
+
+                {% else %}
+
+                    <a href="/clientes/?pagina={{ item }}&por_pagina={{ por_pagina }}&busca={{ busca }}&apenas_associados={{ 'true' if apenas_associados else 'false' }}"
+                        class="page-num">
+
+                        {{ item }}
+
+                    </a>
+
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- BOTÃO PRÓXIMO -->
+        {% if pagina < total_paginas %}
+
+        <a href="/clientes/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&apenas_associados={{ 'true' if apenas_associados else 'false' }}"
+            class="btn-page-pill">
+
+            Próximo
+            <i class="fa-solid fa-chevron-right icon-sm"></i>
+
+        </a>
+
+        {% else %}
+
+        <span class="btn-page-pill disabled">
+
+            Próximo
+            <i class="fa-solid fa-chevron-right icon-sm"></i>
+
+        </span>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
 <!-- Botão Voltar -->
 <div style="margin-top: 15px;">
     <a href="/" style="text-decoration: none; color: #0f172a; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
