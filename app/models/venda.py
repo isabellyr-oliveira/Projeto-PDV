@@ -1,9 +1,10 @@
-# models/venda.py — Cabeçalho da venda e itens
+# models/venda.py — Cabeçalho da venda, itens e pagamentos
 
 # Uma Venda tem um cabeçalho (quem comprou, quando, desconto)
 # e N ItensVenda (qual produto, quantos, a que preço).
+# Na Sprint 3, adicionamos N PagamentoVenda (formas de pagamento).
 #
-# Separamos em duas tabelas para normalizar os dados —
+# Separamos em tabelas para normalizar os dados —
 # o mesmo padrão usado em qualquer sistema comercial real.
 # ============================================================
 
@@ -54,6 +55,11 @@ class Venda(Base):
         back_populates="venda",
         cascade="all, delete-orphan"  # deleta itens se a venda for deletada
     )
+    pagamentos = relationship(
+        "PagamentoVenda",
+        back_populates="venda",
+        cascade="all, delete-orphan"  # deleta pagamentos se a venda for deletada
+    )
 
     @property
     def desconto_valor(self) -> float:
@@ -93,3 +99,24 @@ class ItemVenda(Base):
     # Relacionamentos
     venda   = relationship("Venda", back_populates="itens")
     produto = relationship("Produto", backref="itens_venda")
+
+
+class PagamentoVenda(Base):
+    __tablename__ = "pagamentos_venda"
+
+    id         = Column(Integer, primary_key=True, index=True)
+
+    venda_id   = Column(
+        Integer,
+        ForeignKey("vendas.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    forma_pagamento = Column(String(50), nullable=False)
+    valor           = Column(Float, nullable=False)
+
+    # Relacionamentos
+    venda = relationship("Venda", back_populates="pagamentos")
+
+    def __repr__(self):
+        return f"<PagamentoVenda forma={self.forma_pagamento} valor={self.valor}>"
