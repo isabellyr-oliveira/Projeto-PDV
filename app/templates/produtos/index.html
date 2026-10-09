@@ -76,11 +76,11 @@
                 </td>
                 <td class="col-price">R$ {{ "%.2f"|format(produto.preco) }}</td>
                 <td>
-                    {% if produto.estoque_atual <= 5 %} <span class="badge-stock stock-low">{{ produto.estoque_atual }}
-                        un</span>
-                        {% else %}
-                        <span class="badge-stock stock-ok">{{ produto.estoque_atual }} un</span>
-                        {% endif %}
+                    {% if produto.estoque_atual <= 5 %} 
+                    <span class="badge-stock stock-low">{{ produto.estoque_atual }} un</span>
+                    {% else %}
+                    <span class="badge-stock stock-ok">{{ produto.estoque_atual }} un</span>
+                    {% endif %}
                 </td>
                 <td>
                     <div class="actions-wrapper">
@@ -88,10 +88,11 @@
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
                         {% if usuario and usuario.role == 'admin' %}
-                        <a href="/produtos/{{ produto.id }}/deletar" class="btn-icon delete" title="Excluir"
-                            onclick="return confirm('Deseja realmente desativar este produto?');">
+                        <!-- Botão que abre o modal estilizado -->
+                        <button type="button" class="btn-icon delete" title="Excluir"
+                            onclick="abrirModalExclusao('/produtos/{{ produto.id }}/deletar', '{{ produto.nome }}')">
                             <i class="fa-solid fa-trash-can"></i>
-                        </a>
+                        </button>
                         {% endif %}
                     </div>
                 </td>
@@ -107,7 +108,6 @@
         </tbody>
     </table>
 </div>
-
 
 <!-- Bloco de Paginação  -->
 {% if total_paginas > 1 %}
@@ -144,20 +144,19 @@
         </div>
 
         <!-- Botão Próximo -->
-        {% if pagina < total_paginas %} <a
-            href="/produtos/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
+        {% if pagina < total_paginas %}
+        <a href="/produtos/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
             class="btn-page-pill">
             Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
-            </a>
-            {% else %}
-            <span class="btn-page-pill disabled">
-                Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
-            </span>
-            {% endif %}
+        </a>
+        {% else %}
+        <span class="btn-page-pill disabled">
+            Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
+        </span>
+        {% endif %}
     </div>
 </div>
 {% endif %}
-
 
 <!-- Botão Voltar Padronizado -->
 <div>
@@ -166,5 +165,41 @@
         <i class="fa-solid fa-arrow-left"></i> Ir para a Página Inicial
     </a>
 </div>
+
+<!-- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO (Centralizado na Tela) -->
+<div id="modalConfirmacao" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-icon-wrapper">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h3 class="modal-title">Desativar Produto?</h3>
+        <p class="modal-text">Você tem certeza que deseja desativar o produto <strong id="nomeProdutoModal"></strong>?</p>
+        
+        <div class="modal-actions">
+            <button type="button" class="btn-modal-cancel" onclick="fecharModalExclusao()">Cancelar</button>
+            <a id="btnConfirmarExclusao" href="#" class="btn-modal-confirm">Sim, Desativar</a>
+        </div>
+    </div>
+</div>
+
+<!-- LÓGICA DO MODAL (JavaScript) -->
+<script>
+    function abrirModalExclusao(url, nomeProduto) {
+        document.getElementById('nomeProdutoModal').innerText = nomeProduto;
+        document.getElementById('btnConfirmarExclusao').setAttribute('href', url);
+        document.getElementById('modalConfirmacao').classList.add('active');
+    }
+
+    function fecharModalExclusao() {
+        document.getElementById('modalConfirmacao').classList.remove('active');
+    }
+
+    // Fecha o modal ao clicar fora da caixa branca
+    document.getElementById('modalConfirmacao').addEventListener('click', function(e) {
+        if (e.target === this) {
+            fecharModalExclusao();
+        }
+    });
+</script>
 
 {% endblock %}
