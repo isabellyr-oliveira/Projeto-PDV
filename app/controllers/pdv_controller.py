@@ -26,23 +26,6 @@ templates = Jinja2Templates(directory="app/templates")
 DESCONTO_ASSOCIADO = 10.0  # percentual fixo
 
 
-# 🔒 FUNÇÃO AUXILIAR: Verifica com segurança se o utilizador atual é administrador
-def verificar_eh_admin(usuario) -> bool:
-    """Verifica se o utilizador logado tem permissão de administrador."""
-    if not usuario:
-        return False
-    if isinstance(usuario, dict):
-        is_adm = usuario.get("is_admin", False)
-        username = str(usuario.get("username") or usuario.get("nome") or "").lower()
-        cargo = str(usuario.get("cargo") or usuario.get("role") or "").lower()
-        return bool(is_adm) or username == "admin" or cargo == "admin"
-
-    is_adm = getattr(usuario, "is_admin", False)
-    username = str(getattr(usuario, "username", getattr(usuario, "nome", "")) or "").lower()
-    cargo = str(getattr(usuario, "cargo", getattr(usuario, "role", "")) or "").lower()
-    return bool(is_adm) or username == "admin" or cargo == "admin"
-
-
 @router.get("/")
 def tela_pdv(
     request: Request,
@@ -66,9 +49,6 @@ def tela_pdv(
         .all()
     )
 
-    # 🔒 VERIFICA SE O UTILIZADOR É ADMIN PARA EXIBIR/OCULTAR O DESCONTO MANUAL NO FRONT
-    eh_admin = verificar_eh_admin(usuario)
-
     return templates.TemplateResponse(
         request,
         "pdv/index.html",
@@ -78,7 +58,6 @@ def tela_pdv(
             "produtos":            produtos,
             "clientes":            clientes,
             "desconto_associado":  DESCONTO_ASSOCIADO,
-            "eh_admin":            eh_admin,  # 👈 Variável enviada para o template HTML
         }
     )
 
@@ -92,8 +71,6 @@ def finalizar_venda(
     forma_pagamento_2: str = Form(""),
     valor_pagamento_2: float = Form(0.0),
     cliente_id: int    = Form(0),    # 0 = sem cliente identificado
-    desconto_manual: float = Form(0.0),  # Recebe o valor do desconto manual
-    tipo_desconto: str = Form("RS"),     # 👈 ACRESCENTADO: Recebe se o desconto é em "RS" (R$) ou "PCT" (%)
     observacao: str    = Form(""),
     db: Session        = Depends(get_db),
     usuario            = Depends(get_usuario_logado)
@@ -165,33 +142,9 @@ def finalizar_venda(
             "produto_nome":  produto.nome,
         })
 
-    # ── 🔴 CÁLCULO E TRAVA DE SEGURANÇA DO DESCONTO MANUAL (R$ OU %) ──
-    desconto_associado_valor = total_bruto * (desconto_percentual / 100)
-    val_manual = max(0.0, float(desconto_manual or 0.0))
-
-    # 👈 ACRESCENTADO: Converte a percentagem em valor monetário se for do tipo %
-    if tipo_desconto == "PCT":
-        desconto_manual_val = total_bruto * (val_manual / 100.0)
-    else:
-        desconto_manual_val = val_manual
-
-    # 🔴 BLOQUEIO NO BACK-END: Se o desconto manual for maior que o valor bruto, recusa a venda
-    if desconto_manual_val > total_bruto:
-        return RedirectResponse(
-            url="/pdv?erro=desconto_maior_total",
-            status_code=302
-        )
-
-    # Soma os dois descontos
-    desconto_total_valor = desconto_associado_valor + desconto_manual_val
-
-    # Garante que o desconto total acumulado não ultrapasse 100% do valor bruto
-    if desconto_total_valor > total_bruto:
-        desconto_total_valor = total_bruto
-
-    # Calcula o valor líquido real com desconto
-    total_liquido  = round(total_bruto - desconto_total_valor, 2)
-    desconto_percentual_efetivo = (desconto_total_valor / total_bruto * 100) if total_bruto > 0 else 0.0
+    # ── Calcula desconto e total final
+    desconto_valor = total_bruto * (desconto_percentual / 100)
+    total_liquido  = round(total_bruto - desconto_valor, 2)
 
     # ── Valida formas de pagamento (Sprint 3) ────────────────
     pagamentos = []
@@ -213,18 +166,15 @@ def finalizar_venda(
 
     soma_pagamentos = round(sum(p["valor"] for p in pagamentos), 2)
 
-    # Valida se a soma dos pagamentos fecha exatamente o total líquido
+    # Valida se a soma dos pagamentos fecha exatamente o total
     if abs(soma_pagamentos - total_liquido) > 0.01:
         return RedirectResponse(url="/pdv?erro=pagamento_divergente", status_code=302)
 
-    # Captura o ID do utilizador com segurança
-    usuario_id = usuario.get("id") if isinstance(usuario, dict) else getattr(usuario, "id", None) if usuario else None
-
-    # ── Persiste tudo em uma única transação ─────────────────
+    # ── Persiste tudo em uma única transação
     venda = Venda(
         cliente_id          = cliente_id or None,
-        usuario_id          = usuario_id,
-        desconto_percentual = round(desconto_percentual_efetivo, 2),
+        usuario_id          = usuario.get("id"),
+        desconto_percentual = desconto_percentual,
         total_bruto         = round(total_bruto, 2),
         total_liquido       = total_liquido,
         observacao          = observacao or None,

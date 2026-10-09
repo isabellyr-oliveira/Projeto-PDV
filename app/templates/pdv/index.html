@@ -102,21 +102,6 @@
                     </select>
                 </div>
 
-                <!-- 🔒 ACRESCENTADO: SELETOR DE TIPO (R$ OU %) E CAMPO DE DESCONTO MANUAL PARA ADMINISTRADORES -->
-                {% if eh_admin or (usuario and (usuario.is_admin or usuario.username == 'admin' or usuario.nome == 'admin' or usuario.cargo == 'admin')) %}
-                <div style="margin-bottom: 10px;">
-                    <label style="font-size: 11px; font-weight: bold; color: #666; text-transform: uppercase;">Desconto Manual</label>
-                    <div style="display: flex; gap: 6px; margin-top: 4px;">
-                        <!-- 👈 ACRESCENTADO: Dropdown com escolha entre R$ ou % -->
-                        <select name="tipo_desconto" id="tipo_desconto" onchange="atualizarTotaisEPagamentos()" style="width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 13px; outline: none; background: #fff;">
-                            <option value="RS">R$</option>
-                            <option value="PCT">%</option>
-                        </select>
-                        <input type="number" step="0.01" min="0" name="desconto_manual" id="desconto_manual" oninput="atualizarTotaisEPagamentos()" placeholder="0,00" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 13px; outline: none; box-sizing: border-box;">
-                    </div>
-                </div>
-                {% endif %}
-
                 <!-- Div onde o JS desenha dinamicamente as linhas dos produtos no carrinho -->
                 <div id="lista-carrinho" style="max-height: 180px; min-height: 100px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; padding: 10px; margin-bottom: 10px; background: #fafafa;">
                     <div id="carrinho-vazio" style="text-align: center; color: #aaa; margin-top: 30px; font-size: 13px;">
@@ -165,7 +150,7 @@
                     <!-- Textarea opcional enviada como observacao no formulario -->
                     <textarea name="observacao" id="observacao" placeholder="Observações do pedido..." style="width: 100%; height: 38px; border: 1px solid #ccc; border-radius: 5px; padding: 6px; font-size: 11px; resize: none; box-sizing: border-box; outline: none; margin-bottom: 8px;"></textarea>
 
-                    <!-- Exibição do valor total líquido calculado da compra -->
+                    <!-- Exibição do valor total líquido calculated da compra -->
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                         <span style="font-size: 13px; color: #555;">Total Venda:</span>
                         <span id="valor-total" style="font-size: 16px; font-weight: bold; color: #333;">R$ 0,00</span>
@@ -317,50 +302,19 @@
         renderizarCarrinho();
     }
 
-    // 🔴 CALCULA O TOTAL LÍQUIDO SUPORTANDO DESCONTO EM R$ OU EM %
+    // Calcula o total bruto e aplica o desconto se o cliente selecionado for associado
     function calcularTotalLiquido() {
         // Multiplica o preço pela quantidade usando o método reduce e soma tudo
         let totalBruto = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
         
         // Obtém o cliente selecionado no dropdown e consulta o desconto atribuído
         const selectCliente = document.getElementById("cliente-id");
-        const optionSelecionado = selectCliente ? selectCliente.options[selectCliente.selectedIndex] : null;
-        const percentualDesconto = optionSelecionado ? parseFloat(optionSelecionado.getAttribute("data-desconto") || "0") : 0;
+        const optionSelecionado = selectCliente.options[selectCliente.selectedIndex];
+        const percentualDesconto = parseFloat(optionSelecionado.getAttribute("data-desconto") || "0");
 
-        // Calcula o desconto monetário de associado
-        const descontoAssociado = totalBruto * (percentualDesconto / 100);
-
-        // 👈 ACRESCENTADO: Lê o tipo ("RS" ou "PCT") e o valor do desconto manual
-        const inputDesconto = document.getElementById("desconto_manual");
-        const selectTipoDesconto = document.getElementById("tipo_desconto");
-        const tipoDesconto = selectTipoDesconto ? selectTipoDesconto.value : "RS";
-
-        let valManual = inputDesconto ? (parseFloat(inputDesconto.value) || 0) : 0;
-        if (valManual < 0) valManual = 0;
-
-        let descontoManualValor = 0;
-        if (tipoDesconto === "PCT") {
-            descontoManualValor = totalBruto * (valManual / 100);
-        } else {
-            descontoManualValor = valManual;
-        }
-
-        // Destaca a caixa em vermelho se o desconto manual for maior que o total bruto
-        if (inputDesconto) {
-            if (descontoManualValor > totalBruto && totalBruto > 0) {
-                inputDesconto.style.borderColor = "#dc3545";
-                inputDesconto.style.backgroundColor = "#f8d7da";
-            } else {
-                inputDesconto.style.borderColor = "#ccc";
-                inputDesconto.style.backgroundColor = "#fff";
-            }
-        }
-
-        // Soma dos descontos acumulados
-        let descontoTotal = descontoAssociado + descontoManualValor;
-
-        // Retorna o valor líquido subtraindo o desconto total do bruto (mínimo 0)
-        return Math.max(0, totalBruto - descontoTotal);
+        // Calcula o desconto monetário e subtrai do total bruto
+        const descontoValor = totalBruto * (percentualDesconto / 100);
+        return Math.max(0, totalBruto - descontoValor);
     }
 
     // Constrói o HTML dinâmico dos itens do carrinho e exibe na tela
@@ -421,7 +375,7 @@
         calcularSaldoRestante();
     }
 
-    // Valida no front-end a soma das formas de pagamento contra o valor total líquido da venda
+    // Valida no front-end a soma das formas de pagamento contra o valor total líquido da venda (Sprint 3)
     function calcularSaldoRestante() {
         const totalLiquido = calcularTotalLiquido();
         const val1 = parseFloat(document.getElementById("valor_pagamento_1").value) || 0;
@@ -481,20 +435,6 @@
             return;
         }
 
-        // 🔴 VALIDAÇÃO CRÍTICA DO DESCONTO MANUAL (R$ OU %): Impede o envio se o desconto for maior que o valor total bruto
-        let totalBruto = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
-        const inputDesconto = document.getElementById("desconto_manual");
-        const selectTipoDesconto = document.getElementById("tipo_desconto");
-        const tipoDesconto = selectTipoDesconto ? selectTipoDesconto.value : "RS";
-
-        let valManual = inputDesconto ? (parseFloat(inputDesconto.value) || 0) : 0;
-        let descontoManualValor = (tipoDesconto === "PCT") ? (totalBruto * (valManual / 100)) : valManual;
-
-        if (descontoManualValor > totalBruto) {
-            alert("Desconto maior que o valor total");
-            return;
-        }
-
         const totalLiquido = calcularTotalLiquido();
         const val1 = parseFloat(document.getElementById("valor_pagamento_1").value) || 0;
         const val2 = parseFloat(document.getElementById("valor_pagamento_2").value) || 0;
@@ -535,9 +475,6 @@
         if (erro === 'estoque') msg = `Estoque insuficiente para o produto: ${params.get('produto') || ''}`;
         if (erro === 'sem_pagamento') msg = "Informe pelo menos uma forma de pagamento com valor válido!";
         if (erro === 'pagamento_divergente') msg = "A soma dos pagamentos informados não confere com o total da compra!";
-        if (erro === 'desconto_maior_total' || erro === 'desconto_acima_subtotal' || erro === 'desconto_maior_que_valor_bruto') {
-            msg = "Desconto maior que o valor total";
-        }
 
         // Preenche a div container-alertas com o card visual vermelho de erro
         document.getElementById("container-alertas").innerHTML = `
