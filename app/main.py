@@ -7,6 +7,13 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from app.auth import get_usuario_opcional
 
+# Imports do banco e dos modelos para criação automática das tabelas (incluindo pagamentos_venda)
+from app.database import Base, engine
+import app.models.venda  # Garante o carregamento dos modelos Venda, ItemVenda e PagamentoVenda
+
+# Executa a criação/sincronização de todas as tabelas no SQLite
+Base.metadata.create_all(bind=engine)
+
 from app.controllers import auth_controller
 from app.controllers import usuario_controller
 from app.controllers import categoria_controller
