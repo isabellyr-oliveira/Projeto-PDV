@@ -79,7 +79,7 @@ def gerar_intervalo_paginas(
 def listar_categorias(
     request: Request,
     pagina: int = 1,
-    por_pagina: int = 10,
+    por_pagina: int = 2,
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):

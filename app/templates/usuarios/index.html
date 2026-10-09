@@ -324,54 +324,51 @@
         {% endif %}
     </div>
 
-    <!-- Bloco de Paginação  -->
-    {% if total_paginas > 1 %}
-    <div class="pagination-wrapper">
-        <div class="pagination-subtitle">
-            Página {{ pagina }} de {{ total_paginas }}
-        </div>
+    <!-- Paginação de Usuários -->
+{% if total_paginas > 1 %}
+<div class="pagination-wrapper">
+    <div class="pagination-subtitle">
+        Página {{ pagina }} de {{ total_paginas }}
+    </div>
 
-        <div class="pagination-container">
-            <!-- Botão Voltar -->
-            {% if pagina > 1 %}
-            <a href="/produtos/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
-                class="btn-page-pill">
+    <div class="pagination-container">
+        <!-- BOTÃO VOLTAR -->
+        {% if pagina > 1 %}
+            <a href="/usuarios/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}" class="btn-page-pill">
                 <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
             </a>
-            {% else %}
+        {% else %}
             <span class="btn-page-pill disabled">
                 <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
             </span>
-            {% endif %}
+        {% endif %}
 
-            <!-- Números e Reticências -->
-            <div class="pagination-numbers">
-                {% for item in intervalo_paginas %}
+        <!-- NÚMEROS DAS PÁGINAS -->
+        <div class="pagination-numbers">
+            {% for item in intervalo_paginas %}
                 {% if item == "..." %}
-                <span class="page-dots">...</span>
+                    <span class="page-dots">...</span>
                 {% elif item == pagina %}
-                <span class="page-num active">{{ item }}</span>
+                    <span class="page-num active">{{ item }}</span>
                 {% else %}
-                <a href="/produtos/?pagina={{ item }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
-                    class="page-num">{{ item }}</a>
+                    <a href="/usuarios/?pagina={{ item }}&por_pagina={{ por_pagina }}" class="page-num">{{ item }}</a>
                 {% endif %}
-                {% endfor %}
-            </div>
-
-            <!-- Botão Próximo -->
-            {% if pagina < total_paginas %} <a
-                href="/produtos/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
-                class="btn-page-pill">
-                Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
-                </a>
-                {% else %}
-                <span class="btn-page-pill disabled">
-                    Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
-                </span>
-                {% endif %}
+            {% endfor %}
         </div>
+
+        <!-- BOTÃO PRÓXIMO -->
+        {% if pagina < total_paginas %}
+            <a href="/usuarios/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}" class="btn-page-pill">
+                Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
+            </a>
+        {% else %}
+            <span class="btn-page-pill disabled">
+                Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
+            </span>
+        {% endif %}
     </div>
-    {% endif %}
+</div>
+{% endif %}
 
     <!-- Botão de voltar para a Home -->
     <a href="/pdv" class="back-link">
