@@ -236,11 +236,104 @@
     .back-link:hover {
         text-decoration: underline;
     }
+
+    /* ESTILOS DA PAGINAÇÃO */
+    .pagination-wrapper {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 12px !important;
+        margin: 2rem 0 !important;
+    }
+
+    .pagination-subtitle {
+        font-size: 0.95rem;
+        color: #475569;
+        font-weight: 500;
+    }
+
+    .pagination-container {
+        display: flex !important;
+        align-items: center !important;
+        gap: 16px !important;
+    }
+
+    .btn-page-pill {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        height: 38px !important;
+        padding: 0 18px !important;
+        border-radius: 50px !important;
+        border: 1px solid #94a3b8 !important;
+        background-color: transparent !important;
+        color: #1e293b !important;
+        font-size: 0.9rem !important;
+        font-weight: 500 !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease !important;
+        cursor: pointer !important;
+    }
+
+    .btn-page-pill:hover:not(.disabled) {
+        background-color: rgba(255, 255, 255, 0.6) !important;
+        border-color: #475569 !important;
+        color: #0f172a !important;
+    }
+
+    .btn-page-pill.disabled {
+        background-color: transparent !important;
+        border-color: #e2e8f0 !important;
+        color: #cbd5e1 !important;
+        cursor: not-allowed !important;
+    }
+
+    .pagination-numbers {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+    }
+
+    .page-num {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 50% !important;
+        color: #334155 !important;
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .page-num:hover:not(.active) {
+        background-color: #e2e8f0 !important;
+        color: #0f172a !important;
+    }
+
+    .page-num.active {
+        background-color: #2563eb !important;
+        color: #ffffff !important;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35) !important;
+    }
+
+    .page-dots {
+        color: #64748b;
+        font-weight: 600;
+        padding: 0 4px;
+    }
+
+    .icon-sm {
+        font-size: 0.75rem;
+    }
 </style>
 
 <div class="page-container">
 
-    <!-- Card de Cabeçalho da Página (Igual Categorias) -->
+    <!-- Card de Cabeçalho da Página -->
     <section class="page-card header-card">
         <div class="title-group">
             <h2><i class="fa-solid fa-users"></i> Gerenciamento de Usuários</h2>
@@ -288,8 +381,7 @@
                     <td style="font-weight: 600;">{{ u.nome }}</td>
                     <td>{{ u.email }}</td>
                     <td>
-                        <span
-                            class="badge-role {% if u.role == 'admin' %}badge-admin{% else %}badge-operador{% endif %}">
+                        <span class="badge-role {% if u.role == 'admin' %}badge-admin{% else %}badge-operador{% endif %}">
                             {{ u.role }}
                         </span>
                     </td>
@@ -304,11 +396,9 @@
 
                             <form action="/usuarios/{{ u.id }}/toggle-ativo" method="post" style="display: inline;">
                                 {% if u.ativo %}
-                                <button type="submit" class="btn-action btn-toggle-off"
-                                    title="Desativar usuário">Desativar</button>
+                                <button type="submit" class="btn-action btn-toggle-off" title="Desativar usuário">Desativar</button>
                                 {% else %}
-                                <button type="submit" class="btn-action btn-toggle-on"
-                                    title="Ativar usuário">Ativar</button>
+                                <button type="submit" class="btn-action btn-toggle-on" title="Ativar usuário">Ativar</button>
                                 {% endif %}
                             </form>
                         </div>
@@ -325,7 +415,7 @@
     </div>
 
     <!-- Paginação de Usuários -->
-    {% if total_paginas > 1 %}
+    {% if total_paginas and total_paginas > 1 %}
     <div class="pagination-wrapper">
         <div class="pagination-subtitle">
             Página {{ pagina }} de {{ total_paginas }}
@@ -337,51 +427,38 @@
             <a href="/usuarios/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}" class="btn-page-pill">
                 <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
             </a>
-        {% else %}
+            {% else %}
             <span class="btn-page-pill disabled">
                 <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
             </span>
-        {% endif %}
+            {% endif %}
 
             <!-- NÚMEROS DAS PÁGINAS -->
             <div class="pagination-numbers">
                 {% for item in intervalo_paginas %}
-                {% if item == "..." %}
-                    <span class="page-dots">...</span>
-                {% elif item == pagina %}
-                    <span class="page-num active">{{ item }}</span>
-                {% else %}
-                <a href="/usuarios/?pagina={{ item }}&por_pagina={{ por_pagina }}" class="page-num">{{ item }}</a>
-                {% endif %}
+                    {% if item == "..." %}
+                        <span class="page-dots">...</span>
+                    {% elif item == pagina %}
+                        <span class="page-num active">{{ item }}</span>
+                    {% else %}
+                        <a href="/usuarios/?pagina={{ item }}&por_pagina={{ por_pagina }}" class="page-num">{{ item }}</a>
+                    {% endif %}
                 {% endfor %}
             </div>
 
             <!-- BOTÃO PRÓXIMO -->
-            {% if pagina < total_paginas %} <a href="/usuarios/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}"
-                class="btn-page-pill">
-                Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
-                </a>
-                {% else %}
-                <span class="btn-page-pill disabled">
-                    Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
-                </span>
-                {% endif %}
-            {% endfor %}
-        </div>
-
-        <!-- BOTÃO PRÓXIMO -->
-        {% if pagina < total_paginas %}
+            {% if pagina < total_paginas %}
             <a href="/usuarios/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}" class="btn-page-pill">
                 Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
             </a>
-        {% else %}
+            {% else %}
             <span class="btn-page-pill disabled">
                 Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
             </span>
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
-</div>
-{% endif %}
+    {% endif %}
 
     <!-- Botão de voltar para a Home -->
     <a href="/pdv" class="back-link">
