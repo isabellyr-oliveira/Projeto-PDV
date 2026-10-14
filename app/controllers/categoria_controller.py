@@ -25,15 +25,28 @@ templates = Jinja2Templates(directory="app/templates")
 @router.get("/")
 def listar_categorias(
     request: Request,
+    busca: str = "",
+    status: str = "",
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
     """
-    Lista todas as categorias ordenadas por nome.
+    Lista todas as categorias ordenadas por nome com filtro por busca e status.
     Inclui a contagem de produtos de cada categoria
     para dar contexto ao admin antes de desativar.
     """
-    categorias = db.query(Categoria).order_by(Categoria.nome).all()
+    query = db.query(Categoria)
+
+    if busca.strip():
+        termo = f"%{busca.strip()}%"
+        query = query.filter(Categoria.nome.ilike(termo))
+
+    if status == "ativas":
+        query = query.filter(Categoria.ativo == True)
+    elif status == "inativas":
+        query = query.filter(Categoria.ativo == False)
+
+    categorias = query.order_by(Categoria.nome).all()
 
     return templates.TemplateResponse(
         request,
@@ -42,6 +55,8 @@ def listar_categorias(
             "request":    request,
             "usuario":    admin,
             "categorias": categorias,
+            "busca":      busca,
+            "status":     status,
         }
     )
 

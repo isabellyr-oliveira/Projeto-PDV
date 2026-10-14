@@ -15,6 +15,35 @@
         </div>
     </div>
 
+    <!-- Card de Filtros e Busca de Vendas -->
+    <div style="background: #ffffff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px;">
+        <form method="get" action="/pdv/historico" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            
+            <div style="flex: 1; min-width: 220px; display: flex; align-items: center; background: #f8f9fa; border: 1px solid #ced4da; border-radius: 6px; padding: 0 12px;">
+                <span style="color: #6c757d; margin-right: 8px;">🔍</span>
+                <input type="text" name="busca" placeholder="Buscar por Cliente ou Nº da Venda (#ID)..." value="{{ busca or '' }}" style="border: none; background: transparent; padding: 10px 0; width: 100%; outline: none; font-size: 14px;">
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #495057;">
+                <label>De:</label>
+                <input type="date" name="data_inicio" value="{{ data_inicio or '' }}" style="padding: 8px 12px; border: 1px solid #ced4da; border-radius: 6px; outline: none; font-size: 14px; background: #f8f9fa;">
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #495057;">
+                <label>Até:</label>
+                <input type="date" name="data_fim" value="{{ data_fim or '' }}" style="padding: 8px 12px; border: 1px solid #ced4da; border-radius: 6px; outline: none; font-size: 14px; background: #f8f9fa;">
+            </div>
+
+            <button type="submit" style="background-color: #ff6b00; color: #ffffff; border: none; padding: 9px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px;">
+                Filtrar
+            </button>
+
+            {% if busca or data_inicio or data_fim %}
+                <a href="/pdv/historico" style="color: #6c757d; font-weight: bold; text-decoration: none; font-size: 14px; margin-left: 5px;">Limpar</a>
+            {% endif %}
+        </form>
+    </div>
+
     <!-- Tabela em Card Embutido -->
     <div style="background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;">
         
@@ -94,7 +123,7 @@
                 {% else %}
                 <tr>
                     <td colspan="8" style="padding: 30px; text-align: center; color: #999;">
-                        Nenhuma venda registrada até o momento.
+                        Nenhuma venda encontrada.
                     </td>
                 </tr>
                 {% endfor %}

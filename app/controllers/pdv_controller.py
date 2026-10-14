@@ -1,4 +1,3 @@
-# ============================================================
 # controllers/pdv_controller.py — Ponto de Venda
 
 # O PDV funciona assim:
@@ -9,6 +8,7 @@
 # ============================================================
 
 import json
+from datetime import datetime, time
 from fastapi import APIRouter, Depends, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -53,11 +53,11 @@ def tela_pdv(
         request,
         "pdv/index.html",
         {
-            "request":             request,
-            "usuario":             usuario,
-            "produtos":            produtos,
-            "clientes":            clientes,
-            "desconto_associado":  DESCONTO_ASSOCIADO,
+            "request":            request,
+            "usuario":            usuario,
+            "produtos":           produtos,
+            "clientes":           clientes,
+            "desconto_associado": DESCONTO_ASSOCIADO,
         }
     )
 
@@ -196,18 +196,41 @@ def detalhe_venda(
 @router.get("/historico")
 def historico_vendas(
     request: Request,
+    busca: str = "",
+    data_inicio: str = "",
+    data_fim: str = "",
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado)
 ):
-    """Histórico de todas as vendas."""
-    vendas = (
-        db.query(Venda)
-        .order_by(Venda.criado_em.desc())
-        .limit(100)
-        .all()
-    )
+    """Histórico de vendas com busca por cliente/ID e filtro de datas."""
+    query = db.query(Venda).outerjoin(Cliente)
+
+    if busca.strip():
+        termo = f"%{busca.strip()}%"
+        if busca.strip().isdigit():
+            query = query.filter(Venda.id == int(busca.strip()))
+        else:
+            query = query.filter(Cliente.nome.ilike(termo))
+
+    if data_inicio:
+        dt_ini = datetime.combine(datetime.strptime(data_inicio, "%Y-%m-%d").date(), time.min)
+        query = query.filter(Venda.criado_em >= dt_ini)
+
+    if data_fim:
+        dt_fim = datetime.combine(datetime.strptime(data_fim, "%Y-%m-%d").date(), time.max)
+        query = query.filter(Venda.criado_em <= dt_fim)
+
+    vendas = query.order_by(Venda.criado_em.desc()).limit(200).all()
+
     return templates.TemplateResponse(
         request,
         "pdv/historico.html",
-        {"request": request, "usuario": usuario, "vendas": vendas}
+        {
+            "request": request,
+            "usuario": usuario,
+            "vendas": vendas,
+            "busca": busca,
+            "data_inicio": data_inicio,
+            "data_fim": data_fim,
+        }
     )
