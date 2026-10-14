@@ -1,99 +1,175 @@
+<!-- Herda o layout base padrão do projeto (header, navbar, imports globais) -->
 {% extends "base.html" %}
 
+<!-- Define o título que aparecerá na aba do navegador para esta página -->
 {% block title %}PDV - Vendas{% endblock %}
 
+<!-- Início do bloco de conteúdo principal injetado dentro da tag <main> do base.html -->
 {% block content %}
+<!-- Container principal da página centralizado com largura máxima de 1400px -->
 <div style="width: 100%; max-width: 1400px; margin: 0 auto; padding: 20px; box-sizing: border-box; font-family: Arial, sans-serif;">
     
-    <!-- Alertas de Erro (retornados pela URL) -->
+    <!-- Elemento onde o JavaScript injeta os alertas de erro vindos da URL (?erro=...) -->
     <div id="container-alertas"></div>
 
+    <!-- Container flexível que divide a tela entre o catálogo (esquerda) e o carrinho (direita) -->
     <div style="display: flex; gap: 20px; align-items: flex-start;">
         
-        <!-- SEÇÃO ESQUERDA: Busca + Catálogo de Produtos -->
+        <!-- ================================================================= -->
+        <!-- SEÇÃO ESQUERDA: Busca e Catálogo de Produtos                      -->
+        <!-- ================================================================= -->
+        <!-- Div flexível que ocupa todo o espaço restante do lado esquerdo (flex: 1) -->
         <div style="flex: 1; display: flex; flex-direction: column; gap: 15px;">
             
-            <!-- Campo de Busca Instantânea -->
+            <!-- Card branco que engloba o campo de busca de produtos -->
             <div style="background: #fff; padding: 12px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                <!-- Input de texto para filtrar produtos instantaneamente via JS ao digitar (onkeyup) -->
                 <input type="text" id="busca-produto" onkeyup="filtrarProdutos()" placeholder="🔍 Buscar produto por nome..." style="width: 100%; padding: 10px 14px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; outline: none;">
             </div>
 
-            <!-- Grade de Produtos Compacta -->
+            <!-- Grade CSS Grid responsiva onde os produtos disponíveis são renderizados em cards -->
             <div id="grade-produtos" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); max-height: calc(100vh - 180px); overflow-y: auto;">
+                <!-- Loop Jinja2 que percorre a lista de produtos enviada pelo backend (pdv_controller.py) -->
                 {% for produto in produtos %}
+                <!-- Card individual do produto; passa ID, nome, preço e estoque ao ser clicado (onclick) -->
                 <div class="card-produto" data-nome="{{ produto.nome|lower }}" onclick="adicionarAoCarrinho({{ produto.id }}, '{{ produto.nome }}', {{ produto.preco }}, {{ produto.estoque_atual }})" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; background: #fff; display: flex; flex-direction: column; justify-content: space-between; height: 210px; box-sizing: border-box;">
                     
-                    <!-- Container da Imagem -->
+                    <!-- Container da imagem com altura fixa para manter alinhamento -->
                     <div style="height: 90px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+                        <!-- Condicional Jinja2: exibe a foto do produto se existir no banco de dados -->
                         {% if produto.imagem_path %}
                             <img src="/static/{{ produto.imagem_path }}" alt="{{ produto.nome }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                        <!-- Se não tiver imagem, exibe um ícone genérico de imagem -->
                         {% else %}
                             <i class="fa-regular fa-image" style="font-size: 32px; color: #ccc;"></i>
                         {% endif %}
                     </div>
 
-                    <!-- Nome do Produto -->
+                    <!-- Nome do produto limitado a duas linhas visualmente -->
                     <div style="font-weight: bold; font-size: 13px; color: #333; line-height: 1.2; height: 32px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
                         {{ produto.nome }}
                     </div>
 
-                    <!-- Preço e Estoque -->
+                    <!-- Seção inferior do card com preço e quantidade disponível em estoque -->
                     <div style="margin-top: 5px;">
+                        <!-- Preço formatado com duas casas decimais pelo filtro do Jinja2 -->
                         <div style="color: #ff6b00; font-weight: bold; font-size: 15px;">
                             R$ {{ "%.2f"|format(produto.preco) }}
                         </div>
+                        <!-- Quantidade atual em estoque do produto -->
                         <div style="color: #888; font-size: 11px; margin-top: 2px;">
                             Estoque: {{ produto.estoque_atual }}
                         </div>
                     </div>
                 </div>
+                <!-- Fim do loop de produtos -->
                 {% endfor %}
             </div>
         </div>
 
-        <!-- SEÇÃO DIREITA: Carrinho de Compras e Envio -->
-        <div style="width: 360px; background: #fff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); padding: 18px; display: flex; flex-direction: column; height: calc(100vh - 120px); box-sizing: border-box; position: sticky; top: 20px;">
+        <!-- ================================================================= -->
+        <!-- SEÇÃO DIREITA: Carrinho de Compras, Pagamentos e Envio           -->
+        <!-- ================================================================= -->
+        <!-- Painel lateral fixo (width: 380px) reservado ao checkout do PDV -->
+        <div style="width: 380px; background: #fff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); padding: 18px; display: flex; flex-direction: column; height: calc(100vh - 100px); box-sizing: border-box; position: sticky; top: 20px;">
             
-            <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <!-- Cabeçalho da coluna do carrinho com ícone e botão para esvaziar -->
+            <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
                 <span><i class="fa-solid fa-cart-shopping" style="color: #ff6b00; margin-right: 8px;"></i> Carrinho</span>
-                <button onclick="limparCarrinho()" style="background: none; border: none; color: #dc3545; font-size: 12px; cursor: pointer; text-decoration: underline;">Limpar</button>
+                <button type="button" onclick="limparCarrinho()" style="background: none; border: none; color: #dc3545; font-size: 12px; cursor: pointer; text-decoration: underline;">Limpar</button>
             </h3>
 
-            <!-- Form oculto que enviará a requisição POST oficial -->
-            <form id="form-pdv" action="/pdv/finalizar" method="POST" style="display: flex; flex-direction: column; height: 100%;">
+            <!-- Formulário HTML enviado via POST para a rota /pdv/finalizar no backend -->
+            <form id="form-pdv" action="/pdv/finalizar" method="POST" style="display: flex; flex-direction: column; height: 100%; overflow-y: auto;">
                 
+                <!-- Input invisível onde o JS insere o JSON com os produtos selecionados -->
                 <input type="hidden" name="carrinho_json" id="carrinho_json">
 
-                <!-- Seleção de Cliente -->
-                <div style="margin-bottom: 12px;">
+                <!-- Campo de seleção do cliente com identificação de desconto -->
+                <div style="margin-bottom: 10px;">
                     <label style="font-size: 11px; font-weight: bold; color: #666; text-transform: uppercase;">Cliente</label>
-                    <select name="cliente_id" id="cliente-id" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 13px; margin-top: 4px; outline: none;">
-                        <option value="0">Sem identificação (Balcão)</option>
+                    <!-- Executa atualizarTotaisEPagamentos() ao mudar de cliente para recalcular o desconto -->
+                    <select name="cliente_id" id="cliente-id" onchange="atualizarTotaisEPagamentos()" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 13px; margin-top: 4px; outline: none;">
+                        <!-- Opção padrão para vendas sem identificação no balcão -->
+                        <option value="0" data-desconto="0">Sem identificação (Balcão)</option>
+                        <!-- Loop Jinja2 para popular os clientes cadastrados -->
                         {% for cliente in clientes %}
-                            <option value="{{ cliente.id }}">
+                            <!-- Armazena o percentual de desconto no atributo customizado data-desconto -->
+                            <option value="{{ cliente.id }}" data-desconto="{% if cliente.is_associado %}{{ desconto_associado }}{% else %}0{% endif %}">
                                 {{ cliente.nome }} {% if cliente.is_associado %}(Desconto {{ desconto_associado }}%){% endif %}
                             </option>
                         {% endfor %}
                     </select>
                 </div>
 
-                <!-- Lista de Itens Dinâmica -->
-                <div id="lista-carrinho" style="flex: 1; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; padding: 10px; margin-bottom: 12px; background: #fafafa;">
-                    <div id="carrinho-vazio" style="text-align: center; color: #aaa; margin-top: 40px; font-size: 13px;">
+                <!-- Div onde o JS desenha dinamicamente as linhas dos produtos no carrinho -->
+                <div id="lista-carrinho" style="max-height: 180px; min-height: 100px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; padding: 10px; margin-bottom: 10px; background: #fafafa;">
+                    <div id="carrinho-vazio" style="text-align: center; color: #aaa; margin-top: 30px; font-size: 13px;">
                         Nenhum produto adicionado
                     </div>
                 </div>
 
-                <!-- Totais, Observações e Botão -->
-                <div style="border-top: 1px solid #eee; padding-top: 10px;">
-                    <textarea name="observacao" id="observacao" placeholder="Observações do pedido..." style="width: 100%; height: 45px; border: 1px solid #ccc; border-radius: 5px; padding: 6px; font-size: 12px; resize: none; box-sizing: border-box; outline: none; margin-bottom: 10px;"></textarea>
+                <!-- ========================================================= -->
+                <!-- REQUISITO SPRINT 3 SENAI: DUAS FORMAS DE PAGAMENTO        -->
+                <!-- ========================================================= -->
+                <div style="border-top: 1px solid #eee; padding-top: 10px; margin-bottom: 10px;">
+                    <label style="font-size: 11px; font-weight: bold; color: #666; text-transform: uppercase; display: block; margin-bottom: 6px;">
+                        <i class="fa-solid fa-wallet" style="color: #ff6b00;"></i> Formas de Pagamento
+                    </label>
 
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <span style="font-size: 15px; font-weight: bold; color: #444;">Total:</span>
-                        <span id="valor-total" style="font-size: 20px; font-weight: bold; color: #28a745;">R$ 0,00</span>
+                    <!-- 1ª Forma de Pagamento (Select do tipo + Input do valor) -->
+                    <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                        <!-- Tipo da 1ª forma enviada como forma_pagamento_1 -->
+                        <select name="forma_pagamento_1" id="forma_pagamento_1" style="flex: 1.2; padding: 6px; border: 1px solid #ccc; border-radius: 5px; font-size: 12px; outline: none;">
+                            <option value="Dinheiro">Dinheiro</option>
+                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                            <option value="Cartão de Débito">Cartão de Débito</option>
+                            <option value="PIX">PIX</option>
+                        </select>
+                        <!-- Valor numérico pago na 1ª forma enviado como valor_pagamento_1 -->
+                        <input type="number" step="0.01" min="0" name="valor_pagamento_1" id="valor_pagamento_1" oninput="calcularSaldoRestante()" placeholder="Valor 1" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 5px; font-size: 12px; outline: none;">
                     </div>
 
-                    <button type="button" onclick="submeterVenda()" style="width: 100%; background: #ff6b00; color: #fff; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; transition: background 0.2s;">
+                    <!-- 2ª Forma de Pagamento (Select do tipo + Input do valor) -->
+                    <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                        <!-- Tipo da 2ª forma enviada como forma_pagamento_2 (opcional) -->
+                        <select name="forma_pagamento_2" id="forma_pagamento_2" style="flex: 1.2; padding: 6px; border: 1px solid #ccc; border-radius: 5px; font-size: 12px; outline: none;">
+                            <option value="">Nenhuma (2ª Forma)</option>
+                            <option value="Dinheiro">Dinheiro</option>
+                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                            <option value="Cartão de Débito">Cartão de Débito</option>
+                            <option value="PIX">PIX</option>
+                        </select>
+                        <!-- Valor numérico pago na 2ª forma enviado como valor_pagamento_2 -->
+                        <input type="number" step="0.01" min="0" name="valor_pagamento_2" id="valor_pagamento_2" oninput="calcularSaldoRestante()" placeholder="Valor 2" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 5px; font-size: 12px; outline: none;">
+                    </div>
+                </div>
+
+                <!-- Rodapé do formulário: caixa de texto para observações, resumo e submissão -->
+                <div style="border-top: 1px solid #eee; padding-top: 8px;">
+                    <!-- Textarea opcional enviada como observacao no formulario -->
+                    <textarea name="observacao" id="observacao" placeholder="Observações do pedido..." style="width: 100%; height: 38px; border: 1px solid #ccc; border-radius: 5px; padding: 6px; font-size: 11px; resize: none; box-sizing: border-box; outline: none; margin-bottom: 8px;"></textarea>
+
+                    <!-- Exibição do valor total líquido calculated da compra -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span style="font-size: 13px; color: #555;">Total Venda:</span>
+                        <span id="valor-total" style="font-size: 16px; font-weight: bold; color: #333;">R$ 0,00</span>
+                    </div>
+
+                    <!-- Exibição da soma acumulada dos pagamentos inseridos pelo usuário -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span style="font-size: 12px; color: #666;">Total Pago:</span>
+                        <span id="valor-pago" style="font-size: 14px; font-weight: bold; color: #007bff;">R$ 0,00</span>
+                    </div>
+
+                    <!-- Exibição do saldo restante ou troco/sobra calculado em tempo real -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-size: 13px; font-weight: bold; color: #444;">Saldo Restante:</span>
+                        <span id="saldo-restante" style="font-size: 15px; font-weight: bold; color: #dc3545;">R$ 0,00</span>
+                    </div>
+
+                    <!-- Botão de acionamento do JavaScript para validar e submeter a venda -->
+                    <button type="button" id="btn-finalizar" onclick="submeterVenda()" style="width: 100%; background: #ff6b00; color: #fff; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; transition: background 0.2s;">
                         Finalizar Venda
                     </button>
                 </div>
@@ -104,43 +180,71 @@
     </div>
 </div>
 
+<!-- ===================================================================== -->
+<!-- ESTILOS ESPECÍFICOS DA PÁGINA DO PDV                                 -->
+<!-- ===================================================================== -->
 <style>
+    /* Efeito de elevação nos cards de produtos ao passar o ponteiro do mouse */
     .card-produto:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         border-color: #ff6b00 !important;
     }
+    /* Estilização das linhas de itens dentro da caixa do carrinho */
     .item-carrinho-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 8px 0;
+        padding: 6px 0;
         border-bottom: 1px solid #eef;
-        font-size: 13px;
+        font-size: 12px;
     }
+    /* Botões para incrementar e decrementar a quantidade (+ e -) */
     .btn-qtd {
         background: #e9ecef;
         border: 1px solid #ced4da;
-        width: 22px;
-        height: 22px;
+        width: 20px;
+        height: 20px;
         border-radius: 4px;
         font-weight: bold;
         cursor: pointer;
     }
 </style>
 
+<!-- ===================================================================== -->
+<!-- LÓGICA E INTERATIVIDADE EM JAVASCRIPT                                 -->
+<!-- ===================================================================== -->
 <script>
+    // Recupera os itens do carrinho gravados no sessionStorage ou inicia uma lista vazia
     let carrinho = JSON.parse(sessionStorage.getItem('pdv_carrinho')) || [];
 
+    // Executa a renderização inicial, verificação de erros e verificação de abertura de comprovante
     document.addEventListener("DOMContentLoaded", function() {
         renderizarCarrinho();
         verificarErrosURL();
+        verificarAberturaComprovante();
     });
 
+    // Função para verificar se a URL retornou a finalização da venda para abrir o comprovante em nova aba
+    function verificarAberturaComprovante() {
+        const params = new URLSearchParams(window.location.search);
+        const vendaId = params.get('venda_id');
+        
+        if (vendaId) {
+            // Abre o comprovante da venda realizada em uma nova aba do navegador
+            window.open(`/pdv/venda/${vendaId}`, '_blank');
+            // Limpa os parâmetros da URL no PDV para permitir novas vendas sem reabrir a aba em F5
+            window.history.replaceState({}, document.title, "/pdv");
+        }
+    }
+
+    // Função para adicionar um produto clicado ao carrinho de compras
     function adicionarAoCarrinho(id, nome, preco, estoqueMax) {
+        // Procura se o produto já existe no carrinho atual
         const itemExistente = carrinho.find(item => item.produto_id === id);
 
         if (itemExistente) {
+            // Se já existe, verifica se ainda tem saldo de estoque antes de aumentar a quantidade
             if (itemExistente.quantidade < estoqueMax) {
                 itemExistente.quantidade++;
             } else {
@@ -148,6 +252,7 @@
                 return;
             }
         } else {
+            // Se é um produto novo, insere o objeto no array do carrinho
             carrinho.push({
                 produto_id: id,
                 nome: nome,
@@ -156,17 +261,21 @@
                 estoque_max: estoqueMax
             });
         }
+        // Salva a alteração na sessão e atualiza a tela
         salvarERenderizar();
     }
 
+    // Altera a quantidade de um item específico (+1 ou -1)
     function alterarQuantidade(id, delta) {
         const item = carrinho.find(item => item.produto_id === id);
         if (!item) return;
 
         item.quantidade += delta;
 
+        // Se a quantidade for a zero ou menos, remove o item do carrinho
         if (item.quantidade <= 0) {
             carrinho = carrinho.filter(i => i.produto_id !== id);
+        // Se ultrapassar o estoque físico disponível, alerta e fixa no máximo
         } else if (item.quantidade > item.estoque_max) {
             alert("Quantidade superior ao estoque disponível!");
             item.quantidade = item.estoque_max;
@@ -175,38 +284,56 @@
         salvarERenderizar();
     }
 
+    // Remove completamente um item do carrinho pelo ID
     function removerItem(id) {
         carrinho = carrinho.filter(item => item.produto_id !== id);
         salvarERenderizar();
     }
 
+    // Esvazia todos os itens do carrinho de uma só vez
     function limparCarrinho() {
         carrinho = [];
         salvarERenderizar();
     }
 
+    // Persiste o estado do carrinho no sessionStorage do navegador e redesenha a tela
     function salvarERenderizar() {
         sessionStorage.setItem('pdv_carrinho', JSON.stringify(carrinho));
         renderizarCarrinho();
     }
 
+    // Calcula o total bruto e aplica o desconto se o cliente selecionado for associado
+    function calcularTotalLiquido() {
+        // Multiplica o preço pela quantidade usando o método reduce e soma tudo
+        let totalBruto = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
+        
+        // Obtém o cliente selecionado no dropdown e consulta o desconto atribuído
+        const selectCliente = document.getElementById("cliente-id");
+        const optionSelecionado = selectCliente.options[selectCliente.selectedIndex];
+        const percentualDesconto = parseFloat(optionSelecionado.getAttribute("data-desconto") || "0");
+
+        // Calcula o desconto monetário e subtrai do total bruto
+        const descontoValor = totalBruto * (percentualDesconto / 100);
+        return Math.max(0, totalBruto - descontoValor);
+    }
+
+    // Constrói o HTML dinâmico dos itens do carrinho e exibe na tela
     function renderizarCarrinho() {
         const container = document.getElementById("lista-carrinho");
-        const totalElement = document.getElementById("valor-total");
 
+        // Se estiver vazio, exibe o texto informativo e limpa os inputs de pagamento
         if (carrinho.length === 0) {
-            container.innerHTML = `<div id="carrinho-vazio" style="text-align: center; color: #aaa; margin-top: 40px; font-size: 13px;">Nenhum produto adicionado</div>`;
-            totalElement.innerText = "R$ 0,00";
+            container.innerHTML = `<div id="carrinho-vazio" style="text-align: center; color: #aaa; margin-top: 30px; font-size: 13px;">Nenhum produto adicionado</div>`;
+            document.getElementById("valor_pagamento_1").value = "";
+            document.getElementById("valor_pagamento_2").value = "";
+            atualizarTotaisEPagamentos();
             return;
         }
 
         let html = '';
-        let total = 0;
 
+        // Monta a estrutura HTML de cada linha de produto presente no carrinho
         carrinho.forEach(item => {
-            const subtotal = item.preco * item.quantidade;
-            total += subtotal;
-
             html += `
                 <div class="item-carrinho-row">
                     <div style="flex: 1; padding-right: 5px;">
@@ -225,16 +352,73 @@
             `;
         });
 
+        // Injeta a string com as linhas construídas no elemento container
         container.innerHTML = html;
-        totalElement.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+        atualizarTotaisEPagamentos();
     }
 
+    // Atualiza os valores monetários totais e sugere o valor total na 1ª forma se estiver vazia
+    function atualizarTotaisEPagamentos() {
+        const totalLiquido = calcularTotalLiquido();
+        document.getElementById("valor-total").innerText = `R$ ${totalLiquido.toFixed(2).replace('.', ',')}`;
+
+        const inputVal1 = document.getElementById("valor_pagamento_1");
+        const inputVal2 = document.getElementById("valor_pagamento_2");
+
+        // Sugestão automática: se a 2ª forma estiver zerada/vazia, coloca todo o valor restante na 1ª forma
+        if (!inputVal2.value || parseFloat(inputVal2.value) === 0) {
+            if (carrinho.length > 0 && (!inputVal1.value || parseFloat(inputVal1.value) === 0)) {
+                inputVal1.value = totalLiquido.toFixed(2);
+            }
+        }
+
+        calcularSaldoRestante();
+    }
+
+    // Valida no front-end a soma das formas de pagamento contra o valor total líquido da venda (Sprint 3)
+    function calcularSaldoRestante() {
+        const totalLiquido = calcularTotalLiquido();
+        const val1 = parseFloat(document.getElementById("valor_pagamento_1").value) || 0;
+        const val2 = parseFloat(document.getElementById("valor_pagamento_2").value) || 0;
+
+        // Soma os valores inseridos nas duas formas de pagamento
+        const totalPago = val1 + val2;
+        // Calcula a diferença em relação ao total necessário
+        const saldoRestante = totalLiquido - totalPago;
+
+        // Atualiza a exibição do Total Pago na interface
+        document.getElementById("valor-pago").innerText = `R$ ${totalPago.toFixed(2).replace('.', ',')}`;
+
+        const saldoElement = document.getElementById("saldo-restante");
+        saldoElement.innerText = `R$ ${Math.abs(saldoRestante).toFixed(2).replace('.', ',')}`;
+
+        const btn = document.getElementById("btn-finalizar");
+
+        // Se a soma bater exatamente com o total líquido (com tolerância de arredondamento de R$ 0,01)
+        if (carrinho.length > 0 && Math.abs(saldoRestante) < 0.01) {
+            saldoElement.style.color = "#28a745"; // Cor verde de validação
+            btn.disabled = false;
+            btn.style.background = "#ff6b00";
+            btn.innerText = "Finalizar Venda";
+        } else {
+            // Se houver divergência, destaca em vermelho e indica se falta ou sobra dinheiro
+            saldoElement.style.color = "#dc3545"; // Cor vermelha de erro
+            if (saldoRestante > 0) {
+                saldoElement.innerText = `R$ ${saldoRestante.toFixed(2).replace('.', ',')} (Falta)`;
+            } else if (saldoRestante < 0) {
+                saldoElement.innerText = `R$ ${Math.abs(saldoRestante).toFixed(2).replace('.', ',')} (Sobra)`;
+            }
+        }
+    }
+
+    // Filtra os produtos exibidos na tela de acordo com o texto digitado na barra de pesquisa
     function filtrarProdutos() {
         const termo = document.getElementById("busca-produto").value.toLowerCase();
         const cards = document.querySelectorAll(".card-produto");
 
         cards.forEach(card => {
             const nome = card.getAttribute("data-nome");
+            // Se o nome contiver o termo pesquisado, exibe o card; caso contrário, oculta
             if (nome.includes(termo)) {
                 card.style.display = "flex";
             } else {
@@ -243,13 +427,26 @@
         });
     }
 
+    // Executada ao clicar no botão "Finalizar Venda"; faz as últimas verificações e envia o form
     function submeterVenda() {
+        // Impede o envio se o carrinho estiver vazio
         if (carrinho.length === 0) {
             alert("Adicione pelo menos um produto ao carrinho antes de finalizar!");
             return;
         }
 
-        // Formata os itens para o padrão que o controller espera
+        const totalLiquido = calcularTotalLiquido();
+        const val1 = parseFloat(document.getElementById("valor_pagamento_1").value) || 0;
+        const val2 = parseFloat(document.getElementById("valor_pagamento_2").value) || 0;
+        const totalPago = val1 + val2;
+
+        // Impede o envio se a soma das formas de pagamento não bater com o total líquido
+        if (Math.abs(totalPago - totalLiquido) > 0.01) {
+            alert(`A soma das formas de pagamento (R$ ${totalPago.toFixed(2)}) não fecha o valor total da venda (R$ ${totalLiquido.toFixed(2)})!`);
+            return;
+        }
+
+        // Mapeia o carrinho para a estrutura esperada no backend Python (pdv_controller.py)
         const payload = carrinho.map(item => ({
             produto_id: item.produto_id,
             nome: item.nome,
@@ -257,13 +454,15 @@
             quantidade: item.quantidade
         }));
 
+        // Atribui o JSON serializado ao input oculto carrinho_json
         document.getElementById("carrinho_json").value = JSON.stringify(payload);
         
-        // Limpa o armazenamento local ao enviar com sucesso
+        // Limpa o carrinho salvo no navegador para a próxima venda e envia o formulário
         sessionStorage.removeItem('pdv_carrinho');
         document.getElementById("form-pdv").submit();
     }
 
+    // Captura mensagens de erro redirecionadas pela URL e exibe alertas estilizados no topo da tela
     function verificarErrosURL() {
         const params = new URLSearchParams(window.location.search);
         const erro = params.get('erro');
@@ -274,7 +473,10 @@
         if (erro === 'json') msg = "Dados de produtos inválidos.";
         if (erro === 'quantidade') msg = "Quantidade inválida selecionada.";
         if (erro === 'estoque') msg = `Estoque insuficiente para o produto: ${params.get('produto') || ''}`;
+        if (erro === 'sem_pagamento') msg = "Informe pelo menos uma forma de pagamento com valor válido!";
+        if (erro === 'pagamento_divergente') msg = "A soma dos pagamentos informados não confere com o total da compra!";
 
+        // Preenche a div container-alertas com o card visual vermelho de erro
         document.getElementById("container-alertas").innerHTML = `
             <div style="background-color: #f8d7da; color: #721c24; padding: 12px 20px; border-radius: 6px; border: 1px solid #f5c6cb; margin-bottom: 15px; font-size: 14px;">
                 ⚠️ ${msg}
@@ -282,4 +484,5 @@
         `;
     }
 </script>
+<!-- Fim do bloco de conteúdo -->
 {% endblock %}
