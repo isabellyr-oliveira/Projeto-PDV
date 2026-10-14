@@ -3,92 +3,258 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comprovante #{{ venda.id }} — AAPM SENAI</title>
     <style>
-        body { font-family: 'Courier New', monospace; max-width: 400px;
-               margin: 40px auto; background: #f8fafc; color: #1e293b; }
-        .cupom { background: #fff; border: 1px solid #e2e8f0;
-                 border-radius: 12px; padding: 28px; }
-        .titulo { text-align: center; font-weight: 700;
-                  font-size: 18px; margin-bottom: 4px; }
-        .subtitulo { text-align: center; color: #64748b;
-                     font-size: 12px; margin-bottom: 20px; }
-        .linha-sep { border: none; border-top: 1px dashed #e2e8f0;
-                     margin: 14px 0; }
-        .item-linha { display: flex; justify-content: space-between;
-                      font-size: 13px; margin-bottom: 6px; }
-        .item-desc { color: #64748b; font-size: 11px; margin-bottom: 8px; }
-        .total-linha { display: flex; justify-content: space-between;
-                       font-size: 13px; margin-bottom: 6px; color: #64748b; }
-        .total-final { display: flex; justify-content: space-between;
-                       font-size: 18px; font-weight: 800; margin-top: 10px; }
+        /* Importação da fonte monospace mais moderna e legível */
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body { 
+            font-family: 'JetBrains Mono', 'Courier New', monospace; 
+            background: #f1f5f9; 
+            color: #0f172a; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;s
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container-comprovante {
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .cupom { 
+            background: #ffffff; 
+            border: 1px solid #e2e8f0;
+            border-radius: 12px; 
+            padding: 24px; 
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-cupom {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .logo-txt { 
+            font-weight: 800;
+            font-size: 20px; 
+            letter-spacing: -0.5px;
+            color: #0f172a;
+        }
+
+        .subtitulo { 
+            color: #64748b;
+            font-size: 11px; 
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .linha-sep { 
+            border: none; 
+            border-top: 1px dashed #cbd5e1;
+            margin: 12px 0; 
+        }
+
+        .item-linha { 
+            display: flex; 
+            justify-content: space-between;
+            align-items: baseline;
+            font-size: 12px; 
+            margin-bottom: 4px; 
+            font-weight: 600;
+        }
+
+        .item-desc { 
+            color: #64748b; 
+            font-size: 10px; 
+            margin-bottom: 8px; 
+        }
+
+        .total-linha { 
+            display: flex; 
+            justify-content: space-between;
+            font-size: 12px; 
+            margin-bottom: 4px; 
+            color: #475569; 
+        }
+
+        .total-final { 
+            display: flex; 
+            justify-content: space-between;
+            font-size: 17px; 
+            font-weight: 800; 
+            margin-top: 8px; 
+            color: #0f172a;
+        }
+
         .desc-linha { color: #16a34a; }
-        .btn { display: block; text-align: center; margin-top: 20px;
-               padding: 12px; border-radius: 8px; font-weight: 700;
-               font-size: 14px; text-decoration: none; }
-        .btn-nova { background: #1e293b; color: #fff; }
-        .btn-hist  { background: #f1f5f9; color: #1e293b; margin-top: 8px; }
+
+        .pag-titulo { 
+            font-weight: 700; 
+            font-size: 11px; 
+            color: #64748b; 
+            margin-bottom: 8px; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn { 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-align: center; 
+            margin-top: 10px;
+            padding: 12px; 
+            border-radius: 8px; 
+            font-weight: 700;
+            font-size: 13px; 
+            text-decoration: none; 
+            border: none; 
+            cursor: pointer; 
+            width: 100%; 
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-imprimir { background: #ff6b00; color: #fff; margin-top: 16px; }
+        .btn-imprimir:hover { background: #e05e00; }
+        .btn-nova { background: #0f172a; color: #fff; }
+        .btn-nova:hover { background: #1e293b; }
+        .btn-hist { background: #e2e8f0; color: #0f172a; }
+        .btn-hist:hover { background: #cbd5e1; }
+
+        /* ========================================================= */
+        /* REGRAS RÍGIDAS DE IMPRESSÃO (CUPOM TÉRMICO / PDF CLEAN)    */
+        /* ========================================================= */
+        @page {
+            size: auto;
+            margin: 0mm; /* Força a eliminação do cabeçalho e rodapé do navegador */
+        }
+
+        @media print {
+            body { 
+                background: #fff !important; 
+                margin: 0 !important; 
+                padding: 10px !important;
+                display: block !important;
+            }
+
+            .container-comprovante {
+                width: 100% !important;
+                max-width: 300px !important; /* Tamanho ideal para impressora de bobina/cupom */
+                margin: 0 auto !important;
+            }
+
+            .cupom { 
+                border: none !important; 
+                padding: 0 !important; 
+                border-radius: 0 !important;
+                box-shadow: none !important;
+            }
+
+            .no-print { 
+                display: none !important; /* Esconde todos os botões na hora de imprimir */
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="cupom">
-        <div class="titulo">AAPM SENAI</div>
-        <div class="subtitulo">
-            Venda #{{ venda.id }} —
-            {{ venda.criado_em.strftime('%d/%m/%Y %H:%M') }}
-        </div>
-        <hr class="linha-sep">
 
-        {% if venda.cliente %}
-        <div class="item-linha">
-            <span>Cliente</span>
-            <span>{{ venda.cliente.nome }}</span>
-        </div>
-        {% if venda.cliente.is_associado %}
-        <div class="item-linha desc-linha">
-            <span>Associado</span>
-            <span>✓ {{ venda.desconto_percentual|int }}% desc.</span>
-        </div>
-        {% endif %}
-        <hr class="linha-sep">
-        {% endif %}
+    <div class="container-comprovante">
+        <div class="cupom">
+            <div class="header-cupom">
+                <div class="logo-txt">AAPM SENAI</div>
+                <div class="subtitulo">
+                    Venda #{{ venda.id }} — {{ venda.criado_em.strftime('%d/%m/%Y %H:%M') if venda.criado_em else '' }}
+                </div>
+            </div>
 
-        {% for item in venda.itens %}
-        <div class="item-linha">
-            <span>{{ item.produto_nome }}</span>
-            <span>R$ {{ "%.2f"|format(item.subtotal) }}</span>
-        </div>
-        <div class="item-desc">
-            {{ item.quantidade }} × R$ {{ "%.2f"|format(item.preco_unitario) }}
-        </div>
-        {% endfor %}
+            <hr class="linha-sep">
 
-        <hr class="linha-sep">
+            {% if venda.cliente %}
+            <div class="item-linha">
+                <span>Cliente</span>
+                <span>{{ venda.cliente.nome }}</span>
+            </div>
+            {% if venda.cliente.is_associado %}
+            <div class="item-linha desc-linha">
+                <span>Associado</span>
+                <span>✓ {{ venda.desconto_percentual|int }}% desc.</span>
+            </div>
+            {% endif %}
+            <hr class="linha-sep">
+            {% endif %}
 
-        <div class="total-linha">
-            <span>Subtotal</span>
-            <span>R$ {{ "%.2f"|format(venda.total_bruto) }}</span>
+            {% for item in venda.itens %}
+            <div class="item-linha">
+                <span>{{ item.produto_nome }}</span>
+                <span>R$ {{ "%.2f"|format(item.subtotal) }}</span>
+            </div>
+            <div class="item-desc">
+                {{ item.quantidade }} × R$ {{ "%.2f"|format(item.preco_unitario) }}
+            </div>
+            {% endfor %}
+
+            <hr class="linha-sep">
+
+            <div class="total-linha">
+                <span>Subtotal</span>
+                <span>R$ {{ "%.2f"|format(venda.total_bruto) }}</span>
+            </div>
+
+            {% if venda.desconto_valor > 0 %}
+            <div class="total-linha desc-linha">
+                <span>Desconto ({{ venda.desconto_percentual|int }}%)</span>
+                <span>− R$ {{ "%.2f"|format(venda.desconto_valor) }}</span>
+            </div>
+            {% endif %}
+
+            <div class="total-final">
+                <span>TOTAL</span>
+                <span>R$ {{ "%.2f"|format(venda.total_liquido) }}</span>
+            </div>
+
+            <!-- FORMAS DE PAGAMENTO REGISTRADAS -->
+            <hr class="linha-sep">
+            <div class="pag-titulo">Forma(s) de Pagamento</div>
+            {% for pag in venda.pagamentos %}
+            <div class="item-linha">
+                <span>• {{ pag.forma_pagamento }}</span>
+                <span>R$ {{ "%.2f"|format(pag.valor) }}</span>
+            </div>
+            {% else %}
+            <div class="item-linha" style="color:#64748b; font-size:11px;">
+                <span>• Não informada</span>
+                <span>R$ {{ "%.2f"|format(venda.total_liquido) }}</span>
+            </div>
+            {% endfor %}
+
+            {% if venda.observacao %}
+            <hr class="linha-sep">
+            <div style="font-size:11px; color:#64748b; font-style: italic;">
+                Obs: {{ venda.observacao }}
+            </div>
+            {% endif %}
         </div>
 
-        {% if venda.desconto_valor > 0 %}
-        <div class="total-linha desc-linha">
-            <span>Desconto ({{ venda.desconto_percentual|int }}%)</span>
-            <span>− R$ {{ "%.2f"|format(venda.desconto_valor) }}</span>
+        <!-- BOTÕES DE AÇÃO (OCULTOS NA IMPRESSÃO) -->
+        <div class="no-print">
+            <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir Comprovante</button>
+            <a href="/pdv" class="btn btn-nova">+ Nova Venda</a>
+            <a href="/pdv/historico" class="btn btn-hist">Ver Histórico</a>
         </div>
-        {% endif %}
-
-        <div class="total-final">
-            <span>TOTAL</span>
-            <span>R$ {{ "%.2f"|format(venda.total_liquido) }}</span>
-        </div>
-
-        {% if venda.observacao %}
-        <hr class="linha-sep">
-        <div style="font-size:12px; color:#64748b">{{ venda.observacao }}</div>
-        {% endif %}
     </div>
 
-    <a href="/pdv" class="btn btn-nova">+ Nova venda</a>
-    <a href="/pdv/historico" class="btn btn-hist">Ver histórico</a>
 </body>
 </html>

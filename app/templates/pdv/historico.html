@@ -25,6 +25,7 @@
                     <th style="padding: 14px 18px;">Data</th>
                     <th style="padding: 14px 18px;">Cliente</th>
                     <th style="padding: 14px 18px; text-align: center;">Itens</th>
+                    <th style="padding: 14px 18px;">Pagamento</th>
                     <th style="padding: 14px 18px; text-align: center;">Desconto</th>
                     <th style="padding: 14px 18px; text-align: right;">Total</th>
                     <th style="padding: 14px 18px;">Operador</th>
@@ -61,6 +62,17 @@
                         </span>
                     </td>
 
+                    <!-- SPRINT 3: Formas de Pagamento Registradas -->
+                    <td style="padding: 14px 18px; font-size: 13px; color: #444;">
+                        {% for pag in venda.pagamentos %}
+                            <div style="line-height: 1.3;">
+                                <strong>• {{ pag.forma_pagamento }}:</strong> R$ {{ "%.2f"|format(pag.valor) }}
+                            </div>
+                        {% else %}
+                            <span style="color: #aaa; font-style: italic;">—</span>
+                        {% endfor %}
+                    </td>
+
                     <!-- Desconto -->
                     <td style="padding: 14px 18px; text-align: center; color: #666;">
                         {% if venda.desconto_percentual > 0 %}
@@ -93,7 +105,7 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="8" style="padding: 30px; text-align: center; color: #999;">
+                    <td colspan="9" style="padding: 30px; text-align: center; color: #999;">
                         Nenhuma venda registrada até o momento.
                     </td>
                 </tr>
