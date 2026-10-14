@@ -88,13 +88,13 @@
                             <i class="fa-solid fa-pen-to-square"></i>
                         </a>
                         {% if usuario and usuario.role == 'admin' %}
-<<<<<<< HEAD
+
                         <button type="button" class="btn-icon delete" title="Desativar" onclick="abrirModalDesativar('/produtos/{{ produto.id }}/deletar')">
-=======
+
                         <!-- Botão que abre o modal estilizado -->
                         <button type="button" class="btn-icon delete" title="Excluir"
                             onclick="abrirModalExclusao('/produtos/{{ produto.id }}/deletar', '{{ produto.nome }}')">
->>>>>>> isabelly
+
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                         {% endif %}
@@ -170,7 +170,7 @@
     </a>
 </div>
 
-<<<<<<< HEAD
+
 <!-- Modal de Confirmação de Desativação -->
 <div id="modal-confirmacao" class="modal-overlay" style="display: none;">
     <div class="modal-card">
@@ -183,7 +183,7 @@
         <div class="modal-actions">
             <button type="button" class="btn-cancelar" onclick="fecharModalDesativar()">Cancelar</button>
             <a id="btn-confirmar-desativar" href="#" class="btn-confirmar">Sim, desativar</a>
-=======
+
 <!-- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO (Escondido por padrão) -->
 <div id="modalConfirmacao" class="modal-overlay" style="display: none;">
     <div class="modal-card">
@@ -196,12 +196,12 @@
         <div class="modal-actions">
             <button type="button" class="btn-modal-cancel" onclick="fecharModalExclusao()">Cancelar</button>
             <a id="btnConfirmarExclusao" href="#" class="btn-modal-confirm">Sim, Desativar</a>
->>>>>>> isabelly
+
         </div>
     </div>
 </div>
 
-<<<<<<< HEAD
+
 <script>
 function abrirModalDesativar(urlDeletar) {
     var modal = document.getElementById('modal-confirmacao');
@@ -251,5 +251,5 @@ window.onclick = function(event) {
     });
 </script>
 
->>>>>>> isabelly
+
 {% endblock %}
