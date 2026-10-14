@@ -1,44 +1,55 @@
 import pytest
-from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
+from fastapi.testclient import TestClient
 
 from app.database import Base, get_db
 from app.main import app
+from app.auth import get_admin, get_usuario_logado, get_usuario_opcional
 
-# Configura uma base de dados SQLite em memória para testes isolados
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+@pytest.fixture()
+def db_session_test():
 
-@pytest.fixture(scope="function")
-def db():
-    # Cria as tabelas antes de cada teste
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool
+    )
+
     Base.metadata.create_all(bind=engine)
-    db = TestingSessionLocal()
+
+    Sessiontest = sessionmaker(autoflush=False, autocommit=False, bind=engine)
+    session = Sessiontest()
+
     try:
-        yield db
+        yield session
     finally:
-        db.close()
-        # Limpa as tabelas após cada teste
+        session.close()
         Base.metadata.drop_all(bind=engine)
 
-@pytest.fixture(scope="function")
-def client(db):
-    # Sobrescreve a dependência de base de dados do FastAPI para usar a de testes
-    def override_get_db():
-        try:
-            yield db
-        finally:
-            db.close()
-    
-    app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as c:
-        yield c
+
+@pytest.fixture()
+def cliente(db_session_test):
+
+    def get_db_teste():
+        yield db_session_test
+
+    def usuario_falso():
+        return {"sub": "teste@admin.com", "nome": "Admin teste", "role": "admin"}
+
+    app.dependency_overrides[get_db] = get_db_teste
+    app.dependency_overrides[get_usuario_logado] = usuario_falso
+    app.dependency_overrides[get_usuario_opcional] = usuario_falso
+    app.dependency_overrides[get_admin] = usuario_falso
+
+
+    with TestClient(app) as teste_cliente:
+        yield teste_cliente
+
     app.dependency_overrides.clear()
+
+
+
+# py -3.14 -m pip install --upgrade httpcore httpx
