@@ -210,3 +210,104 @@
 .mov-back-link:hover {
     color: #ff6b35;
 }
+
+/* ==============================
+   PAGINAÇÃO ESTILO LAYOUT MODERNO
+============================== */
+.pagination-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    margin: 2.5rem 0 1.5rem 0 !important;
+    width: 100% !important;
+}
+
+.pagination-subtitle {
+    font-size: 0.95rem !important;
+    color: #475569 !important;
+    font-weight: 500 !important;
+    text-align: center !important;
+}
+
+.pagination-container {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 16px !important;
+    flex-wrap: nowrap !important;
+}
+
+.pagination-numbers {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+/* Botões pílula (Voltar / Próximo) */
+.btn-page-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 8px 20px !important;
+    border-radius: 50px !important;
+    border: 1px solid #cbd5e1 !important;
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-page-pill:hover:not(.disabled) {
+    background-color: #f1f5f9 !important;
+    border-color: #94a3b8 !important;
+}
+
+.btn-page-pill.disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    border-color: #e2e8f0 !important;
+    background-color: #f8fafc !important;
+    color: #94a3b8 !important;
+}
+
+/* Bolinhas numéricas */
+.page-num {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    color: #334155 !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.page-num:hover:not(.active) {
+    background-color: #e2e8f0 !important;
+}
+
+.page-num.active {
+    background-color: #2563eb !important; /* Azul igual ao da imagem */
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3) !important;
+}
+
+.page-dots {
+    color: #64748b !important;
+    font-weight: 700 !important;
+    padding: 0 4px !important;
+}
+
+.icon-sm {
+    font-size: 0.75rem !important;
+}

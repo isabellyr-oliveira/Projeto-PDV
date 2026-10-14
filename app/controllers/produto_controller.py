@@ -1,5 +1,5 @@
 # controllers/produto_controller.py — CRUD produtos AAPM 
-
+import math
 import os
 import shutil
 from fastapi import APIRouter, Depends, Request, Form, UploadFile, File, status
@@ -22,6 +22,37 @@ UPLOAD_DIR = "app/static/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)  # cria a pasta se não existir
 
 
+def gerar_intervalo_paginas(pagina: int, total_paginas: int, limite: int = 2):
+    pagina = max(1, int(pagina) if pagina else 1)
+    total_paginas = max(1, int(total_paginas) if total_paginas else 1)
+
+    if total_paginas <= 1:
+        return [1]
+
+    paginas = set()
+    paginas.add(1)
+    paginas.add(total_paginas)
+
+    for i in range(max(1, pagina - limite), min(total_paginas, pagina + limite) + 1):
+        paginas.add(i)
+
+    resultado = sorted(list(paginas))
+
+    intervalo_com_dots = []
+    prev = None
+    for p in resultado:
+        if prev is not None:
+            if p - prev == 2:
+                intervalo_com_dots.append(prev + 1)
+            elif p - prev > 2:
+                intervalo_com_dots.append("...")
+        intervalo_com_dots.append(p)
+        prev = p
+
+    return intervalo_com_dots
+
+
+
 # ============================================================
 # LISTAGEM
 # ============================================================
@@ -30,10 +61,19 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)  # cria a pasta se não existir
 def listar_produtos(
     request: Request,
     busca: str = "",
-    categoria_id: int = 0,       # 0 = todas as categorias
+    categoria_id: str = "0",
     db: Session = Depends(get_db),
-    usuario = Depends(get_usuario_logado)
+    usuario = Depends(get_usuario_logado),
+    pagina: int = 1,
+    por_pagina: int = 2,
 ):
+
+    # Corrige categoria_id quando vier vazio pela URL
+    try:
+        categoria_id = int(categoria_id) if categoria_id else 0
+    except (ValueError, TypeError):
+        categoria_id = 0
+
     query = db.query(Produto).filter(Produto.ativo == True)
 
     if busca:
@@ -42,8 +82,22 @@ def listar_produtos(
     if categoria_id:
         query = query.filter(Produto.categoria_id == categoria_id)
 
-    produtos    = query.order_by(Produto.nome).all()
+    query = query.order_by(Produto.nome)
+
+    total_produtos = query.count()
+
+    pagina = max(pagina, 1)
+    por_pagina = max(por_pagina, 1)
+
+    total_paginas = math.ceil(total_produtos / por_pagina) if total_produtos else 1
+
+    offset = (pagina - 1) * por_pagina
+
+    produtos = query.offset(offset).limit(por_pagina).all()
     categorias  = db.query(Categoria).filter(Categoria.ativo == True).all()
+
+    # Gera o intervalo com números e '...'
+    intervalo_paginas = gerar_intervalo_paginas(pagina, total_paginas)
 
     return templates.TemplateResponse(
         request,
@@ -55,6 +109,12 @@ def listar_produtos(
             "categorias":   categorias,
             "busca":        busca,
             "categoria_id": categoria_id,
+            
+            "pagina":       pagina,
+            "por_pagina":   por_pagina,
+            "total_paginas": total_paginas,
+            "total_produtos": total_produtos,
+            "intervalo_paginas": intervalo_paginas
         }
     )
 

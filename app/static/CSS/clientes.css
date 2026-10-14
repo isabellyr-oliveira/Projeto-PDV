@@ -311,3 +311,103 @@ body {
     align-items: center;
     gap: 8px;
 }
+
+/* ==============================
+   PAGINAÇÃO ESTILO REFERÊNCIA
+============================== */
+
+.pagination-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 2rem;
+    font-family: inherit;
+}
+
+.pagination-subtitle {
+    font-size: 0.95rem;
+    color: #475569;
+    font-weight: 500;
+}
+
+.pagination-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Botões Voltar / Próximo */
+.btn-page-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 8px 18px !important;
+    border-radius: 50px !important;
+    border: 1px solid #64748b !important;
+    background-color: transparent !important; /* Transparente para remover o preenchimento */
+    color: #1e293b !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.btn-page-pill:hover:not(.disabled) {
+    background-color: rgba(255, 255, 255, 0.5) !important;
+    border-color: #334155 !important;
+    color: #0f172a !important;
+}
+
+/* Estado desabilitado  */
+.btn-page-pill.disabled {
+    background-color: transparent !important; /* Sem fundo esbranquiçado */
+    border-color: #e2e8f0 !important;
+    color: #94a3b8 !important;
+    cursor: not-allowed !important;
+}
+
+/* Números da Paginação */
+.pagination-numbers {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.page-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: #334155;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.page-num:hover:not(.active) {
+    background-color: #e2e8f0;
+    color: #0f172a;
+}
+
+/* Página ativa (Círculo Azul) */
+.page-num.active {
+    background-color: #3b82f6;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
+}
+
+.page-dots {
+    color: #64748b;
+    font-weight: 600;
+    padding: 0 4px;
+}
+
+.icon-sm {
+    font-size: 0.75rem;
+}
