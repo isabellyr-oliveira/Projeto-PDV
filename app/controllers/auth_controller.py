@@ -20,7 +20,7 @@ templates = Jinja2Templates(directory="app/templates")
 def tela_cadastro(request: Request):
     return templates.TemplateResponse(
         request,
-        "auth/cadastro.html",
+        "usuarios/form.html",
         {"request": request}
     )
 

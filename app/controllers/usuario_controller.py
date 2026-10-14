@@ -295,3 +295,4 @@ def toggle_ativo(
     db.commit()
 
     return RedirectResponse(url="/usuarios", status_code=302)
+
