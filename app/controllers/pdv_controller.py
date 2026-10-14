@@ -8,11 +8,11 @@
 # ============================================================
 
 import json
-<<<<<<< HEAD
+
 from typing import Optional
-=======
+
 import math  # <--- IMPORTADO AQUI
->>>>>>> isabelly
+
 from fastapi import APIRouter, Depends, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -30,7 +30,7 @@ templates = Jinja2Templates(directory="app/templates")
 DESCONTO_ASSOCIADO = 10.0  # percentual fixo
 
 
-<<<<<<< HEAD
+
 # 🔒 FUNÇÃO AUXILIAR: Verifica com segurança se o utilizador atual é administrador
 def verificar_eh_admin(usuario) -> bool:
     """Verifica se o utilizador logado tem permissão de administrador."""
@@ -46,7 +46,7 @@ def verificar_eh_admin(usuario) -> bool:
     username = str(getattr(usuario, "username", getattr(usuario, "nome", "")) or "").lower()
     cargo = str(getattr(usuario, "cargo", getattr(usuario, "role", "")) or "").lower()
     return bool(is_adm) or username == "admin" or cargo == "admin"
-=======
+
 def gerar_intervalo_paginas(pagina: int, total_paginas: int, limite: int = 2):
     pagina = max(1, int(pagina) if pagina else 1)
     total_paginas = max(1, int(total_paginas) if total_paginas else 1)
@@ -75,7 +75,7 @@ def gerar_intervalo_paginas(pagina: int, total_paginas: int, limite: int = 2):
         prev = p
 
     return intervalo_com_dots
->>>>>>> isabelly
+
 
 
 @router.get("/")
@@ -118,13 +118,13 @@ def tela_pdv(
         .all()
     )
 
-<<<<<<< HEAD
+
     # 🔒 VERIFICA SE O UTILIZADOR É ADMIN PARA EXIBIR/OCULTAR O DESCONTO MANUAL NO FRONT
     eh_admin = verificar_eh_admin(usuario)
-=======
+
     # 6. Gera o intervalo das páginas (ex: [1, '...', 4, 5, 6])
     intervalo_paginas = gerar_intervalo_paginas(pagina, total_paginas)
->>>>>>> isabelly
+
 
     return templates.TemplateResponse(
         request,
@@ -135,15 +135,15 @@ def tela_pdv(
             "produtos":            produtos,
             "clientes":            clientes,
             "desconto_associado":  DESCONTO_ASSOCIADO,
-<<<<<<< HEAD
+
             "eh_admin":            eh_admin,  # 👈 Variável enviada para o template HTML
-=======
+
             "pagina":              pagina,
             "por_pagina":          por_pagina,
             "total_produtos":      total_produtos,
             "total_paginas":       total_paginas,
             "intervalo_paginas":   intervalo_paginas
->>>>>>> isabelly
+
         }
     )
 
@@ -164,7 +164,7 @@ def finalizar_venda(
     usuario            = Depends(get_usuario_logado)
 ):
     """
-<<<<<<< HEAD
+
     Recebe o carrinho como JSON, valida pagamentos (1 ou 2) e persiste a venda.
 
     Formato esperado do carrinho_json:
@@ -172,9 +172,9 @@ def finalizar_venda(
         {"produto_id": 1, "nome": "Caneta", "preco": 2.50, "quantidade": 3},
         {"produto_id": 2, "nome": "Caderno", "preco": 15.00, "quantidade": 1}
     ]
-=======
+
     Recebe o carrinho como JSON, valida e persiste a venda.
->>>>>>> isabelly
+
     """
     try:
         itens = json.loads(carrinho_json)
