@@ -64,7 +64,7 @@ def listar_movimentacoes(
     db: Session = Depends(get_db),
     admin = Depends(get_admin),  # Apenas admins podem ver o histórico completo
     pagina: int = 1,
-    por_pagina: int = 10,
+    por_pagina: int = 2,
 ):
     """
     Exibe o histórico completo de movimentações com paginação e
@@ -87,6 +87,9 @@ def listar_movimentacoes(
     por_pagina = max(por_pagina, 1)
 
     total_paginas = math.ceil(total_movimentacoes / por_pagina) if total_movimentacoes else 1
+    # Garante que a página solicitada não ultrapasse o total existente
+    if pagina > total_paginas:
+        pagina = total_paginas
     offset = (pagina - 1) * por_pagina
 
     # 4. Busca os registros da página atual

@@ -284,52 +284,80 @@
     }
 </script>
 
-<!-- Bloco de Paginação  -->
+<!-- Bloco de Paginação do PDV -->
 {% if total_paginas > 1 %}
 <div class="pagination-wrapper">
+
     <div class="pagination-subtitle">
         Página {{ pagina }} de {{ total_paginas }}
     </div>
 
     <div class="pagination-container">
+
         <!-- Botão Voltar -->
         {% if pagina > 1 %}
-        <a href="/produtos/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
-            class="btn-page-pill">
-            <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
+        <a href="/pdv/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}"
+           class="btn-page-pill">
+            <i class="fa-solid fa-chevron-left icon-sm"></i>
+            Voltar
         </a>
         {% else %}
         <span class="btn-page-pill disabled">
-            <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
+            <i class="fa-solid fa-chevron-left icon-sm"></i>
+            Voltar
         </span>
         {% endif %}
 
-        <!-- Números e Reticências -->
+
+        <!-- Números das páginas -->
         <div class="pagination-numbers">
+
             {% for item in intervalo_paginas %}
-            {% if item == "..." %}
-            <span class="page-dots">...</span>
-            {% elif item == pagina %}
-            <span class="page-num active">{{ item }}</span>
-            {% else %}
-            <a href="/produtos/?pagina={{ item }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
-                class="page-num">{{ item }}</a>
-            {% endif %}
+
+                {% if item == "..." %}
+
+                    <span class="page-dots">...</span>
+
+                {% elif item == pagina %}
+
+                    <span class="page-num active">
+                        {{ item }}
+                    </span>
+
+                {% else %}
+
+                    <a href="/pdv/?pagina={{ item }}&por_pagina={{ por_pagina }}"
+                       class="page-num">
+                        {{ item }}
+                    </a>
+
+                {% endif %}
+
             {% endfor %}
+
         </div>
 
+
         <!-- Botão Próximo -->
-        {% if pagina < total_paginas %} <a
-            href="/produtos/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
-            class="btn-page-pill">
-            Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
-            </a>
-            {% else %}
-            <span class="btn-page-pill disabled">
-                Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
-            </span>
-            {% endif %}
+        {% if pagina < total_paginas %}
+
+        <a href="/pdv/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}"
+           class="btn-page-pill">
+            Próximo
+            <i class="fa-solid fa-chevron-right icon-sm"></i>
+        </a>
+
+        {% else %}
+
+        <span class="btn-page-pill disabled">
+            Próximo
+            <i class="fa-solid fa-chevron-right icon-sm"></i>
+        </span>
+
+        {% endif %}
+
     </div>
+
 </div>
 {% endif %}
 

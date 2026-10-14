@@ -61,12 +61,19 @@ def gerar_intervalo_paginas(pagina: int, total_paginas: int, limite: int = 2):
 def listar_produtos(
     request: Request,
     busca: str = "",
-    categoria_id: int = 0,       # 0 = todas as categorias
+    categoria_id: str = "0",
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado),
     pagina: int = 1,
     por_pagina: int = 2,
 ):
+
+    # Corrige categoria_id quando vier vazio pela URL
+    try:
+        categoria_id = int(categoria_id) if categoria_id else 0
+    except (ValueError, TypeError):
+        categoria_id = 0
+
     query = db.query(Produto).filter(Produto.ativo == True)
 
     if busca:
