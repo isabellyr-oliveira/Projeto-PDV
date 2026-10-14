@@ -394,11 +394,13 @@
                         <div class="actions-cell">
                             <a href="/usuarios/{{ u.id }}/editar" class="btn-action btn-edit">Editar</a>
 
-                            <form action="/usuarios/{{ u.id }}/toggle-ativo" method="post" style="display: inline;">
+                            <form id="form-usuario-{{ u.id }}" action="/usuarios/{{ u.id }}/toggle-ativo" method="post" style="display: inline;">
                                 {% if u.ativo %}
-                                <button type="submit" class="btn-action btn-toggle-off" title="Desativar usuário">Desativar</button>
+                                <button type="button" class="btn-action btn-toggle-off" title="Desativar usuário"
+                                    onclick="abrirModalUsuario('form-usuario-{{ u.id }}', '{{ u.nome }}', 'desativar')">Desativar</button>
                                 {% else %}
-                                <button type="submit" class="btn-action btn-toggle-on" title="Ativar usuário">Ativar</button>
+                                <button type="button" class="btn-action btn-toggle-on" title="Ativar usuário"
+                                    onclick="abrirModalUsuario('form-usuario-{{ u.id }}', '{{ u.nome }}', 'ativar')">Ativar</button>
                                 {% endif %}
                             </form>
                         </div>
@@ -466,4 +468,66 @@
     </a>
 
 </div>
+
+<!-- MODAL CUSTOMIZADO USUÁRIO -->
+<div id="modalConfirmacaoUsuario" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+        <div class="modal-icon-wrapper">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h3 class="modal-title" id="tituloModalUsuario">Desativar Usuário?</h3>
+        <p class="modal-text"><span id="textoAcaoUsuario">Você tem certeza que deseja desativar o usuário</span> <strong id="nomeUsuarioModal"></strong>?</p>
+        
+        <div class="modal-actions">
+            <button type="button" class="btn-modal-cancel" onclick="fecharModalUsuario()">Cancelar</button>
+            <button type="button" id="btnConfirmarAcaoUsuario" class="btn-modal-confirm">Sim, Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let formSelecionadoUsuario = null;
+
+    function abrirModalUsuario(formId, nomeUsuario, acao) {
+        formSelecionadoUsuario = document.getElementById(formId);
+        document.getElementById('nomeUsuarioModal').innerText = nomeUsuario;
+        
+        const titulo = document.getElementById('tituloModalUsuario');
+        const textoAcao = document.getElementById('textoAcaoUsuario');
+        const btnConfirmar = document.getElementById('btnConfirmarAcaoUsuario');
+
+        if (acao === 'desativar') {
+            titulo.innerText = 'Desativar Usuário?';
+            textoAcao.innerText = 'Você tem certeza que deseja desativar o usuário';
+            btnConfirmar.innerText = 'Sim, Desativar';
+        } else {
+            titulo.innerText = 'Ativar Usuário?';
+            textoAcao.innerText = 'Você tem certeza que deseja ativar o usuário';
+            btnConfirmar.innerText = 'Sim, Ativar';
+        }
+
+        const modal = document.getElementById('modalConfirmacaoUsuario');
+        modal.style.display = 'flex';
+        modal.classList.add('active');
+    }
+
+    function fecharModalUsuario() {
+        const modal = document.getElementById('modalConfirmacaoUsuario');
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+        formSelecionadoUsuario = null;
+    }
+
+    document.getElementById('btnConfirmarAcaoUsuario').addEventListener('click', function() {
+        if (formSelecionadoUsuario) {
+            formSelecionadoUsuario.submit();
+        }
+    });
+
+    document.getElementById('modalConfirmacaoUsuario').addEventListener('click', function(e) {
+        if (e.target === this) {
+            fecharModalUsuario();
+        }
+    });
+</script>
 {% endblock %}
