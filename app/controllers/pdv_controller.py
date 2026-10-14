@@ -30,7 +30,10 @@ templates = Jinja2Templates(directory="app/templates")
 DESCONTO_ASSOCIADO = 10.0  # percentual fixo
 
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> 2ca6507dad35ec46468a29cdf16c88db6e77c95e
 # 🔒 FUNÇÃO AUXILIAR: Verifica com segurança se o utilizador atual é administrador
 def verificar_eh_admin(usuario) -> bool:
     """Verifica se o utilizador logado tem permissão de administrador."""
