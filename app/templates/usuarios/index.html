@@ -324,7 +324,7 @@
         {% endif %}
     </div>
 
-    <!-- Bloco de Paginação  -->
+    <!-- Paginação de Usuários -->
     {% if total_paginas > 1 %}
     <div class="pagination-wrapper">
         <div class="pagination-subtitle">
@@ -332,10 +332,9 @@
         </div>
 
         <div class="pagination-container">
-            <!-- Botão Voltar -->
+            <!-- BOTÃO VOLTAR -->
             {% if pagina > 1 %}
-            <a href="/produtos/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
-                class="btn-page-pill">
+            <a href="/usuarios/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}" class="btn-page-pill">
                 <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
             </a>
             {% else %}
@@ -344,7 +343,7 @@
             </span>
             {% endif %}
 
-            <!-- Números e Reticências -->
+            <!-- NÚMEROS DAS PÁGINAS -->
             <div class="pagination-numbers">
                 {% for item in intervalo_paginas %}
                 {% if item == "..." %}
@@ -352,15 +351,13 @@
                 {% elif item == pagina %}
                 <span class="page-num active">{{ item }}</span>
                 {% else %}
-                <a href="/produtos/?pagina={{ item }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
-                    class="page-num">{{ item }}</a>
+                <a href="/usuarios/?pagina={{ item }}&por_pagina={{ por_pagina }}" class="page-num">{{ item }}</a>
                 {% endif %}
                 {% endfor %}
             </div>
 
-            <!-- Botão Próximo -->
-            {% if pagina < total_paginas %} <a
-                href="/produtos/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
+            <!-- BOTÃO PRÓXIMO -->
+            {% if pagina < total_paginas %} <a href="/usuarios/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}"
                 class="btn-page-pill">
                 Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
                 </a>

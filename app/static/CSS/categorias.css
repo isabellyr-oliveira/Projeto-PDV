@@ -218,3 +218,100 @@ body {
     color: #cbd5e1;
     margin-bottom: 0.5rem;
 }
+
+/* ==========================================================================
+   4. PAGINAÇÃO ESTILIZADA
+   ========================================================================== */
+.pagination-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin-top: 2rem !important;
+}
+
+.pagination-subtitle {
+    font-size: 0.95rem;
+    color: #475569;
+    font-weight: 500;
+}
+
+.pagination-container {
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+}
+
+/* Botões Voltar / Próximo (Sem fundo esbranquiçado) */
+.btn-page-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 8px 18px !important;
+    border-radius: 50px !important;
+    border: 1px solid #64748b !important;
+    background-color: transparent !important;
+    color: #1e293b !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.btn-page-pill:hover:not(.disabled) {
+    background-color: rgba(255, 255, 255, 0.5) !important;
+    border-color: #334155 !important;
+    color: #0f172a !important;
+}
+
+.btn-page-pill.disabled {
+    background-color: transparent !important;
+    border-color: #e2e8f0 !important;
+    color: #94a3b8 !important;
+    cursor: not-allowed !important;
+}
+
+/* Números das Páginas */
+.pagination-numbers {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+.page-num {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    color: #334155 !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.page-num:hover:not(.active) {
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+/* Círculo Azul para Página Ativa */
+.page-num.active {
+    background-color: #3b82f6 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35) !important;
+}
+
+.page-dots {
+    color: #64748b;
+    font-weight: 600;
+    padding: 0 4px;
+}
+
+.icon-sm {
+    font-size: 0.75rem;
+}
