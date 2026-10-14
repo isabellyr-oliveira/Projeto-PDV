@@ -8,11 +8,11 @@
 # ============================================================
 
 import json
-<<<<<<< HEAD
+
 from datetime import datetime, time
-=======
+
 from typing import Optional
->>>>>>> 6c57d383a04bce021024a36b5bd5ea86eddf2bd6
+
 from fastapi import APIRouter, Depends, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
