@@ -84,7 +84,7 @@ def tela_pdv(
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado),
     pagina: int = 1,
-    por_pagina: int = 2,
+    por_pagina: int = 3,
 ):
     """
     Carrega a tela do PDV com produtos paginados

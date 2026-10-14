@@ -65,7 +65,7 @@ def listar_produtos(
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado),
     pagina: int = 1,
-    por_pagina: int = 2,
+    por_pagina: int = 4,
 ):
 
     # Corrige categoria_id quando vier vazio pela URL
