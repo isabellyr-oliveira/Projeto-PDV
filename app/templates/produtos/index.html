@@ -166,8 +166,8 @@
     </a>
 </div>
 
-<!-- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO (Centralizado na Tela) -->
-<div id="modalConfirmacao" class="modal-overlay">
+<!-- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO (Escondido por padrão) -->
+<div id="modalConfirmacao" class="modal-overlay" style="display: none;">
     <div class="modal-card">
         <div class="modal-icon-wrapper">
             <i class="fa-solid fa-triangle-exclamation"></i>
@@ -187,11 +187,15 @@
     function abrirModalExclusao(url, nomeProduto) {
         document.getElementById('nomeProdutoModal').innerText = nomeProduto;
         document.getElementById('btnConfirmarExclusao').setAttribute('href', url);
-        document.getElementById('modalConfirmacao').classList.add('active');
+        var modal = document.getElementById('modalConfirmacao');
+        modal.style.display = 'flex';
+        modal.classList.add('active');
     }
 
     function fecharModalExclusao() {
-        document.getElementById('modalConfirmacao').classList.remove('active');
+        var modal = document.getElementById('modalConfirmacao');
+        modal.classList.remove('active');
+        modal.style.display = 'none';
     }
 
     // Fecha o modal ao clicar fora da caixa branca
