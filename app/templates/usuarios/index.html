@@ -250,6 +250,30 @@
         </a>
     </section>
 
+    <!-- Card de Filtros e Busca -->
+    <section class="page-card" style="margin-bottom: 20px;">
+        <form method="get" action="/usuarios" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px; display: flex; align-items: center; background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 8px; padding: 0 12px;">
+                <i class="fa-solid fa-magnifying-glass" style="color: #64748B; margin-right: 8px;"></i>
+                <input type="text" name="busca" placeholder="Buscar por nome ou e-mail..." value="{{ busca or '' }}" style="border: none; background: transparent; padding: 10px 0; width: 100%; outline: none; font-size: 14px;">
+            </div>
+
+            <select name="role" style="padding: 10px 14px; border-radius: 8px; border: 1px solid #CBD5E1; background-color: #F8FAFC; font-size: 14px; color: #334155; outline: none;">
+                <option value="">Todos os Perfis</option>
+                <option value="admin" {{ 'selected' if role == 'admin' }}>Administrador</option>
+                <option value="operador" {{ 'selected' if role == 'operador' }}>Operador</option>
+            </select>
+
+            <button type="submit" style="background-color: #0F172A; color: #ffffff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-filter"></i> Filtrar
+            </button>
+
+            {% if busca or role %}
+                <a href="/usuarios" style="color: #64748B; font-weight: 600; text-decoration: none; font-size: 14px;">Limpar</a>
+            {% endif %}
+        </form>
+    </section>
+
     <!-- Feedback Mensagens Query Params -->
     {% if request.query_params.get('criado') == 'ok' %}
     <div class="alert-banner alert-success">
@@ -315,7 +339,7 @@
         </table>
         {% else %}
         <div class="empty-state">
-            <p>Nenhum usuário cadastrado até o momento.</p>
+            <p>Nenhum usuário encontrado.</p>
         </div>
         {% endif %}
     </div>

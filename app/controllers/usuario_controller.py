@@ -22,11 +22,22 @@ templates = Jinja2Templates(directory="app/templates")
 @router.get("/")
 def listar_usuarios(
     request: Request,
+    busca: str = "",
+    role: str = "",
     db: Session = Depends(get_db),
     admin = Depends(get_admin)  # bloqueia quem não é admin
 ):
-    """Lista todos os usuários cadastrados no sistema."""
-    usuarios = db.query(Usuario).order_by(Usuario.nome).all()
+    """Lista todos os usuários cadastrados no sistema com filtros de busca e perfil."""
+    query = db.query(Usuario)
+
+    if busca.strip():
+        termo = f"%{busca.strip()}%"
+        query = query.filter((Usuario.nome.ilike(termo)) | (Usuario.email.ilike(termo)))
+
+    if role in ("admin", "operador"):
+        query = query.filter(Usuario.role == role)
+
+    usuarios = query.order_by(Usuario.nome).all()
 
     return templates.TemplateResponse(
         request,
@@ -34,7 +45,9 @@ def listar_usuarios(
         {
             "request": request,
             "usuario": admin,   # dados de quem está logado (para navbar)
-            "usuarios": usuarios  # lista para exibir na tabela
+            "usuarios": usuarios, # lista para exibir na tabela
+            "busca": busca,
+            "role": role,
         }
     )
 
@@ -224,7 +237,7 @@ def toggle_ativo(
 ):
     """
     Alterna o status ativo/inativo do usuário.
-   
+    
     Preferimos desativar a deletar — mantemos o histórico
     de quem criou registros no sistema.
     Um admin não pode se desativar para não perder o acesso.
@@ -245,4 +258,3 @@ def toggle_ativo(
     db.commit()
 
     return RedirectResponse(url="/usuarios", status_code=302)
-
