@@ -557,3 +557,128 @@ input[type="text"]:focus, select:focus {
 .btn-modal-confirm:hover {
     background-color: #dc2626;
 }
+
+
+/* ==========================================
+   AUMENTAR E AMPLIAR A TELA DE PRODUTOS
+========================================== */
+
+/* Aumenta a área principal sem alterar o cabeçalho */
+body:has(.custom-table) .app-main {
+    width: calc(100% - 64px) !important;
+    max-width: 1500px !important;
+    margin: 32px auto !important;
+    padding: 0 !important;
+    box-sizing: border-box;
+}
+
+/* Cards ocupam toda a largura disponível */
+body:has(.custom-table) .page-card {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 24px;
+    padding: 28px;
+}
+
+/* Cabeçalho da gestão */
+body:has(.custom-table) .header-card {
+    min-height: 110px;
+}
+
+/* Título */
+body:has(.custom-table) .title-group h2 {
+    font-size: 26px;
+}
+
+body:has(.custom-table) .title-group p {
+    font-size: 16px;
+}
+
+/* Botão Novo Produto */
+body:has(.custom-table) .btn-primary {
+    min-height: 48px;
+    padding: 0 24px;
+    font-size: 16px;
+}
+
+/* Área de filtros */
+body:has(.custom-table) .filter-form {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+}
+
+body:has(.custom-table) .input-control,
+body:has(.custom-table) .select-control {
+    height: 50px;
+    font-size: 16px;
+}
+
+/* Tabela maior */
+body:has(.custom-table) .custom-table {
+    width: 100%;
+    font-size: 15px;
+    border-collapse: collapse;
+}
+
+body:has(.custom-table) .custom-table th {
+    padding: 20px 18px;
+    font-size: 14px;
+}
+
+body:has(.custom-table) .custom-table td {
+    padding: 20px 18px;
+    font-size: 15px;
+}
+
+/* Imagens dos produtos */
+body:has(.custom-table) .table-img {
+    width: 65px;
+    height: 65px;
+    object-fit: contain;
+}
+
+/* Nome dos produtos */
+body:has(.custom-table) .col-name {
+    font-size: 16px;
+}
+
+/* Preços */
+body:has(.custom-table) .col-price {
+    font-size: 17px;
+}
+
+/* Botões de ações */
+body:has(.custom-table) .btn-icon {
+    padding: 10px 14px;
+    font-size: 15px;
+}
+
+/* Paginação */
+body:has(.custom-table) .pagination-wrapper {
+    margin: 35px 0;
+}
+
+body:has(.custom-table) .pagination-subtitle {
+    font-size: 16px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    body:has(.custom-table) .app-main {
+        width: calc(100% - 24px) !important;
+        margin: 20px auto !important;
+    }
+
+    body:has(.custom-table) .page-card {
+        padding: 16px;
+    }
+
+    body:has(.custom-table) .filter-form {
+        flex-direction: column;
+    }
+
+    body:has(.custom-table) .table-card {
+        overflow-x: auto;
+    }
+}

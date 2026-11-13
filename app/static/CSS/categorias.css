@@ -401,4 +401,90 @@ body {
     font-size: 0.95rem;
     font-weight: 600;
     user-select: none;
+} 
+
+
+
+
+/* =========================================
+   AJUSTE DE LARGURA - IGUAL À TELA PRODUTOS
+========================================= */
+
+.app-main {
+    width: 96% !important;
+    max-width: none !important;
+    margin: 2rem auto !important;
+
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Cards ocupando toda a largura disponível */
+.page-card {
+    width: 100%;
+}
+
+/* Tabela ocupando todo o card */
+.table-card {
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+}
+
+.custom-table {
+    width: 100%;
+    table-layout: auto;
+}
+
+/* Cabeçalho da página */
+.header-card {
+    width: 100%;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .app-main {
+        width: 96% !important;
+        margin: 1rem auto !important;
+    }
+
+    .custom-table {
+        min-width: 600px;
+    }
+
+    .table-card {
+        overflow-x: auto;
+    }
+}
+
+
+/* =========================================
+   AJUSTE DE LARGURA E ALTURA TOTAL
+========================================= */
+
+.app-main {
+    width: 96% !important;
+    max-width: none !important;
+    margin: 2rem auto 1.5rem auto !important;
+    
+    /* Faz o container principal esticar até o rodapé da tela */
+    flex: 1 !important; 
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.5rem !important;
+}
+
+/* ==========================================================================
+   4. PAGINAÇÃO ESTILIZADA (FIXADA NA BASE DA TELA)
+   ========================================================================== */
+.pagination-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+    
+    /* Empurra a paginação e o botão voltar para a parte de baixo da tela */
+    margin-top: auto !important; 
+    padding-top: 2rem !important;
 }
