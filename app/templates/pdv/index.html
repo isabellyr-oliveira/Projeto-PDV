@@ -250,6 +250,20 @@
     let carrinho = JSON.parse(sessionStorage.getItem('pdv_carrinho')) || [];
 
     document.addEventListener("DOMContentLoaded", function () {
+        const forma2El = document.getElementById("forma_pagamento_2");
+        const valor1El = document.getElementById("valor_pagamento_1");
+        const valor2El = document.getElementById("valor_pagamento_2");
+        const clienteEl = document.getElementById("cliente-id");
+        const tipoDescEl = document.getElementById("tipo_desconto");
+        const descManualEl = document.getElementById("desconto_manual");
+
+        if (forma2El) forma2El.addEventListener("change", aoMudarFormaPagamento2);
+        if (valor1El) valor1El.addEventListener("input", aoDigitarValor1);
+        if (valor2El) valor2El.addEventListener("input", aoDigitarValor2);
+        if (clienteEl) clienteEl.addEventListener("change", atualizarTotaisEPagamentos);
+        if (tipoDescEl) tipoDescEl.addEventListener("change", atualizarTotaisEPagamentos);
+        if (descManualEl) descManualEl.addEventListener("input", atualizarTotaisEPagamentos);
+
         renderizarCarrinho();
         verificarAberturaComprovante();
     });
@@ -372,6 +386,93 @@
     function atualizarTotaisEPagamentos() {
         const total = calcularTotalLiquido();
         document.getElementById("valor-total").innerText = "R$ " + total.toFixed(2);
+
+        const forma2 = document.getElementById("forma_pagamento_2").value;
+        const input1 = document.getElementById("valor_pagamento_1");
+        const input2 = document.getElementById("valor_pagamento_2");
+
+        if (total <= 0) {
+            input1.value = "";
+            input2.value = "";
+        } else if (!forma2) {
+            // Apenas 1 forma: preenche o Valor 1 automaticamente ao clicar nos produtos
+            input1.value = total.toFixed(2);
+            input2.value = "";
+        } else {
+            // 2 formas selecionadas: mantém o valor parcial do 1 e calcula o restante no 2
+            let v1 = parseFloat(input1.value) || 0;
+            if (v1 > total) {
+                v1 = total;
+                input1.value = v1.toFixed(2);
+            }
+            const restante = Math.max(0, total - v1);
+            input2.value = restante.toFixed(2);
+        }
+
+        calcularSaldoRestante();
+    }
+
+    function aoMudarFormaPagamento2() {
+        const total = calcularTotalLiquido();
+        const forma2 = document.getElementById("forma_pagamento_2").value;
+        const input1 = document.getElementById("valor_pagamento_1");
+        const input2 = document.getElementById("valor_pagamento_2");
+
+        if (!forma2) {
+            input2.value = "";
+            input1.value = total > 0 ? total.toFixed(2) : "";
+        } else if (total > 0) {
+            const v1 = parseFloat(input1.value) || 0;
+            if (v1 === 0 || Math.abs(v1 - total) < 0.01) {
+                input1.value = "";
+                input2.value = total.toFixed(2);
+                input1.focus();
+            } else {
+                const restante = Math.max(0, total - v1);
+                input2.value = restante.toFixed(2);
+            }
+        }
+
+        calcularSaldoRestante();
+    }
+
+    function aoDigitarValor1() {
+        const total = calcularTotalLiquido();
+        const forma2 = document.getElementById("forma_pagamento_2").value;
+        const input1 = document.getElementById("valor_pagamento_1");
+        const input2 = document.getElementById("valor_pagamento_2");
+
+        if (forma2 && total > 0) {
+            let v1 = parseFloat(input1.value) || 0;
+            if (v1 < 0) v1 = 0;
+            if (v1 > total) {
+                v1 = total;
+                input1.value = v1.toFixed(2);
+            }
+            const restante = Math.max(0, total - v1);
+            input2.value = restante.toFixed(2);
+        }
+
+        calcularSaldoRestante();
+    }
+
+    function aoDigitarValor2() {
+        const total = calcularTotalLiquido();
+        const forma2 = document.getElementById("forma_pagamento_2").value;
+        const input1 = document.getElementById("valor_pagamento_1");
+        const input2 = document.getElementById("valor_pagamento_2");
+
+        if (forma2 && total > 0) {
+            let v2 = parseFloat(input2.value) || 0;
+            if (v2 < 0) v2 = 0;
+            if (v2 > total) {
+                v2 = total;
+                input2.value = v2.toFixed(2);
+            }
+            const restante1 = Math.max(0, total - v2);
+            input1.value = restante1.toFixed(2);
+        }
+
         calcularSaldoRestante();
     }
 
@@ -385,7 +486,7 @@
         document.getElementById("valor-pago").innerText = "R$ " + pago.toFixed(2);
         const saldoEl = document.getElementById("saldo-restante");
 
-        if (saldo <= 0) {
+        if (saldo <= 0.005) {
             saldoEl.innerText = "R$ 0,00 (Quitado)";
             saldoEl.style.color = "#28a745";
         } else {
@@ -399,11 +500,7 @@
         const cards = document.querySelectorAll(".card-produto");
         cards.forEach(card => {
             const nome = card.getAttribute("data-nome") || "";
-            if (nome.includes(busca)) {
-                card.style.display = "flex";
-            } else {
-                card.style.display = "none";
-            }
+            card.style.display = nome.includes(busca) ? "flex" : "none";
         });
     }
 
@@ -418,7 +515,7 @@
         const v2 = parseFloat(document.getElementById("valor_pagamento_2").value) || 0;
         const pago = v1 + v2;
 
-        if (pago < total) {
+        if (Math.round(pago * 100) < Math.round(total * 100)) {
             alert("O valor pago é insuficiente para cobrir o total da venda!");
             return;
         }
@@ -427,6 +524,7 @@
         sessionStorage.removeItem('pdv_carrinho');
         document.getElementById("form-pdv").submit();
     }
+   
 </script>
 
 {% endblock %}

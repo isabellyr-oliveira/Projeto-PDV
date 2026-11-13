@@ -21,7 +21,7 @@
             color: #0f172a; 
             display: flex;
             flex-direction: column;
-            align-items: center;s
+            align-items: center;
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
@@ -109,7 +109,7 @@
         }
 
         .btn { 
-            display: flex;
+            display: flex; 
             align-items: center;
             justify-content: center;
             gap: 8px;
@@ -117,7 +117,7 @@
             margin-top: 10px;
             padding: 12px; 
             border-radius: 8px; 
-            font-weight: 700;
+            font-weight: 700; 
             font-size: 13px; 
             text-decoration: none; 
             border: none; 
@@ -133,6 +133,15 @@
         .btn-nova:hover { background: #1e293b; }
         .btn-hist { background: #e2e8f0; color: #0f172a; }
         .btn-hist:hover { background: #cbd5e1; }
+
+        @media (max-width: 400px) {
+            body {
+                padding: 12px;
+            }
+            .cupom {
+                padding: 18px;
+            }
+        }
 
         /* ========================================================= */
         /* REGRAS RÍGIDAS DE IMPRESSÃO (CUPOM TÉRMICO / PDF CLEAN)    */
@@ -230,12 +239,12 @@
             <div class="pag-titulo">Forma(s) de Pagamento</div>
             {% for pag in venda.pagamentos %}
             <div class="item-linha">
-                <span>• {{ pag.forma_pagamento }}</span>
+                <span>{{ pag.forma_pagamento }}</span>
                 <span>R$ {{ "%.2f"|format(pag.valor) }}</span>
             </div>
             {% else %}
             <div class="item-linha" style="color:#64748b; font-size:11px;">
-                <span>• Não informada</span>
+                <span>Não informada</span>
                 <span>R$ {{ "%.2f"|format(venda.total_liquido) }}</span>
             </div>
             {% endfor %}
@@ -252,7 +261,9 @@
         <div class="no-print">
             <button onclick="window.print()" class="btn btn-imprimir">🖨️ Imprimir Comprovante</button>
             <a href="/pdv" class="btn btn-nova">+ Nova Venda</a>
+            {% if usuario and (usuario.role == 'admin' or usuario.perfil == 'admin' or usuario.is_admin or usuario == 'admin' or (usuario is mapping and usuario.role == 'admin')) %}
             <a href="/pdv/historico" class="btn btn-hist">Ver Histórico</a>
+            {% endif %}
         </div>
     </div>
 
