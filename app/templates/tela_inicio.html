@@ -3,41 +3,373 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AAPM - Bem-vindo</title>
+    <title>AAPM - Acesso ao Sistema</title>
 
     <link rel="stylesheet" href="{{ url_for('static', path='CSS/index.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='CSS/tela_inicio.css') }}">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Alinhamento simétrico das colunas */
+        .hero-container {
+            align-items: center !important;
+        }
+
+        /* Estilo Medalha Circular Ampliada com Brilho Passando no Hover */
+        .main-logo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+        }
+
+        .logo-circle-wrapper {
+            position: relative;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: #ffffff;
+            padding: 8px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+            box-sizing: border-box;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Faixa de brilho diagonal */
+        .logo-circle-wrapper::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -130%;
+            width: 65%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 237, 213, 0.45) 45%,
+                rgba(255, 107, 0, 0.25) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(28deg);
+            transition: left 0.65s ease;
+            pointer-events: none;
+        }
+
+        .main-logo:hover .logo-circle-wrapper {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
+        }
+
+        .main-logo:hover .logo-circle-wrapper::after {
+            left: 160%;
+        }
+
+        .logo-circle-wrapper .logo-img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important;
+            border-radius: 50% !important;
+            background: transparent !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+        }
+
+        .main-logo .logo-text {
+            font-size: 32px !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.5px;
+            transition: transform 0.3s ease;
+        }
+
+        .main-logo:hover .logo-text {
+            transform: translateX(3px);
+        }
+
+        /* Card de Login Ampliado na Esquerda */
+        .login-box-integrado {
+            background: #ffffff;
+            border-radius: 22px;
+            padding: 36px 36px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.16);
+            margin-top: 22px;
+            box-sizing: border-box;
+        }
+
+        /* Título "Acesse sua conta" na paleta Laranja AAPM */
+        .login-box-integrado h2 {
+            margin: 0 0 6px 0;
+            font-size: 24px;
+            font-weight: 800;
+            color: #ff6b00;
+        }
+
+        .login-box-integrado p.subtitulo-login {
+            margin: 0 0 24px 0;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .login-box-integrado .input-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        /* Labels E-MAIL e SENHA na paleta Laranja AAPM */
+        .login-box-integrado .input-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 800;
+            color: #ea580c;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        /* Wrapper com ícones internos nos campos */
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i.icon-left {
+            position: absolute;
+            left: 16px;
+            color: #94a3b8;
+            font-size: 15px;
+            pointer-events: none;
+            transition: color 0.2s;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 14px 44px 14px 42px;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            font-size: 15px;
+            color: #0f172a;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+            background-color: #f8fafc;
+        }
+
+        /* Foco dos inputs na paleta Laranja AAPM */
+        .input-wrapper input:focus {
+            border-color: #ff6b00;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.15);
+        }
+
+        .input-wrapper input:focus ~ i.icon-left,
+        .input-wrapper:focus-within i.icon-left {
+            color: #ff6b00;
+        }
+
+        /* Botão olho ver/ocultar senha */
+        .btn-toggle-senha {
+            position: absolute;
+            right: 14px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .btn-toggle-senha:hover {
+            color: #ff6b00;
+        }
+
+        /* Botão ENTRAR Ampliado na paleta Laranja AAPM */
+        .btn-entrar-unificado {
+            width: 100%;
+            background: #ff6b00;
+            color: #ffffff;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 6px 16px rgba(255, 107, 0, 0.32);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-entrar-unificado:hover:not(:disabled) {
+            background: #ea580c;
+            transform: translateY(-1px);
+        }
+
+        .btn-entrar-unificado:disabled {
+            background: #fdba74;
+            cursor: not-allowed;
+        }
+
+        .mensagem-erro-integrada {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Ajustes na Coluna Direita com o Título Bem-Vindo no Topo */
+        .right-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .hero-text-right {
+            color: #ffffff;
+            text-align: left;
+        }
+
+        .hero-text-right h1 {
+            font-size: 40px;
+            font-weight: 900;
+            line-height: 1.08;
+            margin: 0 0 6px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .hero-text-right p {
+            font-size: 16px;
+            margin: 0;
+            opacity: 0.95;
+        }
+
+        .cards-vitrine-row {
+            display: flex;
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        /* Trava a largura da camisa para NUNCA cortar as bordas ou canetas */
+        .mockup-card-clean {
+            flex: 0 0 280px !important;
+            width: 280px !important;
+            height: 400px !important;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.14);
+        }
+
+        .mockup-img-full {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            object-position: center !important;
+            display: block;
+        }
+
+        .side-cards {
+            flex: 1;
+            min-width: 230px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        /* Limpeza da borda interna no card do SENAI */
+        .card-senai {
+            background: #ffffff !important;
+            padding: 16px !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-senai img {
+            border: none !important;
+            box-shadow: none !important;
+            border-radius: 8px;
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
 </head>
 <body>
 
     <main class="hero-container">
 
+        <!-- LADO ESQUERDO: Marca + Card de Login Ampliado + Selos -->
         <section class="content-left">
 
             <header class="logo-area">
                 <div class="main-logo">
-                    <img src="{{ url_for('static', path='IMG/logo.png') }}" alt="Logo AAPM" class="logo-img">
+                    <div class="logo-circle-wrapper">
+                        <img src="{{ url_for('static', path='IMG/logo.png') }}" alt="Logo AAPM" class="logo-img">
+                    </div>
                     <span class="logo-text">AAPM</span>
                 </div>
             </header>
 
-            <div class="hero-text">
-                <h1>BEM VINDO<br>A AAPM!</h1>
+            <!-- CARD DE LOGIN MAIOR -->
+            <div class="login-box-integrado">
+                <h2>Acesse sua conta</h2>
+                <p class="subtitulo-login">Insira suas credenciais para abrir o PDV</p>
 
-                <p>
-                    O melhor para seus estudos <br>
-                    <strong>começa aqui!</strong>
-                </p>
+                {% if erro %}
+                <div class="mensagem-erro-integrada">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>{{ erro }}</span>
+                </div>
+                {% endif %}
 
-                <button id="btn-entrar" class="btn-primary">
-                   <a href="/auth/login" class="btn">ENTRAR</a>
-                </button>
+                <form id="form-login" action="/auth/login" method="POST">
+                    <div class="input-group">
+                        <label for="email">E-mail</label>
+                        <div class="input-wrapper">
+                            <i class="fa-regular fa-envelope icon-left"></i>
+                            <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required autocomplete="username">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="senha">Senha</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-lock icon-left"></i>
+                            <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required autocomplete="current-password">
+                            <button type="button" class="btn-toggle-senha" onclick="alternarVisibilidadeSenha()" title="Mostrar/Ocultar senha">
+                                <i id="icone-olho" class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btn-submit-login" class="btn-entrar-unificado">
+                        <span>ENTRAR</span>
+                    </button>
+                </form>
             </div>
 
-            <footer class="features-footer">
-
+            <footer class="features-footer" style="margin-top: 28px;">
                 <div class="feature-item">
                     <i class="fa-solid fa-book-open"></i>
                     <span>Material de qualidade</span>
@@ -52,47 +384,72 @@
                     <i class="fa-solid fa-bullseye"></i>
                     <span>Foco no seu futuro</span>
                 </div>
-
             </footer>
 
         </section>
 
-        <section class="content-right">
-
-            <div class="mockup-card-clean">
-                <img
-                    src="{{ url_for('static', path='IMG/camisa.png') }}"
-                    alt="Camiseta AAPM"
-                    class="mockup-img-full">
-            </div>
-
-            <div class="side-cards">
-
-                <div class="card-mini card-senai">
-                    <img
-                        src="{{ url_for('static', path='IMG/card.png') }}"
-                        alt="Card SENAI">
+        <!-- LADO DIREITO: Boas-vindas no Topo + Vitrine e Informações -->
+        <section class="content-right" style="display: block;">
+            <div class="right-wrapper">
+                
+                <!-- TÍTULO MOVIDO PARA O TOPO DA DIREITA -->
+                <div class="hero-text-right">
+                    <h1>BEM-VINDO À AAPM!</h1>
+                    <p>O melhor para seus estudos <strong>começa aqui!</strong></p>
                 </div>
 
-                <div class="card-mini card-about">
+                <!-- CARDS DA VITRINE -->
+                <div class="cards-vitrine-row">
+                    <div class="mockup-card-clean">
+                        <img
+                            src="{{ url_for('static', path='IMG/camisa.png') }}"
+                            alt="Camiseta AAPM"
+                            class="mockup-img-full">
+                    </div>
 
-                    <h3>SOBRE A AAPM</h3>
+                    <div class="side-cards">
+                        <div class="card-mini card-senai">
+                            <img
+                                src="{{ url_for('static', path='IMG/card.png') }}"
+                                alt="Card SENAI">
+                        </div>
 
-                    <p>
-                        A AAPM existe para apoiar seu aprendizado,
-                        oferecendo materiais selecionados e soluções
-                        que fazem a diferença no seu dia a dia.
-                    </p>
-
+                        <div class="card-mini card-about">
+                            <h3>SOBRE A AAPM</h3>
+                            <p>
+                                A AAPM existe para apoiar seu aprendizado,
+                                oferecendo materiais selecionados e soluções
+                                que fazem a diferença no seu dia a dia.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
             </div>
-
         </section>
 
     </main>
 
     <script src="{{ url_for('static', path='JS/tela_inicio.js') }}"></script>
+    <script>
+        function alternarVisibilidadeSenha() {
+            const inputSenha = document.getElementById('senha');
+            const iconeOlho = document.getElementById('icone-olho');
 
-</body>
-</html>
+            if (inputSenha.type === 'password') {
+                inputSenha.type = 'text';
+                iconeOlho.classList.remove('fa-eye');
+                iconeOlho.classList.add('fa-eye-slash');
+            } else {
+                inputSenha.type = 'password';
+                iconeOlho.classList.remove('fa-eye-slash');
+                iconeOlho.classList.add('fa-eye');
+            }
+        }
+
+        document.getElementById('form-login').addEventListener('submit', function() {
+            const btn = document.getElementById('btn-submit-login');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Autenticando...</span>';
+        });
+    </script

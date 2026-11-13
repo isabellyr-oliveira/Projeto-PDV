@@ -6,16 +6,16 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-
 from app.models.usuarios import Usuario
-from app.auth import hash_senha, verificar_senha, criar_token
+from app.auth import hash_senha, verificar_senha, criar_token, get_usuario_opcional
 
 # APIRouter agrupa as rotas dentro desse módulo com o prefixo /auth
 router = APIRouter(prefix="/auth", tags=["Autenticação"])
 
 templates = Jinja2Templates(directory="app/templates")
 
-#Tela de cadastro
+
+# Tela de cadastro
 @router.get("/cadastro")
 def tela_cadastro(request: Request):
     return templates.TemplateResponse(
@@ -24,14 +24,12 @@ def tela_cadastro(request: Request):
         {"request": request}
     )
 
-#Tela de login
+
+# Redireciona /auth/login para a tela inicial unificada (ou home se já logado)
 @router.get("/login")
-def tela_login(request: Request):
-    return templates.TemplateResponse(
-        request,
-        "auth/login.html",
-        {"request": request}
-    )
+def tela_login(request: Request, usuario=Depends(get_usuario_opcional)):
+    return RedirectResponse(url="/", status_code=302)
+
 
 # Rota para criar o usuario
 @router.post("/cadastro")
@@ -54,7 +52,7 @@ def fazer_cadastro(
             status_code=400
         )
     
-    #Criar o usuario - criar o objeto
+    # Criar o usuario - criar o objeto
     novo_usuario = Usuario(
         nome=nome,
         email=email,
@@ -64,7 +62,7 @@ def fazer_cadastro(
     db.add(novo_usuario)
     db.commit()
 
-    return RedirectResponse(url="/auth/login?cadastro=ok", status_code=302)
+    return RedirectResponse(url="/?cadastro=ok", status_code=302)
 
 
 # Fazer o login
@@ -86,26 +84,27 @@ def fazer_login(
     if not senha_correta:
         return templates.TemplateResponse(
             request,
-            "auth/login.html",
+            "tela_inicio.html",
             {
                 "request": request,
                 "erro": "E-mail ou senha incorretos"
-            }
+            },
+            status_code=401
         )
     
     # Verificar se o usuário está ativo
     if not usuario.ativo:
         return templates.TemplateResponse(
             request,
-            "auth/login.html",
+            "tela_inicio.html",
             {
                 "request": request,
                 "erro": "Usuário inativo. Contate o administrador."
-            }
+            },
+            status_code=403
         )
 
     # 3. Gera o token JWT
-    # Dados do token (payload)
     token_data = {
         "sub": usuario.email,
         "nome": usuario.nome,
@@ -136,4 +135,3 @@ def sair():
     response = RedirectResponse(url="/", status_code=302)
     response.delete_cookie("access_token")
     return response
-
