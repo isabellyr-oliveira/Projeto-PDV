@@ -1,11 +1,11 @@
 /* Container estendido com a mesma largura e proporção da Gestão de Produtos */
 .movimentacoes-wrapper {
     width: 100% !important;
-    max-width: 1200px !important;
+    max-width: 1400px !important;
     margin: 32px auto !important;
-    padding: 0 20px !important;
+    padding: 0 25px !important;
     box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 /* Card Superior Header */
@@ -311,3 +311,69 @@
 .icon-sm {
     font-size: 0.75rem !important;
 }
+
+
+
+
+/* ==========================================
+   PADRONIZAÇÃO COM A TELA DE PRODUTOS
+========================================== */
+
+/* Expandir a área principal */
+body:has(.movimentacoes-wrapper) .app-main {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 30px !important;
+    box-sizing: border-box !important;
+}
+
+/* Expandir o conteúdo */
+.movimentacoes-wrapper {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 32px auto !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Tabela ocupando todo o espaço disponível */
+.mov-table-card {
+    width: 100% !important;
+    overflow-x: auto;
+}
+
+.mov-table {
+    width: 100% !important;
+    table-layout: auto;
+}
+
+.mov-table th,
+.mov-table td {
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    body:has(.movimentacoes-wrapper) .app-main {
+        padding: 0 12px !important;
+    }
+
+    .mov-header-card {
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .mov-filter-form {
+        flex-wrap: wrap;
+    }
+
+    .mov-select-custom {
+        width: 100% !important;
+    }
+
+    .mov-table-card {
+        overflow-x: auto;
+    }
+}
+
+

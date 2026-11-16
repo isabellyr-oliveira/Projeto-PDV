@@ -219,17 +219,15 @@ body {
     margin-bottom: 0.5rem;
 }
 
-
-/* ==============================
-   PAGINAÇÃO ESTILO REFERÊNCIA
-============================== */
+/* ==========================================================================
+   4. PAGINAÇÃO ESTILIZADA
+   ========================================================================== */
 .pagination-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 2rem 0;
-    font-family: inherit;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin-top: 2rem !important;
 }
 
 .pagination-subtitle {
@@ -240,6 +238,81 @@ body {
 }
 
 .pagination-container {
+
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+}
+
+/* Botões Voltar / Próximo (Sem fundo esbranquiçado) */
+.btn-page-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 8px 18px !important;
+    border-radius: 50px !important;
+    border: 1px solid #64748b !important;
+    background-color: transparent !important;
+    color: #1e293b !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.btn-page-pill:hover:not(.disabled) {
+    background-color: rgba(255, 255, 255, 0.5) !important;
+    border-color: #334155 !important;
+    color: #0f172a !important;
+}
+
+.btn-page-pill.disabled {
+    background-color: transparent !important;
+    border-color: #e2e8f0 !important;
+    color: #94a3b8 !important;
+    cursor: not-allowed !important;
+}
+
+/* Números das Páginas */
+.pagination-numbers {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+.page-num {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    color: #334155 !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.page-num:hover:not(.active) {
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+/* Círculo Azul para Página Ativa */
+.page-num.active {
+    background-color: #3b82f6 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35) !important;
+}
+
+.page-dots {
+    color: #64748b;
+    font-weight: 600;
+    padding: 0 4px;
+
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -274,10 +347,12 @@ body {
     opacity: 0.4;
     cursor: not-allowed;
     border-color: #cbd5e1;
+
 }
 
 .icon-sm {
     font-size: 0.75rem;
+
 }
 
 /* Números das Páginas */
@@ -326,4 +401,90 @@ body {
     font-size: 0.95rem;
     font-weight: 600;
     user-select: none;
+} 
+
+
+
+
+/* =========================================
+   AJUSTE DE LARGURA - IGUAL À TELA PRODUTOS
+========================================= */
+
+.app-main {
+    width: 96% !important;
+    max-width: none !important;
+    margin: 2rem auto !important;
+
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Cards ocupando toda a largura disponível */
+.page-card {
+    width: 100%;
+}
+
+/* Tabela ocupando todo o card */
+.table-card {
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+}
+
+.custom-table {
+    width: 100%;
+    table-layout: auto;
+}
+
+/* Cabeçalho da página */
+.header-card {
+    width: 100%;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .app-main {
+        width: 96% !important;
+        margin: 1rem auto !important;
+    }
+
+    .custom-table {
+        min-width: 600px;
+    }
+
+    .table-card {
+        overflow-x: auto;
+    }
+}
+
+
+/* =========================================
+   AJUSTE DE LARGURA E ALTURA TOTAL
+========================================= */
+
+.app-main {
+    width: 96% !important;
+    max-width: none !important;
+    margin: 2rem auto 1.5rem auto !important;
+    
+    /* Faz o container principal esticar até o rodapé da tela */
+    flex: 1 !important; 
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.5rem !important;
+}
+
+/* ==========================================================================
+   4. PAGINAÇÃO ESTILIZADA (FIXADA NA BASE DA TELA)
+   ========================================================================== */
+.pagination-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+    
+    /* Empurra a paginação e o botão voltar para a parte de baixo da tela */
+    margin-top: auto !important; 
+    padding-top: 2rem !important;
 }
