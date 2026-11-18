@@ -4,7 +4,7 @@
 # Qualquer usuário logado pode registrar movimentações.
 # Somente admins podem ver o histórico completo de todos
 # os produtos — operadores veem apenas suas próprias.
-# ============================================================
+# ==========================================================
 
 import math  # Importado para cálculos da paginação
 from fastapi import APIRouter, Depends, Request, Form
@@ -59,25 +59,38 @@ def gerar_intervalo_paginas(pagina: int, total_paginas: int, limite: int = 2):
 @router.get("/", response_class=HTMLResponse)
 def listar_movimentacoes(
     request: Request,
+    busca: str = "",          # barra de pesquisa por texto
     produto_id: int = 0,     # filtra por produto específico
     tipo: str = "",          # "entrada", "saida", etc.
+    data_inicio: str = "",   # data inicial YYYY-MM-DD
+    data_fim: str = "",      # data final YYYY-MM-DD
     db: Session = Depends(get_db),
     admin = Depends(get_admin),  # Apenas admins podem ver o histórico completo
     pagina: int = 1,
     por_pagina: int = 2,
 ):
     """
-    Exibe o histórico completo de movimentações com paginação e
-    filtros por produto e tipo.
+    Exibe o histórico completo de movimentações com paginação,
+    pesquisa e filtros por produto, tipo e intervalo de datas.
     """
     # 1. Monta a query base com filtros
-    query = db.query(Movimentacao).order_by(Movimentacao.criado_em.desc())
+    query = db.query(Movimentacao).join(Produto).order_by(Movimentacao.criado_em.desc())
+
+    if busca.strip():
+        termo = f"%{busca.strip()}%"
+        query = query.filter(Produto.nome.ilike(termo))
 
     if produto_id:
         query = query.filter(Movimentacao.produto_id == produto_id)
 
     if tipo in ("entrada", "saida", "cancelamento", "ajuste"):
         query = query.filter(Movimentacao.tipo == tipo)
+
+    if data_inicio.strip():
+        query = query.filter(Movimentacao.criado_em >= f"{data_inicio.strip()} 00:00:00")
+
+    if data_fim.strip():
+        query = query.filter(Movimentacao.criado_em <= f"{data_fim.strip()} 23:59:59")
 
     # 2. Total de registros filtrados para a paginação
     total_movimentacoes = query.count()
@@ -109,8 +122,11 @@ def listar_movimentacoes(
             "usuario":             admin,
             "movimentacoes":       movimentacoes,
             "produtos":            produtos,
+            "busca":               busca,
             "produto_id":          produto_id,
             "tipo":                tipo,
+            "data_inicio":         data_inicio,
+            "data_fim":            data_fim,
             "pagina":              pagina,
             "por_pagina":          por_pagina,
             "total_paginas":       total_paginas,
@@ -274,7 +290,7 @@ def historico_produto(
     movimentacoes = (
         db.query(Movimentacao)
         .filter(Movimentacao.produto_id == produto_id)
-        .order_by(Movimentacao.criado_em.desc())
+        .order_by(Movimentacao.id.desc())
         .all()
     )
 

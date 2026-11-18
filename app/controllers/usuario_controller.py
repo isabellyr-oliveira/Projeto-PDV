@@ -52,14 +52,27 @@ def gerar_intervalo_paginas(pagina: int, total_paginas: int, limite: int = 2):
 @router.get("/")
 def listar_usuarios(
     request: Request,
+    busca: str = "",
+    role: str = "",
     db: Session = Depends(get_db),
     admin = Depends(get_admin),  # bloqueia quem não é admin
     pagina: int = 1,
     por_pagina: int = 2,
 ):
-    """Lista todos os usuários cadastrados no sistema com paginação."""
-    # 1. Query base
-    query_usuarios = db.query(Usuario).order_by(Usuario.nome)
+    """Lista todos os usuários cadastrados no sistema com filtros e paginação."""
+    # 1. Query base com filtros
+    query_usuarios = db.query(Usuario)
+
+    if busca.strip():
+        termo = f"%{busca.strip()}%"
+        query_usuarios = query_usuarios.filter(
+            (Usuario.nome.ilike(termo)) | (Usuario.email.ilike(termo))
+        )
+
+    if role in ("admin", "operador"):
+        query_usuarios = query_usuarios.filter(Usuario.role == role)
+
+    query_usuarios = query_usuarios.order_by(Usuario.nome)
 
     # 2. Total de registros para o cálculo de páginas
     total_usuarios = query_usuarios.count()
@@ -69,6 +82,9 @@ def listar_usuarios(
     por_pagina = max(por_pagina, 1)
 
     total_paginas = math.ceil(total_usuarios / por_pagina) if total_usuarios else 1
+
+    if pagina > total_paginas:
+        pagina = total_paginas
 
     offset = (pagina - 1) * por_pagina
 
@@ -85,6 +101,8 @@ def listar_usuarios(
             "request":           request,
             "usuario":           admin,            # dados de quem está logado (para navbar)
             "usuarios":          usuarios,         # lista paginada para exibir na tabela
+            "busca":             busca,
+            "role":              role,
             "pagina":            pagina,
             "por_pagina":        por_pagina,
             "total_paginas":     total_paginas,
@@ -278,6 +296,10 @@ def toggle_ativo(
 ):
     """
     Alterna o status ativo/inativo do usuário.
+    
+    Preferimos desativar a deletar — mantemos o histórico
+    de quem criou registros no sistema.
+    Um admin não pode se desativar para não perder o acesso.
     """
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
 
@@ -295,4 +317,3 @@ def toggle_ativo(
     db.commit()
 
     return RedirectResponse(url="/usuarios", status_code=302)
-

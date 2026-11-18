@@ -78,22 +78,35 @@ def gerar_intervalo_paginas(
 @router.get("/")
 def listar_categorias(
     request: Request,
+    busca: str = "",
+    status: str = "",
     pagina: int = 1,
     por_pagina: int = 3,
     db: Session = Depends(get_db),
     admin = Depends(get_admin)
 ):
     """
-    Lista as categorias ordenadas por nome
-    com paginação.
+    Lista as categorias ordenadas por nome com filtros (busca e status)
+    e paginação.
     """
 
     # Garante valores válidos
     pagina = max(pagina, 1)
     por_pagina = max(por_pagina, 1)
 
-    # Query base
-    query = db.query(Categoria).order_by(Categoria.nome)
+    # Query base com filtros
+    query = db.query(Categoria)
+
+    if busca.strip():
+        termo = f"%{busca.strip()}%"
+        query = query.filter(Categoria.nome.ilike(termo))
+
+    if status == "ativas":
+        query = query.filter(Categoria.ativo == True)
+    elif status == "inativas":
+        query = query.filter(Categoria.ativo == False)
+
+    query = query.order_by(Categoria.nome)
 
     # Total de categorias
     total_categorias = query.count()
@@ -133,6 +146,10 @@ def listar_categorias(
             "request": request,
             "usuario": admin,
             "categorias": categorias,
+
+            # Filtros
+            "busca": busca,
+            "status": status,
 
             # Paginação
             "pagina": pagina,

@@ -25,10 +25,13 @@
         </a>
     </div>
 
-    <!-- Card de Filtros -->
+    <!-- Card de Filtros e Pesquisa -->
     <div class="mov-filter-card">
-        <form method="get" action="/movimentacoes" class="mov-filter-form">
-            <select name="produto_id" class="mov-select-custom" style="flex: 1;">
+        <form method="get" action="/movimentacoes" class="mov-filter-form" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            
+            <input type="text" name="busca" placeholder="Pesquisar produto..." value="{{ busca or '' }}" class="mov-select-custom" style="flex: 1; min-width: 180px;">
+
+            <select name="produto_id" class="mov-select-custom" style="flex: 1; min-width: 180px;">
                 <option value="0">Todos os produtos</option>
                 {% for p in produtos %}
                 <option value="{{ p.id }}" {{ 'selected' if produto_id==p.id else '' }}>
@@ -37,16 +40,19 @@
                 {% endfor %}
             </select>
 
-            <select name="tipo" class="mov-select-custom" style="width: 220px;">
+            <select name="tipo" class="mov-select-custom" style="width: 160px;">
                 <option value="">Todos os tipos</option>
                 <option value="entrada" {{ 'selected' if tipo=='entrada' else '' }}>Entrada</option>
                 <option value="saida" {{ 'selected' if tipo=='saida' else '' }}>Saída</option>
             </select>
 
+            de: <input type="date" name="data_inicio" value="{{ data_inicio or '' }}" class="mov-select-custom" style="width: 140px;">
+            até: <input type="date" name="data_fim" value="{{ data_fim or '' }}" class="mov-select-custom" style="width: 140px;">
+
             <button type="submit" class="mov-btn-dark">Filtrar</button>
 
-            {% if produto_id or tipo %}
-            <a href="/movimentacoes" class="mov-btn-clean">Limpar</a>
+            {% if busca or produto_id or tipo or data_inicio or data_fim %}
+                <a href="/movimentacoes" class="mov-btn-clean">Limpar</a>
             {% endif %}
         </form>
     </div>
@@ -68,7 +74,13 @@
             <tbody>
                 {% for m in movimentacoes %}
                 <tr>
-                    <td style="color: #64748b;">{{ m.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td style="color: #64748b;">
+                        {% if m.criado_em %}
+                            {{ m.criado_em.strftime('%d/%m/%Y %H:%M') if m.criado_em.strftime is defined else (m.criado_em|string)[:16] }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
                     <td>
                         <a href="/produtos/{{ m.produto_id }}"
                             style="color: #1e293b; font-weight: 600; text-decoration: none;">
@@ -123,7 +135,7 @@
         <!-- BOTÃO VOLTAR -->
         {% if pagina > 1 %}
 
-        <a href="/movimentacoes?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&produto_id={{ produto_id }}&tipo={{ tipo }}"
+        <a href="/movimentacoes?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca or '' }}&produto_id={{ produto_id }}&tipo={{ tipo }}&data_inicio={{ data_inicio or '' }}&data_fim={{ data_fim or '' }}"
            class="btn-page-pill">
 
             <i class="fa-solid fa-chevron-left icon-sm"></i>
@@ -158,7 +170,7 @@
 
                 {% else %}
 
-                    <a href="/movimentacoes?pagina={{ item }}&por_pagina={{ por_pagina }}&produto_id={{ produto_id }}&tipo={{ tipo }}"
+                    <a href="/movimentacoes?pagina={{ item }}&por_pagina={{ por_pagina }}&busca={{ busca or '' }}&produto_id={{ produto_id }}&tipo={{ tipo }}&data_inicio={{ data_inicio or '' }}&data_fim={{ data_fim or '' }}"
                        class="page-num">
 
                         {{ item }}
@@ -175,7 +187,7 @@
         <!-- BOTÃO PRÓXIMO -->
         {% if pagina < total_paginas %}
 
-        <a href="/movimentacoes?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&produto_id={{ produto_id }}&tipo={{ tipo }}"
+        <a href="/movimentacoes?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca or '' }}&produto_id={{ produto_id }}&tipo={{ tipo }}&data_inicio={{ data_inicio or '' }}&data_fim={{ data_fim or '' }}"
            class="btn-page-pill">
 
             Próximo
