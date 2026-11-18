@@ -1,6 +1,7 @@
 # controllers/usuario_controller.py — Gerenciamento de usuários
 # Rotas acessíveis apenas por administradores.
 
+import math  # Importado para cálculo de páginas
 from fastapi import APIRouter, Depends, Request, Form, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -15,6 +16,35 @@ router = APIRouter(prefix="/usuarios", tags=["Usuários"])
 templates = Jinja2Templates(directory="app/templates")
 
 
+def gerar_intervalo_paginas(pagina: int, total_paginas: int, limite: int = 2):
+    pagina = max(1, int(pagina) if pagina else 1)
+    total_paginas = max(1, int(total_paginas) if total_paginas else 1)
+
+    if total_paginas <= 1:
+        return [1]
+
+    paginas = set()
+    paginas.add(1)
+    paginas.add(total_paginas)
+
+    for i in range(max(1, pagina - limite), min(total_paginas, pagina + limite) + 1):
+        paginas.add(i)
+
+    resultado = sorted(list(paginas))
+
+    intervalo_com_dots = []
+    prev = None
+    for p in resultado:
+        if prev is not None:
+            if p - prev == 2:
+                intervalo_com_dots.append(prev + 1)
+            elif p - prev > 2:
+                intervalo_com_dots.append("...")
+        intervalo_com_dots.append(p)
+        prev = p
+
+    return intervalo_com_dots
+
 # ============================================================
 # LISTAGEM
 # ============================================================
@@ -25,29 +55,59 @@ def listar_usuarios(
     busca: str = "",
     role: str = "",
     db: Session = Depends(get_db),
-    admin = Depends(get_admin)  # bloqueia quem não é admin
+    admin = Depends(get_admin),  # bloqueia quem não é admin
+    pagina: int = 1,
+    por_pagina: int = 2,
 ):
-    """Lista todos os usuários cadastrados no sistema com filtros de busca e perfil."""
-    query = db.query(Usuario)
+    """Lista todos os usuários cadastrados no sistema com filtros e paginação."""
+    # 1. Query base com filtros
+    query_usuarios = db.query(Usuario)
 
     if busca.strip():
         termo = f"%{busca.strip()}%"
-        query = query.filter((Usuario.nome.ilike(termo)) | (Usuario.email.ilike(termo)))
+        query_usuarios = query_usuarios.filter(
+            (Usuario.nome.ilike(termo)) | (Usuario.email.ilike(termo))
+        )
 
     if role in ("admin", "operador"):
-        query = query.filter(Usuario.role == role)
+        query_usuarios = query_usuarios.filter(Usuario.role == role)
 
-    usuarios = query.order_by(Usuario.nome).all()
+    query_usuarios = query_usuarios.order_by(Usuario.nome)
+
+    # 2. Total de registros para o cálculo de páginas
+    total_usuarios = query_usuarios.count()
+
+    # 3. Ajuste dos números da paginação
+    pagina = max(pagina, 1)
+    por_pagina = max(por_pagina, 1)
+
+    total_paginas = math.ceil(total_usuarios / por_pagina) if total_usuarios else 1
+
+    if pagina > total_paginas:
+        pagina = total_paginas
+
+    offset = (pagina - 1) * por_pagina
+
+    # 4. Busca os usuários da página atual
+    usuarios = query_usuarios.offset(offset).limit(por_pagina).all()
+
+    # 5. Gera o intervalo das páginas (ex: [1, 2, '...', 10])
+    intervalo_paginas = gerar_intervalo_paginas(pagina, total_paginas)
 
     return templates.TemplateResponse(
         request,
         "usuarios/index.html",
         {
-            "request": request,
-            "usuario": admin,   # dados de quem está logado (para navbar)
-            "usuarios": usuarios, # lista para exibir na tabela
-            "busca": busca,
-            "role": role,
+            "request":           request,
+            "usuario":           admin,            # dados de quem está logado (para navbar)
+            "usuarios":          usuarios,         # lista paginada para exibir na tabela
+            "busca":             busca,
+            "role":              role,
+            "pagina":            pagina,
+            "por_pagina":        por_pagina,
+            "total_paginas":     total_paginas,
+            "total_usuarios":    total_usuarios,
+            "intervalo_paginas": intervalo_paginas
         }
     )
 
@@ -106,7 +166,6 @@ def criar_usuario(
         )
 
     # Valida se o role enviado é um dos valores permitidos
-    # Evita que alguém manipule o formulário e envie um role inválido
     if role not in ("admin", "operador"):
         return templates.TemplateResponse(
             request,

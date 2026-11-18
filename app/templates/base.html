@@ -40,6 +40,10 @@
 
             <!-- Rotas de Admin (Validação por role / perfil / is_admin) -->
             {% if usuario and (usuario.role == 'admin' or usuario.perfil == 'admin' or usuario.is_admin or usuario == 'admin' or (usuario is mapping and usuario.role == 'admin')) %}
+            <a href="/pdv/historico" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-clock-rotate-left" style="color: #ff6b00;"></i> Histórico
+            </a>
+
             <a href="/clientes" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-address-book" style="color: #ff6b00;"></i> Clientes
             </a>
@@ -73,6 +77,11 @@
         {% block content %}
         {% endblock %}
     </main>
+
+    <!-- Rodapé (Footer) do Sistema -->
+    <footer style="background-color: #ffffff; color: #000000; text-align: center; padding: 14px 0; font-size: 13px; margin-top: auto;">
+        <span>&copy; 2026 AAPM SENAI — Todos os direitos reservados.</span>
+    </footer>
 
 </body>
 </html>

@@ -8,9 +8,8 @@
 # ============================================================
 
 import json
-
+import math
 from datetime import datetime, time
-
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Request, Form
@@ -29,39 +28,118 @@ templates = Jinja2Templates(directory="app/templates")
 
 DESCONTO_ASSOCIADO = 10.0  # percentual fixo
 
+# 🔒 FUNÇÃO AUXILIAR: Verifica com segurança se o utilizador atual é administrador
+def verificar_eh_admin(usuario) -> bool:
+    """Verifica se o utilizador logado tem permissão de administrador."""
+    if not usuario:
+        return False
+    if isinstance(usuario, dict):
+        is_adm = usuario.get("is_admin", False)
+        username = str(usuario.get("username") or usuario.get("nome") or "").lower()
+        cargo = str(usuario.get("cargo") or usuario.get("role") or "").lower()
+        return bool(is_adm) or username == "admin" or cargo == "admin"
+
+    is_adm = getattr(usuario, "is_admin", False)
+    username = str(getattr(usuario, "username", getattr(usuario, "nome", "")) or "").lower()
+    cargo = str(getattr(usuario, "cargo", getattr(usuario, "role", "")) or "").lower()
+    return bool(is_adm) or username == "admin" or cargo == "admin"
+
+def gerar_intervalo_paginas(pagina: int, total_paginas: int, limite: int = 2):
+    pagina = max(1, int(pagina) if pagina else 1)
+    total_paginas = max(1, int(total_paginas) if total_paginas else 1)
+
+    if total_paginas <= 1:
+        return [1]
+
+    paginas = set()
+    paginas.add(1)
+    paginas.add(total_paginas)
+
+    for i in range(max(1, pagina - limite), min(total_paginas, pagina + limite) + 1):
+        paginas.add(i)
+
+    resultado = sorted(list(paginas))
+
+    intervalo_com_dots = []
+    prev = None
+    for p in resultado:
+        if prev is not None:
+            if p - prev == 2:
+                intervalo_com_dots.append(prev + 1)
+            elif p - prev > 2:
+                intervalo_com_dots.append("...")
+        intervalo_com_dots.append(p)
+        prev = p
+
+    return intervalo_com_dots
+
+
 
 @router.get("/")
 def tela_pdv(
     request: Request,
     db: Session = Depends(get_db),
-    usuario = Depends(get_usuario_logado)
+    usuario = Depends(get_usuario_logado),
+    pagina: int = 1,
+    por_pagina: int = 3,
 ):
     """
-    Carrega a tela do PDV com todos os produtos ativos
+    Carrega a tela do PDV com produtos paginados
     e a lista de clientes para o campo de busca.
     """
-    produtos  = (
+    # 1. Monta a query base dos produtos ativos e com estoque
+    query_produtos = (
         db.query(Produto)
         .filter(Produto.ativo == True, Produto.estoque_atual > 0)
         .order_by(Produto.nome)
-        .all()
     )
-    clientes  = (
+
+    # 2. Contagem total para a paginação
+    total_produtos = query_produtos.count()
+
+    # 3. Cálculo das páginas
+    pagina = max(pagina, 1)
+    por_pagina = max(por_pagina, 1)
+
+    total_paginas = math.ceil(total_produtos / por_pagina) if total_produtos else 1
+    offset = (pagina - 1) * por_pagina
+
+    # 4. Busca apenas a fatia (página) de produtos
+    produtos = query_produtos.offset(offset).limit(por_pagina).all()
+
+    # 5. Busca clientes
+    clientes = (
         db.query(Cliente)
         .filter(Cliente.ativo == True)
         .order_by(Cliente.nome)
         .all()
     )
 
+
+    # 🔒 VERIFICA SE O UTILIZADOR É ADMIN PARA EXIBIR/OCULTAR O DESCONTO MANUAL NO FRONT
+    eh_admin = verificar_eh_admin(usuario)
+
+    # 6. Gera o intervalo das páginas (ex: [1, '...', 4, 5, 6])
+    intervalo_paginas = gerar_intervalo_paginas(pagina, total_paginas)
+
+
     return templates.TemplateResponse(
         request,
         "pdv/index.html",
         {
-            "request":            request,
-            "usuario":            usuario,
-            "produtos":           produtos,
-            "clientes":           clientes,
-            "desconto_associado": DESCONTO_ASSOCIADO,
+            "request":             request,
+            "usuario":             usuario,
+            "produtos":            produtos,
+            "clientes":            clientes,
+            "desconto_associado":  DESCONTO_ASSOCIADO,
+
+            "eh_admin":            eh_admin,  # 👈 Variável enviada para o template HTML
+
+            "pagina":              pagina,
+            "por_pagina":          por_pagina,
+            "total_produtos":      total_produtos,
+            "total_paginas":       total_paginas,
+            "intervalo_paginas":   intervalo_paginas
         }
     )
 
@@ -75,11 +153,14 @@ def finalizar_venda(
     forma_pagamento_2: str = Form(""),
     valor_pagamento_2: float = Form(0.0),
     cliente_id: int    = Form(0),    # 0 = sem cliente identificado
+    desconto_manual: float = Form(0.0),  # Recebe o valor do desconto manual
+    tipo_desconto: str = Form("RS"),     # 👈 ACRESCENTADO: Recebe se o desconto é em "RS" (R$) ou "PCT" (%)
     observacao: str    = Form(""),
     db: Session        = Depends(get_db),
     usuario            = Depends(get_usuario_logado)
 ):
     """
+
     Recebe o carrinho como JSON, valida pagamentos (1 ou 2) e persiste a venda.
 
     Formato esperado do carrinho_json:
@@ -87,6 +168,9 @@ def finalizar_venda(
         {"produto_id": 1, "nome": "Caneta", "preco": 2.50, "quantidade": 3},
         {"produto_id": 2, "nome": "Caderno", "preco": 15.00, "quantidade": 1}
     ]
+
+    Recebe o carrinho como JSON, valida e persiste a venda.
+
     """
     try:
         itens = json.loads(carrinho_json)
@@ -146,9 +230,33 @@ def finalizar_venda(
             "produto_nome":  produto.nome,
         })
 
-    # ── Calcula desconto e total final
-    desconto_valor = total_bruto * (desconto_percentual / 100)
-    total_liquido  = round(total_bruto - desconto_valor, 2)
+    # ── 🔴 CÁLCULO E TRAVA DE SEGURANÇA DO DESCONTO MANUAL (R$ OU %) ──
+    desconto_associado_valor = total_bruto * (desconto_percentual / 100)
+    val_manual = max(0.0, float(desconto_manual or 0.0))
+
+    # 👈 ACRESCENTADO: Converte a percentagem em valor monetário se for do tipo %
+    if tipo_desconto == "PCT":
+        desconto_manual_val = total_bruto * (val_manual / 100.0)
+    else:
+        desconto_manual_val = val_manual
+
+    # 🔴 BLOQUEIO NO BACK-END: Se o desconto manual for maior que o valor bruto, recusa a venda
+    if desconto_manual_val > total_bruto:
+        return RedirectResponse(
+            url="/pdv?erro=desconto_maior_total",
+            status_code=302
+        )
+
+    # Soma os dois descontos
+    desconto_total_valor = desconto_associado_valor + desconto_manual_val
+
+    # Garante que o desconto total acumulado não ultrapasse 100% do valor bruto
+    if desconto_total_valor > total_bruto:
+        desconto_total_valor = total_bruto
+
+    # Calcula o valor líquido real com desconto
+    total_liquido  = round(total_bruto - desconto_total_valor, 2)
+    desconto_percentual_efetivo = (desconto_total_valor / total_bruto * 100) if total_bruto > 0 else 0.0
 
     # ── Valida formas de pagamento (Sprint 3) ────────────────
     pagamentos = []
@@ -170,15 +278,18 @@ def finalizar_venda(
 
     soma_pagamentos = round(sum(p["valor"] for p in pagamentos), 2)
 
-    # Valida se a soma dos pagamentos fecha exatamente o total
+    # Valida se a soma dos pagamentos fecha exatamente o total líquido
     if abs(soma_pagamentos - total_liquido) > 0.01:
         return RedirectResponse(url="/pdv?erro=pagamento_divergente", status_code=302)
 
-    # ── Persiste tudo em uma única transação
+    # Captura o ID do utilizador com segurança
+    usuario_id = usuario.get("id") if isinstance(usuario, dict) else getattr(usuario, "id", None) if usuario else None
+
+    # ── Persiste tudo em uma única transação ─────────────────
     venda = Venda(
         cliente_id          = cliente_id or None,
-        usuario_id          = usuario.get("id"),
-        desconto_percentual = desconto_percentual,
+        usuario_id          = usuario_id,
+        desconto_percentual = round(desconto_percentual_efetivo, 2),
         total_bruto         = round(total_bruto, 2),
         total_liquido       = total_liquido,
         observacao          = observacao or None,

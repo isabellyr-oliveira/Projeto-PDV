@@ -6,6 +6,10 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+a {
+    text-decoration: none;
+}
+
 :root {
     --bg-orange: #ff7a29;
     --btn-blue: #1d52b8;
@@ -107,6 +111,10 @@ body {
     box-shadow:
         0 0 15px rgba(59,130,246,.4),
         0 10px 25px rgba(236, 236, 236, 0.35);
+
+    text-decoration: none; 
+
+    display: inline-block;
 }
 
 /* Brilho atravessando o botão */

@@ -4,6 +4,14 @@
 
 {% block content %}
 <style>
+    /* Oculta os links da navbar especificamente na tela de erro */
+    header nav .nav-links, 
+    header nav .nav-item, 
+    .navbar-center, 
+    header nav a:not(.btn-sair):not(.logo) { 
+        display: none !important; 
+    }
+
     .error-container {
         max-width: 500px;
         margin: 80px auto;
