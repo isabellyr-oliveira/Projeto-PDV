@@ -575,3 +575,233 @@ body:has(.pdv-page) .pdv-page {
     margin: 0;
     box-sizing: border-box;
 }
+
+
+
+/* ==========================================
+   PDV - OCUPAR TODA A ÁREA DISPONÍVEL
+========================================== */
+
+/* Liberar a largura do conteúdo principal */
+body:has(.pdv-page) {
+    overflow-x: hidden;
+}
+
+body:has(.pdv-page) .app-main {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box;
+}
+
+/* Contêiner principal */
+.pdv-page {
+    width: 100%;
+    max-width: none;
+    min-height: calc(100vh - 140px);
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* Duas colunas */
+.pdv-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 20px;
+    width: 100%;
+    min-height: calc(100vh - 180px);
+    align-items: stretch;
+}
+
+/* Área dos produtos */
+.pdv-main {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 0;
+    min-height: 0;
+}
+
+/* Grade de produtos */
+.pdv-produtos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    align-content: start;
+    gap: 15px;
+    width: 100%;
+    flex: 1;
+    min-height: 400px;
+    padding: 15px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+/* Carrinho */
+.pdv-carrinho {
+    width: 100%;
+    min-width: 0;
+    min-height: 600px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+/* Formulário do carrinho */
+.pdv-carrinho form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+/* Responsividade */
+@media (max-width: 900px) {
+    .pdv-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .pdv-carrinho {
+        min-height: 600px;
+    }
+
+    .pdv-produtos {
+        min-height: 400px;
+    }
+}
+
+
+
+/* =========================================
+   CORREÇÃO DEFINITIVA DO LAYOUT DO PDV
+========================================= */
+
+/* Liberar toda a largura da página */
+body:has(.pdv-page) {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+body:has(.pdv-page) .app-main {
+    flex: 1;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box;
+}
+
+/* Área principal */
+.pdv-page {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: calc(100vh - 102px);
+    margin: 0 !important;
+    padding: 20px !important;
+    box-sizing: border-box;
+}
+
+/* Duas colunas */
+.pdv-layout {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 380px !important;
+    gap: 20px;
+    width: 100%;
+    min-height: calc(100vh - 142px);
+    align-items: stretch;
+}
+
+/* Coluna de produtos */
+.pdv-main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    width: 100%;
+    gap: 15px;
+}
+
+/* Busca */
+.pdv-main > div:first-child {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Grade de produtos */
+#grade-produtos.pdv-produtos {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+    align-content: start;
+    gap: 15px;
+    width: 100%;
+    min-height: 400px;
+    max-height: calc(100vh - 220px);
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+/* Cards */
+#grade-produtos .card-produto {
+    width: 100%;
+    min-width: 0;
+    height: 210px;
+    box-sizing: border-box;
+}
+
+/* Carrinho */
+.pdv-carrinho {
+    display: flex !important;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    min-height: 600px;
+    height: calc(100vh - 140px);
+    position: sticky;
+    top: 15px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Formulário */
+.pdv-carrinho #form-pdv {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+/* Paginação */
+.pdv-main .pagination-wrapper {
+    width: 100%;
+    flex-shrink: 0;
+}
+
+/* Telas menores */
+@media (max-width: 900px) {
+    .pdv-layout {
+        grid-template-columns: 1fr !important;
+    }
+
+    .pdv-carrinho {
+        position: static;
+        height: auto;
+        min-height: 600px;
+    }
+
+    #grade-produtos.pdv-produtos {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+    }
+}

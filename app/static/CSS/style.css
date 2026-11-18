@@ -508,3 +508,34 @@ body {
         width: 100%;
     }
 }
+
+
+
+/* =========================================
+   ESTRUTURA GLOBAL DO SISTEMA
+========================================= */
+
+html,
+body {
+    min-height: 100%;
+    margin: 0;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-header {
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.app-main {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
