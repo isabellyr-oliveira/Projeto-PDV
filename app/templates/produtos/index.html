@@ -3,167 +3,654 @@
 {% block title %}Produtos - AAPM{% endblock %}
 
 {% block content %}
-<!-- Importação do CSS da página de produtos -->
+<!-- Importação do CSS da página de produtos (mantido para o modal e utilitários) -->
 <link rel="stylesheet" href="{{ url_for('static', path='CSS_produtos/index.css') }}">
 
-<!-- Topo da Gestão -->
-<div class="page-card header-card">
-    <div class="title-group">
-        <h2><i class="fa-solid fa-boxes-stacked"></i> Gestão de Produtos</h2>
-        <p>Consulte e gerencie o estoque do sistema</p>
-    </div>
-    {% if usuario and usuario.role == 'admin' %}
-    <a href="/produtos/novo" class="btn-primary">
-        <i class="fa-solid fa-plus"></i> Novo Produto
-    </a>
-    {% endif %}
-</div>
+<style>
+    /* ==========================================
+       PADRONIZAÇÃO IDÊNTICA À TELA DE MOVIMENTAÇÕES
+    ========================================== */
+    body:has(.produtos-wrapper) .app-main {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 30px !important;
+        box-sizing: border-box !important;
+    }
 
-<!-- Filtro de Busca -->
-<div class="page-card filter-card">
-    <form method="get" action="/produtos" class="filter-form">
-        <div class="search-input-wrapper">
-            <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="text" name="busca" placeholder="Buscar por nome..." value="{{ busca if busca else '' }}"
-                class="input-control">
+    .produtos-wrapper {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 32px auto !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    /* Card Superior Header */
+    .prod-header-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 24px 32px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .prod-header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .prod-header-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background-color: #fff7ed;
+        color: #ff6b35;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    .prod-header-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .prod-header-subtitle {
+        font-size: 13.5px;
+        color: #94a3b8;
+        margin: 4px 0 0 0;
+    }
+
+    .prod-btn-primary {
+        background-color: #ff6b35;
+        color: #ffffff !important;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s;
+    }
+
+    .prod-btn-primary:hover {
+        background-color: #e85a26;
+    }
+
+    /* Card de Filtros */
+    .prod-filter-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 18px 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        margin-bottom: 20px;
+        border: 1px solid #f1f5f9;
+    }
+
+    .prod-filter-form {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        width: 100% !important;
+        flex-wrap: wrap;
+    }
+
+    .prod-search-box {
+        flex: 2 !important;
+        min-width: 260px !important;
+        height: 42px !important;
+        display: flex !important;
+        align-items: center !important;
+        background-color: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        padding: 0 14px !important;
+        box-sizing: border-box !important;
+        transition: border-color 0.2s;
+    }
+
+    .prod-search-box:focus-within {
+        border-color: #ff6b35 !important;
+    }
+
+    .prod-search-box i {
+        color: #94a3b8;
+        margin-right: 10px;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .prod-search-box input {
+        border: none !important;
+        background: transparent !important;
+        width: 100% !important;
+        height: 100% !important;
+        outline: none !important;
+        font-size: 13.5px !important;
+        color: #334155 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .prod-select {
+        flex: 1 !important;
+        min-width: 220px !important;
+        height: 42px !important;
+        border-radius: 8px !important;
+        border: 1px solid #e2e8f0 !important;
+        background-color: #ffffff !important;
+        padding: 0 14px !important;
+        font-size: 13.5px !important;
+        color: #475569 !important;
+        outline: none !important;
+        cursor: pointer;
+    }
+
+    .prod-select:focus {
+        border-color: #ff6b35 !important;
+    }
+
+    .prod-btn-filter {
+        background-color: #ff6b35 !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 8px !important;
+        height: 42px !important;
+        padding: 0 28px !important;
+        font-size: 13.5px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        transition: background-color 0.2s;
+        white-space: nowrap;
+    }
+
+    .prod-btn-filter:hover {
+        background-color: #e85a26 !important;
+    }
+
+    .prod-btn-clean {
+        color: #ff6b35;
+        font-size: 13.5px;
+        font-weight: 600;
+        text-decoration: none;
+        margin-left: 6px;
+        white-space: nowrap;
+    }
+
+    .prod-btn-clean:hover {
+        text-decoration: underline;
+    }
+
+    /* Card da Tabela (sem padding extra interno) */
+    .prod-table-card {
+        background-color: #ffffff !important;
+        border-radius: 12px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+        overflow-x: auto !important;
+        border: 1px solid #f1f5f9 !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .prod-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        text-align: left !important;
+        margin: 0 !important;
+    }
+
+    .prod-table th {
+        background-color: #f8fafc !important;
+        color: #475569 !important;
+        font-size: 11.5px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        padding: 16px 24px !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        white-space: nowrap;
+    }
+
+    .prod-table td {
+        padding: 16px 24px !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        font-size: 13.5px !important;
+        color: #334155 !important;
+        vertical-align: middle !important;
+    }
+
+    .prod-table tr:last-child td {
+        border-bottom: none !important;
+    }
+
+    .prod-table tbody tr:hover {
+        background-color: #f8fafc !important;
+    }
+
+    .prod-col-id {
+        font-weight: 700;
+        color: #94a3b8 !important;
+    }
+
+    .prod-img {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        display: block;
+    }
+
+    .prod-img-placeholder {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        background-color: #f1f5f9;
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .prod-col-name {
+        font-weight: 600 !important;
+        color: #1e293b !important;
+    }
+
+    .prod-badge-cat {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 6px;
+        background-color: #f1f5f9;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .prod-col-price {
+        font-weight: 700 !important;
+        color: #16a34a !important;
+        white-space: nowrap;
+    }
+
+    .prod-badge-stock {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .prod-stock-ok {
+        background-color: #dcfce7;
+        color: #15803d;
+    }
+
+    .prod-stock-low {
+        background-color: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .prod-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .prod-btn-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13.5px;
+        text-decoration: none !important;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .prod-btn-icon.edit {
+        background-color: #eff6ff;
+        color: #2563eb;
+    }
+
+    .prod-btn-icon.edit:hover {
+        background-color: #2563eb;
+        color: #ffffff;
+    }
+
+    .prod-btn-icon.delete {
+        background-color: #fef2f2;
+        color: #dc2626;
+    }
+
+    .prod-btn-icon.delete:hover {
+        background-color: #dc2626;
+        color: #ffffff;
+    }
+
+    .prod-empty-state {
+        padding: 60px 20px !important;
+        text-align: center !important;
+        color: #94a3b8 !important;
+        font-size: 14px !important;
+    }
+
+    /* Paginação */
+    .pagination-wrapper {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 12px !important;
+        margin: 2.5rem 0 1.5rem 0 !important;
+        width: 100% !important;
+    }
+
+    .pagination-subtitle {
+        font-size: 0.95rem !important;
+        color: #475569 !important;
+        font-weight: 500 !important;
+        text-align: center !important;
+    }
+
+    .pagination-container {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 16px !important;
+    }
+
+    .pagination-numbers {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 12px !important;
+    }
+
+    .btn-page-pill {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        padding: 8px 20px !important;
+        border-radius: 50px !important;
+        border: 1px solid #cbd5e1 !important;
+        background-color: #ffffff !important;
+        color: #1e293b !important;
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .btn-page-pill:hover:not(.disabled) {
+        background-color: #f1f5f9 !important;
+        border-color: #94a3b8 !important;
+    }
+
+    .btn-page-pill.disabled {
+        opacity: 0.5 !important;
+        cursor: not-allowed !important;
+        border-color: #e2e8f0 !important;
+        background-color: #f8fafc !important;
+        color: #94a3b8 !important;
+    }
+
+    .page-num {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 50% !important;
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        color: #334155 !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .page-num:hover:not(.active) {
+        background-color: #e2e8f0 !important;
+    }
+
+    .page-num.active {
+        background-color: #2563eb !important;
+        color: #ffffff !important;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3) !important;
+    }
+
+    .page-dots {
+        color: #64748b !important;
+        font-weight: 700 !important;
+        padding: 0 4px !important;
+    }
+
+    .icon-sm {
+        font-size: 0.75rem !important;
+    }
+
+    /* Link Voltar Rodapé */
+    .prod-back-box {
+        margin-top: 20px;
+    }
+
+    .prod-back-link {
+        color: #1e293b;
+        font-size: 13.5px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .prod-back-link:hover {
+        color: #ff6b35;
+    }
+
+    @media (max-width: 768px) {
+        body:has(.produtos-wrapper) .app-main {
+            padding: 0 12px !important;
+        }
+        .prod-filter-form {
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+    }
+</style>
+
+<div class="produtos-wrapper">
+
+    <!-- Topo da Gestão -->
+    <div class="prod-header-card">
+        <div class="prod-header-left">
+            <div class="prod-header-icon">
+                <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
+            <div>
+                <h1 class="prod-header-title">Gestão de Produtos</h1>
+                <p class="prod-header-subtitle">Consulte e gerencie o estoque do sistema</p>
+            </div>
         </div>
-
-        <select name="categoria_id" class="select-control">
-            <option value="0">Todas as Categorias</option>
-            {% for cat in categorias %}
-            <option value="{{ cat.id }}" {% if categoria_id==cat.id %}selected{% endif %}>
-                {{ cat.nome }}
-            </option>
-            {% endfor %}
-        </select>
-
-        <button type="submit" class="btn-secondary">
-            Filtrar
-        </button>
-    </form>
-</div>
-
-<!-- Tabela de Produtos -->
-<div class="page-card table-card">
-    <table class="custom-table">
-        <thead>
-            <tr>
-                <th>Código</th>
-                <th>Imagem</th>
-                <th>Nome</th>
-                <th>Categoria</th>
-                <th>Preço</th>
-                <th>Estoque</th>
-                <th style="text-align: center;">Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for produto in produtos %}
-            <tr>
-                <td class="col-id">#{{ produto.id }}</td>
-                <td>
-                    {% if produto.imagem_path %}
-                    <img src="/static/{{ produto.imagem_path }}" alt="{{ produto.nome }}" class="table-img">
-                    {% else %}
-                    <div class="table-img-placeholder"><i class="fa-solid fa-image"></i></div>
-                    {% endif %}
-                </td>
-                <td class="col-name">{{ produto.nome }}</td>
-                <td>
-                    <span class="badge-cat">
-                        {{ produto.categoria.nome if produto.categoria else 'Sem Categoria' }}
-                    </span>
-                </td>
-                <td class="col-price">R$ {{ "%.2f"|format(produto.preco) }}</td>
-                <td>
-                    {% if produto.estoque_atual <= 5 %} 
-                    <span class="badge-stock stock-low">{{ produto.estoque_atual }} un</span>
-                    {% else %}
-                    <span class="badge-stock stock-ok">{{ produto.estoque_atual }} un</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <div class="actions-wrapper">
-                        <a href="/produtos/{{ produto.id }}/editar" class="btn-icon edit" title="Editar">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </a>
-                        {% if usuario and usuario.role == 'admin' %}
-                        <!-- Botão de Excluir/Desativar -->
-                        <button type="button" class="btn-icon delete" title="Excluir"
-                            onclick="abrirModalExclusao('/produtos/{{ produto.id }}/deletar', '{{ produto.nome }}')">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                        {% endif %}
-                    </div>
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="7" class="empty-state">
-                    <i class="fa-solid fa-box-open"></i>
-                    <p>Nenhum produto cadastrado até o momento.</p>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-<!-- Bloco de Paginação  -->
-{% if total_paginas and total_paginas > 1 %}
-<div class="pagination-wrapper">
-    <div class="pagination-subtitle">
-        Página {{ pagina }} de {{ total_paginas }}
+        {% if usuario and usuario.role == 'admin' %}
+        <a href="/produtos/novo" class="prod-btn-primary">
+            <i class="fa-solid fa-plus"></i> Novo Produto
+        </a>
+        {% endif %}
     </div>
 
-    <div class="pagination-container">
-        <!-- Botão Voltar -->
-        {% if pagina > 1 %}
-        <a href="/produtos/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id or 0 }}"
-            class="btn-page-pill">
-            <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
-        </a>
-        {% else %}
-        <span class="btn-page-pill disabled">
-            <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
-        </span>
-        {% endif %}
+    <!-- Filtro de Busca -->
+    <div class="prod-filter-card">
+        <form method="get" action="/produtos" class="prod-filter-form">
+            <div class="prod-search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" name="busca" placeholder="Buscar por nome..." value="{{ busca if busca else '' }}">
+            </div>
 
-        <!-- Números e Reticências -->
-        <div class="pagination-numbers">
-            {% for item in intervalo_paginas %}
-            {% if item == "..." %}
-            <span class="page-dots">...</span>
-            {% elif item == pagina %}
-            <span class="page-num active">{{ item }}</span>
-            {% else %}
-            <a href="/produtos/?pagina={{ item }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
-                class="page-num">{{ item }}</a>
+            <select name="categoria_id" class="prod-select">
+                <option value="0">Todas as Categorias</option>
+                {% for cat in categorias %}
+                <option value="{{ cat.id }}" {% if categoria_id==cat.id %}selected{% endif %}>
+                    {{ cat.nome }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="prod-btn-filter">
+                Filtrar
+            </button>
+
+            {% if busca or (categoria_id and categoria_id != 0) %}
+                <a href="/produtos" class="prod-btn-clean">Limpar</a>
             {% endif %}
-            {% endfor %}
+        </form>
+    </div>
+
+    <!-- Tabela de Produtos -->
+    <div class="prod-table-card">
+        <table class="prod-table">
+            <thead>
+                <tr>
+                    <th style="width: 80px;">Código</th>
+                    <th style="width: 90px;">Imagem</th>
+                    <th>Nome</th>
+                    <th>Categoria</th>
+                    <th>Preço</th>
+                    <th>Estoque</th>
+                    <th style="text-align: center; width: 120px;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produto in produtos %}
+                <tr>
+                    <td class="prod-col-id">#{{ produto.id }}</td>
+                    <td>
+                        {% if produto.imagem_path %}
+                        <img src="/static/{{ produto.imagem_path }}" alt="{{ produto.nome }}" class="prod-img">
+                        {% else %}
+                        <div class="prod-img-placeholder"><i class="fa-solid fa-image"></i></div>
+                        {% endif %}
+                    </td>
+                    <td class="prod-col-name">{{ produto.nome }}</td>
+                    <td>
+                        <span class="prod-badge-cat">
+                            {{ produto.categoria.nome if produto.categoria else 'Sem Categoria' }}
+                        </span>
+                    </td>
+                    <td class="prod-col-price">R$ {{ "%.2f"|format(produto.preco) }}</td>
+                    <td>
+                        {% if produto.estoque_atual <= 5 %}
+                        <span class="prod-badge-stock prod-stock-low">{{ produto.estoque_atual }} un</span>
+                        {% else %}
+                        <span class="prod-badge-stock prod-stock-ok">{{ produto.estoque_atual }} un</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="prod-actions">
+                            <a href="/produtos/{{ produto.id }}/editar" class="prod-btn-icon edit" title="Editar">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                            {% if usuario and usuario.role == 'admin' %}
+                            <button type="button" class="prod-btn-icon delete" title="Excluir"
+                                onclick="abrirModalExclusao('/produtos/{{ produto.id }}/deletar', '{{ produto.nome }}')">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="prod-empty-state">
+                        <i class="fa-solid fa-box-open" style="font-size: 36px; color: #cbd5e1; margin-bottom: 10px; display: block;"></i>
+                        <p style="margin: 0;">Nenhum produto cadastrado até o momento.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Bloco de Paginação -->
+    {% if total_paginas and total_paginas > 1 %}
+    <div class="pagination-wrapper">
+        <div class="pagination-subtitle">
+            Página {{ pagina }} de {{ total_paginas }}
         </div>
 
-        <!-- Botão Próximo -->
-        {% if pagina < total_paginas %}
-        <a href="/produtos/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
-            class="btn-page-pill">
-            Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
-        </a>
-        {% else %}
-        <span class="btn-page-pill disabled">
-            Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
-        </span>
-        {% endif %}
-    </div>
-</div>
-{% endif %}
+        <div class="pagination-container">
+            {% if pagina > 1 %}
+            <a href="/produtos/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id or 0 }}"
+                class="btn-page-pill">
+                <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
+            </a>
+            {% else %}
+            <span class="btn-page-pill disabled">
+                <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
+            </span>
+            {% endif %}
 
-<!-- Botão Voltar Padronizado -->
-<div>
-    <a href="/"
-        style="text-decoration: none; color: #0f172a; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
-        <i class="fa-solid fa-arrow-left"></i> Ir para a Página Inicial
-    </a>
+            <div class="pagination-numbers">
+                {% for item in intervalo_paginas %}
+                {% if item == "..." %}
+                <span class="page-dots">...</span>
+                {% elif item == pagina %}
+                <span class="page-num active">{{ item }}</span>
+                {% else %}
+                <a href="/produtos/?pagina={{ item }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
+                    class="page-num">{{ item }}</a>
+                {% endif %}
+                {% endfor %}
+            </div>
+
+            {% if pagina < total_paginas %}
+            <a href="/produtos/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca }}&categoria_id={{ categoria_id }}"
+                class="btn-page-pill">
+                Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
+            </a>
+            {% else %}
+            <span class="btn-page-pill disabled">
+                Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
+            </span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Link Voltar Padronizado -->
+    <div class="prod-back-box">
+        <a href="/" class="prod-back-link">
+            ← Ir para a Página Inicial
+        </a>
+    </div>
+
 </div>
 
 <!-- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO (Escondido por padrão) -->
