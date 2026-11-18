@@ -3,150 +3,616 @@
 {% block title %}Histórico de Vendas - AAPM{% endblock %}
 
 {% block content %}
-<div style="max-width: 1200px; margin: 30px auto; padding: 0 20px; font-family: Arial, sans-serif;">
-    
-    <!-- Cabeçalho e Link Voltar -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-        <div>
-            <a href="/pdv" style="color: #6c757d; text-decoration: none; font-weight: bold; font-size: 14px; display: inline-block; margin-bottom: 8px;">
-                ← Voltar ao PDV
-            </a>
-            <h2 style="margin: 0; color: #222; font-size: 26px;">Histórico de Vendas</h2>
+<style>
+    /* ==========================================
+       PADRONIZAÇÃO IDÊNTICA À TELA DE MOVIMENTAÇÕES
+    ========================================== */
+    body:has(.hist-vendas-wrapper) .app-main {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 30px !important;
+        box-sizing: border-box !important;
+    }
+
+    .hist-vendas-wrapper {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 32px auto !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    /* Card Superior Header */
+    .hv-header-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 24px 32px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .hv-header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .hv-header-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background-color: #fff7ed;
+        color: #ff6b35;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    .hv-header-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .hv-header-subtitle {
+        font-size: 13.5px;
+        color: #94a3b8;
+        margin: 4px 0 0 0;
+    }
+
+    .hv-btn-primary {
+        background-color: #ff6b35;
+        color: #ffffff !important;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s;
+    }
+
+    .hv-btn-primary:hover {
+        background-color: #e85a26;
+    }
+
+    /* Card de Filtros */
+    .hv-filter-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 18px 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        margin-bottom: 20px;
+        border: 1px solid #f1f5f9;
+    }
+
+    .hv-filter-form {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .hv-search-box {
+        flex: 1;
+        min-width: 240px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0 14px;
+        transition: border-color 0.2s;
+    }
+
+    .hv-search-box:focus-within {
+        border-color: #ff6b35;
+    }
+
+    .hv-search-box i {
+        color: #94a3b8;
+        margin-right: 10px;
+        font-size: 14px;
+    }
+
+    .hv-search-box input {
+        border: none;
+        background: transparent;
+        width: 100%;
+        outline: none;
+        font-size: 13.5px;
+        color: #334155;
+    }
+
+    .hv-date-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13.5px;
+        color: #475569;
+        font-weight: 500;
+    }
+
+    .hv-input-date {
+        height: 42px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background-color: #ffffff;
+        padding: 0 14px;
+        font-size: 13.5px;
+        color: #475569;
+        outline: none;
+    }
+
+    .hv-input-date:focus {
+        border-color: #ff6b35;
+    }
+
+    .hv-btn-dark {
+        background-color: #1e293b;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        height: 42px;
+        padding: 0 28px;
+        font-size: 13.5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .hv-btn-dark:hover {
+        background-color: #0f172a;
+    }
+
+    .hv-btn-clean {
+        color: #ff6b35;
+        font-size: 13.5px;
+        font-weight: 600;
+        text-decoration: none;
+        margin-left: 6px;
+    }
+
+    .hv-btn-clean:hover {
+        text-decoration: underline;
+    }
+
+    /* Tabela */
+    .hv-table-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        overflow-x: auto;
+        border: 1px solid #f1f5f9;
+        width: 100%;
+    }
+
+    .hv-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .hv-table th {
+        background-color: #f8fafc;
+        color: #475569;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 16px 24px;
+        border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
+    }
+
+    .hv-table td {
+        padding: 18px 24px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 13.5px;
+        color: #334155;
+        vertical-align: middle;
+    }
+
+    .hv-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .hv-table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+    .hv-badge-itens {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 28px;
+        height: 26px;
+        padding: 0 8px;
+        border-radius: 999px;
+        background-color: #f1f5f9;
+        color: #334155;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .hv-badge-desconto {
+        background-color: #fee2e2;
+        color: #b91c1c;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .hv-btn-detalhes {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        border-radius: 8px;
+        background-color: #fff7ed;
+        color: #ff6b35 !important;
+        border: 1px solid #fed7aa;
+        font-size: 12.5px;
+        font-weight: 700;
+        text-decoration: none !important;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .hv-btn-detalhes:hover {
+        background-color: #ff6b35;
+        color: #ffffff !important;
+        border-color: #ff6b35;
+    }
+
+    .hv-empty-state {
+        padding: 60px 20px;
+        text-align: center;
+        color: #94a3b8;
+        font-size: 14px;
+    }
+
+    /* Paginação */
+    .pagination-wrapper {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 12px !important;
+        margin: 2.5rem 0 1.5rem 0 !important;
+        width: 100% !important;
+    }
+
+    .pagination-subtitle {
+        font-size: 0.95rem !important;
+        color: #475569 !important;
+        font-weight: 500 !important;
+        text-align: center !important;
+    }
+
+    .pagination-container {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 16px !important;
+    }
+
+    .pagination-numbers {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 12px !important;
+    }
+
+    .btn-page-pill {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        padding: 8px 20px !important;
+        border-radius: 50px !important;
+        border: 1px solid #cbd5e1 !important;
+        background-color: #ffffff !important;
+        color: #1e293b !important;
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .btn-page-pill:hover:not(.disabled) {
+        background-color: #f1f5f9 !important;
+        border-color: #94a3b8 !important;
+    }
+
+    .btn-page-pill.disabled {
+        opacity: 0.5 !important;
+        cursor: not-allowed !important;
+        border-color: #e2e8f0 !important;
+        background-color: #f8fafc !important;
+        color: #94a3b8 !important;
+    }
+
+    .page-num {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 50% !important;
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        color: #334155 !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .page-num:hover:not(.active) {
+        background-color: #e2e8f0 !important;
+    }
+
+    .page-num.active {
+        background-color: #2563eb !important;
+        color: #ffffff !important;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3) !important;
+    }
+
+    .page-dots {
+        color: #64748b !important;
+        font-weight: 700 !important;
+        padding: 0 4px !important;
+    }
+
+    .icon-sm {
+        font-size: 0.75rem !important;
+    }
+
+    /* Link Voltar Rodapé */
+    .hv-back-box {
+        margin-top: 20px;
+    }
+
+    .hv-back-link {
+        color: #1e293b;
+        font-size: 13.5px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .hv-back-link:hover {
+        color: #ff6b35;
+    }
+
+    @media (max-width: 768px) {
+        body:has(.hist-vendas-wrapper) .app-main {
+            padding: 0 12px !important;
+        }
+        .hv-filter-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+
+<div class="hist-vendas-wrapper">
+
+    <!-- Card Superior de Cabeçalho -->
+    <div class="hv-header-card">
+        <div class="hv-header-left">
+            <div class="hv-header-icon">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div>
+                <h1 class="hv-header-title">Histórico de Vendas</h1>
+                <p class="hv-header-subtitle">Consulte os pedidos realizados, formas de pagamento e comprovantes do PDV</p>
+            </div>
         </div>
+        <a href="/pdv" class="hv-btn-primary">
+            <i class="fa-solid fa-cash-register"></i> + Abrir Frente de Caixa
+        </a>
     </div>
 
     <!-- Card de Filtros e Busca de Vendas -->
-    <div style="background: #ffffff; border-radius: 8px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px;">
-        <form method="get" action="/pdv/historico" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-            
-            <div style="flex: 1; min-width: 220px; display: flex; align-items: center; background: #f8f9fa; border: 1px solid #ced4da; border-radius: 6px; padding: 0 12px;">
-                <span style="color: #6c757d; margin-right: 8px;">🔍</span>
-                <input type="text" name="busca" placeholder="Buscar por Cliente ou Nº da Venda (#ID)..." value="{{ busca or '' }}" style="border: none; background: transparent; padding: 10px 0; width: 100%; outline: none; font-size: 14px;">
+    <div class="hv-filter-card">
+        <form method="get" action="/pdv/historico" class="hv-filter-form">
+            <div class="hv-search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" name="busca" placeholder="Buscar por Cliente ou Nº da Venda (#ID)..." value="{{ busca or '' }}">
             </div>
 
-            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #495057;">
-                <label>De:</label>
-                <input type="date" name="data_inicio" value="{{ data_inicio or '' }}" style="padding: 8px 12px; border: 1px solid #ced4da; border-radius: 6px; outline: none; font-size: 14px; background: #f8f9fa;">
+            <div class="hv-date-group">
+                <label>de:</label>
+                <input type="date" name="data_inicio" value="{{ data_inicio or '' }}" class="hv-input-date">
             </div>
 
-            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #495057;">
-                <label>Até:</label>
-                <input type="date" name="data_fim" value="{{ data_fim or '' }}" style="padding: 8px 12px; border: 1px solid #ced4da; border-radius: 6px; outline: none; font-size: 14px; background: #f8f9fa;">
+            <div class="hv-date-group">
+                <label>até:</label>
+                <input type="date" name="data_fim" value="{{ data_fim or '' }}" class="hv-input-date">
             </div>
 
-            <button type="submit" style="background-color: #ff6b00; color: #ffffff; border: none; padding: 9px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px;">
+            <button type="submit" class="hv-btn-dark">
                 Filtrar
             </button>
 
             {% if busca or data_inicio or data_fim %}
-                <a href="/pdv/historico" style="color: #6c757d; font-weight: bold; text-decoration: none; font-size: 14px; margin-left: 5px;">Limpar</a>
+                <a href="/pdv/historico" class="hv-btn-clean">Limpar</a>
             {% endif %}
         </form>
     </div>
 
-    <!-- Tabela em Card Embutido -->
-    <div style="background: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;">
-        
-        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+    <!-- Tabela de Vendas -->
+    <div class="hv-table-card">
+        <table class="hv-table">
             <thead>
-                <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6; color: #495057;">
-                    <th style="padding: 14px 18px; width: 80px;">#</th>
-                    <th style="padding: 14px 18px;">Data</th>
-                    <th style="padding: 14px 18px;">Cliente</th>
-                    <th style="padding: 14px 18px; text-align: center;">Itens</th>
-                    <th style="padding: 14px 18px;">Pagamento</th>
-                    <th style="padding: 14px 18px; text-align: center;">Desconto</th>
-                    <th style="padding: 14px 18px; text-align: right;">Total</th>
-                    <th style="padding: 14px 18px;">Operador</th>
-                    <th style="padding: 14px 18px; text-align: center; width: 100px;">Ação</th>
+                <tr>
+                    <th style="width: 80px;">#</th>
+                    <th>Data</th>
+                    <th>Cliente</th>
+                    <th style="text-align: center;">Itens</th>
+                    <th>Pagamento</th>
+                    <th style="text-align: center;">Desconto</th>
+                    <th style="text-align: right;">Total</th>
+                    <th>Operador</th>
+                    <th style="text-align: center; width: 130px;">Ação</th>
                 </tr>
             </thead>
             <tbody>
                 {% for venda in vendas %}
-                <tr style="border-bottom: 1px solid #e9ecef; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='transparent'">
-                    
+                <tr>
                     <!-- ID da Venda -->
-                    <td style="padding: 14px 18px; font-weight: bold; color: #ff6b00;">
+                    <td style="font-weight: 700; color: #ff6b35;">
                         #{{ venda.id }}
                     </td>
 
                     <!-- Data -->
-                    <td style="padding: 14px 18px; color: #555;">
+                    <td style="color: #64748b; white-space: nowrap;">
                         {{ venda.criado_em.strftime('%d/%m/%Y %H:%M') if venda.criado_em else '—' }}
                     </td>
 
                     <!-- Cliente -->
-                    <td style="padding: 14px 18px; color: #333; font-weight: 500;">
+                    <td style="font-weight: 600; color: #1e293b;">
                         {% if venda.cliente %}
                             {{ venda.cliente.nome }}
                         {% else %}
-                            <span style="color: #6c757d; font-style: italic;">Balcão</span>
+                            <span style="color: #94a3b8; font-style: italic; font-weight: 400;">Balcão</span>
                         {% endif %}
                     </td>
 
                     <!-- Total de Itens -->
-                    <td style="padding: 14px 18px; text-align: center;">
-                        <span style="background-color: #e9ecef; color: #495057; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 12px;">
+                    <td style="text-align: center;">
+                        <span class="hv-badge-itens">
                             {{ venda.itens|length }}
                         </span>
                     </td>
 
-                    <!-- SPRINT 3: Formas de Pagamento Registradas -->
-                    <td style="padding: 14px 18px; font-size: 13px; color: #444;">
+                    <!-- Formas de Pagamento Registradas -->
+                    <td style="font-size: 13px; color: #475569;">
                         {% for pag in venda.pagamentos %}
-                            <div style="line-height: 1.3;">
+                            <div style="line-height: 1.4;">
                                 <strong>• {{ pag.forma_pagamento }}:</strong> R$ {{ "%.2f"|format(pag.valor) }}
                             </div>
                         {% else %}
-                            <span style="color: #aaa; font-style: italic;">—</span>
+                            <span style="color: #94a3b8; font-style: italic;">—</span>
                         {% endfor %}
                     </td>
 
                     <!-- Desconto -->
-                    <td style="padding: 14px 18px; text-align: center; color: #666;">
+                    <td style="text-align: center;">
                         {% if venda.desconto_percentual > 0 %}
-                            <span style="color: #dc3545; font-weight: bold;">{{ "%.0f"|format(venda.desconto_percentual) }}%</span>
+                            <span class="hv-badge-desconto">{{ "%.0f"|format(venda.desconto_percentual) }}%</span>
                         {% else %}
-                            —
+                            <span style="color: #94a3b8;">—</span>
                         {% endif %}
                     </td>
 
                     <!-- Total Líquido -->
-                    <td style="padding: 14px 18px; text-align: right; font-weight: bold; color: #28a745; font-size: 15px;">
+                    <td style="text-align: right; font-weight: 700; color: #16a34a; font-size: 14px; white-space: nowrap;">
                         R$ {{ "%.2f"|format(venda.total_liquido) }}
                     </td>
 
                     <!-- Operador -->
-                    <td style="padding: 14px 18px; color: #555;">
+                    <td style="color: #64748b;">
                         {% if venda.usuario %}
                             {{ venda.usuario.nome if venda.usuario.nome else venda.usuario.username }}
                         {% else %}
-                            <span style="color: #aaa;">—</span>
+                            <span style="color: #94a3b8;">—</span>
                         {% endif %}
                     </td>
 
                     <!-- Botão do Comprovante -->
-                    <td style="padding: 14px 18px; text-align: center;">
-                        <a href="/pdv/venda/{{ venda.id }}" style="background-color: #17a2b8; color: #fff; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: bold; display: inline-block;">
-                            Ver Detalhes
+                    <td style="text-align: center;">
+                        <a href="/pdv/venda/{{ venda.id }}" class="hv-btn-detalhes">
+                            <i class="fa-solid fa-eye"></i> Detalhes
                         </a>
                     </td>
                 </tr>
                 {% else %}
                 <tr>
-<<<<<<< HEAD
-                    <td colspan="8" style="padding: 30px; text-align: center; color: #999;">
-                        Nenhuma venda encontrada.
-=======
-                    <td colspan="9" style="padding: 30px; text-align: center; color: #999;">
-                        Nenhuma venda registrada até o momento.
->>>>>>> 6c57d383a04bce021024a36b5bd5ea86eddf2bd6
+                    <td colspan="9">
+                        <div class="hv-empty-state">
+                            <i class="fa-solid fa-receipt" style="font-size: 36px; color: #cbd5e1; margin-bottom: 10px; display: block;"></i>
+                            Nenhuma venda encontrada para os filtros selecionados.
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-
     </div>
+
+    <!-- Paginação (caso configurada no controller) -->
+    {% if total_paginas is defined and total_paginas > 1 %}
+    <div class="pagination-wrapper">
+        <div class="pagination-subtitle">
+            Página {{ pagina }} de {{ total_paginas }}
+        </div>
+
+        <div class="pagination-container">
+            {% if pagina > 1 %}
+            <a href="/pdv/historico?pagina={{ pagina - 1 }}&busca={{ busca or '' }}&data_inicio={{ data_inicio or '' }}&data_fim={{ data_fim or '' }}" class="btn-page-pill">
+                <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
+            </a>
+            {% else %}
+            <span class="btn-page-pill disabled">
+                <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
+            </span>
+            {% endif %}
+
+            {% if intervalo_paginas is defined %}
+            <div class="pagination-numbers">
+                {% for item in intervalo_paginas %}
+                {% if item == "..." %}
+                <span class="page-dots">...</span>
+                {% elif item == pagina %}
+                <span class="page-num active">{{ item }}</span>
+                {% else %}
+                <a href="/pdv/historico?pagina={{ item }}&busca={{ busca or '' }}&data_inicio={{ data_inicio or '' }}&data_fim={{ data_fim or '' }}" class="page-num">{{ item }}</a>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if pagina < total_paginas %}
+            <a href="/pdv/historico?pagina={{ pagina + 1 }}&busca={{ busca or '' }}&data_inicio={{ data_inicio or '' }}&data_fim={{ data_fim or '' }}" class="btn-page-pill">
+                Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
+            </a>
+            {% else %}
+            <span class="btn-page-pill disabled">
+                Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
+            </span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Link Voltar para a Página Inicial (padrão do rodapé das páginas internas) -->
+    <div class="hv-back-box">
+        <a href="/" class="hv-back-link">
+            ← Ir para a Página Inicial
+        </a>
+    </div>
+
 </div>
 {% endblock %}

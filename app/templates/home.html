@@ -1,63 +1,787 @@
 {% extends "base.html" %}
 
-{% block title %}Início - AAPM{% endblock %}
+{% block title %}Dashboard - AAPM{% endblock %}
 
 {% block content %}
-<div class="welcome-card">
-    <div class="welcome-header">
-        <h1>Olá, {{ usuario.nome }}! </h1>
-        <span class="badge-role">{{ usuario.role }}</span>
+<style>
+    /* ==========================================
+       PADRONIZAÇÃO IDÊNTICA À TELA DE MOVIMENTAÇÕES
+    ========================================== */
+    body:has(.dash-container) .app-main {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 30px !important;
+        box-sizing: border-box !important;
+    }
+
+    .dash-container {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 32px auto !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    /* Banner Superior de Boas-Vindas (mesmas medidas do .mov-header-card) */
+    .dash-banner {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 24px 32px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        border: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .dash-banner-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .dash-banner-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #fff7ed;
+        color: #ff6b00;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    .dash-banner-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 4px;
+    }
+
+    .dash-banner-title h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+        color: #1e293b;
+        line-height: 1.2;
+    }
+
+    .dash-role-badge {
+        background: #fff7ed;
+        color: #ea580c;
+        border: 1px solid #fed7aa;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 3px 10px;
+        border-radius: 999px;
+        letter-spacing: 0.5px;
+    }
+
+    .dash-banner p {
+        margin: 0;
+        color: #94a3b8;
+        font-size: 13.5px;
+    }
+
+    .dash-banner-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .btn-dash-pdv {
+        background-color: #ff6b35;
+        color: #ffffff !important;
+        text-decoration: none !important;
+        padding: 10px 22px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s;
+    }
+
+    .btn-dash-pdv:hover {
+        background-color: #e85a26;
+    }
+
+    .btn-dash-sec {
+        background-color: #ffffff;
+        color: #334155 !important;
+        border: 1px solid #e2e8f0;
+        text-decoration: none !important;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s;
+    }
+
+    .btn-dash-sec:hover {
+        background-color: #f8fafc;
+    }
+
+    /* Grid de 4 KPIs */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .kpi-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 22px 26px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        border: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-decoration: none;
+        transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        border-color: #fed7aa;
+    }
+
+    .kpi-info span.kpi-label {
+        display: block;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #475569;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+    }
+
+    .kpi-info strong.kpi-value {
+        display: block;
+        font-size: 24px;
+        font-weight: 800;
+        color: #1e293b;
+        line-height: 1.1;
+    }
+
+    .kpi-info small.kpi-sub {
+        display: block;
+        margin-top: 6px;
+        font-size: 12.5px;
+        color: #94a3b8;
+    }
+
+    .kpi-icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: #fff7ed;
+        color: #ff6b35;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    .kpi-icon-box.alerta {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    /* Grid de Gráficos */
+    .charts-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .dash-panel {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 24px 28px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        border: 1px solid #f1f5f9;
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+
+    .panel-header h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .panel-header h2 i {
+        color: #ff6b35;
+    }
+
+    .panel-header a {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #ff6b35;
+        text-decoration: none;
+    }
+
+    .panel-header a:hover {
+        text-decoration: underline;
+    }
+
+    .chart-canvas-wrapper {
+        position: relative;
+        height: 250px;
+        width: 100%;
+    }
+
+    /* Grid de Tabelas Operacionais */
+    .tables-grid {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 20px;
+    }
+
+    .dash-table-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        overflow: hidden;
+        border: 1px solid #f1f5f9;
+        width: 100%;
+    }
+
+    .dash-table-header {
+        padding: 20px 24px 16px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .dash-table-header h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .dash-table-header h2 i {
+        color: #ff6b35;
+    }
+
+    .dash-table-header a {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #ff6b35;
+        text-decoration: none;
+    }
+
+    .dash-table-header a:hover {
+        text-decoration: underline;
+    }
+
+    .dash-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .dash-table th {
+        background-color: #f8fafc;
+        color: #475569;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 14px 24px;
+        border-top: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .dash-table td {
+        padding: 16px 24px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 13.5px;
+        color: #334155;
+        vertical-align: middle;
+    }
+
+    .dash-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .badge-estoque {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge-estoque.zerado {
+        background-color: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .badge-estoque.baixo {
+        background-color: #fff7ed;
+        color: #ea580c;
+    }
+
+    .empty-dash-msg {
+        text-align: center;
+        padding: 40px 20px;
+        color: #94a3b8;
+        font-size: 13.5px;
+    }
+
+    /* Atalhos rápidos para Operador (3 colunas simétricas) */
+    .operador-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .op-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 22px 26px;
+        text-decoration: none;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        border: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .op-card:hover {
+        transform: translateY(-2px);
+        border-color: #ff6b35;
+    }
+
+    .op-card-text h3 {
+        margin: 0 0 4px 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .op-card-text p {
+        margin: 0;
+        font-size: 13.5px;
+        color: #94a3b8;
+    }
+
+    .op-card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: #fff7ed;
+        color: #ff6b35;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 1024px) {
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .operador-grid, .charts-grid, .tables-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        body:has(.dash-container) .app-main {
+            padding: 0 12px !important;
+        }
+        .kpi-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="dash-container">
+
+    <!-- Banner de Boas-Vindas + Ação Rápida -->
+    <div class="dash-banner">
+        <div class="dash-banner-left">
+            <div class="dash-banner-icon">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <div>
+                <div class="dash-banner-title">
+                    <h1>Olá, {{ usuario.nome }}!</h1>
+                    <span class="dash-role-badge">{{ usuario.role }}</span>
+                </div>
+                {% if usuario.role == 'admin' %}
+                <p>Acompanhe o desempenho do PDV e o status do estoque da AAPM em tempo real.</p>
+                {% else %}
+                <p>Pronto para iniciar os atendimentos do turno e consultar vendas ou produtos.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="dash-banner-actions">
+            <a href="/pdv/historico" class="btn-dash-sec">
+                <i class="fa-solid fa-receipt"></i> Histórico de Vendas
+            </a>
+            <a href="/pdv" class="btn-dash-pdv">
+                <i class="fa-solid fa-cash-register"></i> + Abrir Frente de Caixa
+            </a>
+        </div>
     </div>
-    <p>Seja bem-vindo ao Painel de Controle da AAPM.</p>
-</div>
 
-<div class="dashboard-grid">
-    
-    <!-- ROTAS LIVRES: Acessíveis por Operador e Admin -->
-    <a href="/pdv" class="dash-card">
-        <i class="fa-solid fa-cash-register"></i>
-        <h3>PDV (Caixa)</h3>
-        <p>Frente de caixa e vendas rápidas</p>
-    </a>
-
-    <a href="/produtos" class="dash-card">
-        <i class="fa-solid fa-box-archive"></i>
-        <h3>Produtos</h3>
-        <p>Gerenciar estoque e itens</p>
-    </a>
-
-    <a href="/movimentacoes" class="dash-card">
-        <i class="fa-solid fa-cart-shopping"></i>
-        <h3>Movimentações</h3>
-        <p>Registrar e consultar vendas</p>
-    </a>
-
-    <!-- ROTAS RESTRITAS: Visíveis APENAS para Admin -->
     {% if usuario.role == 'admin' %}
-        <a href="/clientes" class="dash-card">
-            <i class="fa-solid fa-address-book"></i>
-            <h3>Clientes</h3>
-            <p>Gerenciar cadastro de clientes</p>
+    <!-- ========================================== -->
+    <!-- VISÃO COMPLETA DE ADMINISTRADOR            -->
+    <!-- ========================================== -->
+
+    <!-- 1. Faixa de 4 KPIs -->
+    <div class="kpi-grid">
+        <a href="/pdv/historico" class="kpi-card">
+            <div class="kpi-info">
+                <span class="kpi-label">Faturamento Hoje</span>
+                <strong class="kpi-value">R$ {{ "%.2f"|format(faturamento_hoje) }}</strong>
+                <small class="kpi-sub">Ticket médio: R$ {{ "%.2f"|format(ticket_medio) }}</small>
+            </div>
+            <div class="kpi-icon-box">
+                <i class="fa-solid fa-sack-dollar"></i>
+            </div>
         </a>
 
-        <a href="/categorias" class="dash-card">
-            <i class="fa-solid fa-tags"></i>
-            <h3>Categorias</h3>
-            <p>Organizar catálogo de produtos</p>
+        <a href="/pdv/historico" class="kpi-card">
+            <div class="kpi-info">
+                <span class="kpi-label">Vendas Hoje</span>
+                <strong class="kpi-value">{{ vendas_hoje }}</strong>
+                <small class="kpi-sub">Pedidos concluídos no dia</small>
+            </div>
+            <div class="kpi-icon-box">
+                <i class="fa-solid fa-bag-shopping"></i>
+            </div>
         </a>
 
-        <a href="/usuarios" class="dash-card">
-            <i class="fa-solid fa-users"></i>
-            <h3>Usuários</h3>
-            <p>Gerenciar acessos do sistema</p>
+        <a href="/produtos" class="kpi-card">
+            <div class="kpi-info">
+                <span class="kpi-label">Estoque Baixo</span>
+                <strong class="kpi-value" style="{{ 'color: #b91c1c;' if total_estoque_baixo > 0 else '' }}">
+                    {{ total_estoque_baixo }}
+                </strong>
+                <small class="kpi-sub">Itens com 10 un. ou menos</small>
+            </div>
+            <div class="kpi-icon-box {{ 'alerta' if total_estoque_baixo > 0 else '' }}">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
         </a>
+
+        <a href="/clientes" class="kpi-card">
+            <div class="kpi-info">
+                <span class="kpi-label">Clientes Ativos</span>
+                <strong class="kpi-value">{{ total_clientes }}</strong>
+                <small class="kpi-sub">Base cadastrada na AAPM</small>
+            </div>
+            <div class="kpi-icon-box">
+                <i class="fa-solid fa-users"></i>
+            </div>
+        </a>
+    </div>
+
+    <!-- 2. Gráficos Analíticos (Chart.js) -->
+    <div class="charts-grid">
+        <div class="dash-panel">
+            <div class="panel-header">
+                <h2><i class="fa-solid fa-chart-column"></i> Faturamento dos Últimos 7 Dias</h2>
+                <a href="/pdv/historico">Ver completo →</a>
+            </div>
+            <div class="chart-canvas-wrapper">
+                <canvas id="graficoFaturamento"></canvas>
+            </div>
+        </div>
+
+        <div class="dash-panel">
+            <div class="panel-header">
+                <h2><i class="fa-solid fa-chart-pie"></i> Formas de Pagamento</h2>
+            </div>
+            <div class="chart-canvas-wrapper">
+                {% if valores_pagamentos %}
+                    <canvas id="graficoPagamentos"></canvas>
+                {% else %}
+                    <div class="empty-dash-msg">
+                        <i class="fa-solid fa-coins" style="font-size: 28px; margin-bottom: 8px; display: block;"></i>
+                        Nenhuma venda registrada ainda para exibir pagamentos.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- ========================================== -->
+    <!-- VISÃO OPERACIONAL (PERFIL OPERADOR)        -->
+    <!-- ========================================== -->
+    <div class="operador-grid">
+        <a href="/pdv" class="op-card">
+            <div class="op-card-text">
+                <h3>PDV (Caixa)</h3>
+                <p>Iniciar atendimento e registrar vendas</p>
+            </div>
+            <div class="op-card-icon">
+                <i class="fa-solid fa-cash-register"></i>
+            </div>
+        </a>
+
+        <a href="/produtos" class="op-card">
+            <div class="op-card-text">
+                <h3>Produtos</h3>
+                <p>Consultar preços e saldo em estoque</p>
+            </div>
+            <div class="op-card-icon">
+                <i class="fa-solid fa-box-archive"></i>
+            </div>
+        </a>
+
+        <a href="/pdv/historico" class="op-card">
+            <div class="op-card-text">
+                <h3>Vendas Hoje ({{ vendas_hoje }})</h3>
+                <p>Consultar histórico e comprovantes</p>
+            </div>
+            <div class="op-card-icon">
+                <i class="fa-solid fa-receipt"></i>
+            </div>
+        </a>
+    </div>
     {% endif %}
 
+    <!-- 3. Tabelas Operacionais (Últimas Vendas + Estoque Crítico) -->
+    <div class="tables-grid">
+        
+        <!-- Últimas Vendas -->
+        <div class="dash-table-card">
+            <div class="dash-table-header">
+                <h2><i class="fa-solid fa-clock-rotate-left"></i> Últimas Vendas no PDV</h2>
+                <a href="/pdv/historico">Todas as vendas →</a>
+            </div>
+
+            {% if ultimas_vendas %}
+            <table class="dash-table">
+                <thead>
+                    <tr>
+                        <th>#ID</th>
+                        <th>DATA / HORA</th>
+                        <th>CLIENTE</th>
+                        <th style="text-align: right;">TOTAL</th>
+                        <th style="text-align: right;">AÇÃO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for v in ultimas_vendas %}
+                    <tr>
+                        <td style="font-weight: 700; color: #ff6b35;">#{{ v.id }}</td>
+                        <td style="color: #64748b;">
+                            {{ v.criado_em.strftime('%d/%m/%Y %H:%M') if v.criado_em else '—' }}
+                        </td>
+                        <td style="font-weight: 600;">{{ v.cliente.nome if v.cliente else 'Consumidor Balcão' }}</td>
+                        <td style="text-align: right; font-weight: 700;">R$ {{ "%.2f"|format(v.total_liquido) }}</td>
+                        <td style="text-align: right;">
+                            <a href="/pdv/venda/{{ v.id }}" style="color: #64748b; text-decoration: none; font-weight: 600;" title="Ver comprovante">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-dash-msg">
+                Nenhuma venda realizada até o momento.
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Radar de Estoque Crítico -->
+        <div class="dash-table-card">
+            <div class="dash-table-header">
+                <h2><i class="fa-solid fa-boxes-stacked"></i> Radar de Estoque Baixo</h2>
+                <a href="/produtos">Ver produtos →</a>
+            </div>
+
+            {% if produtos_criticos %}
+            <table class="dash-table">
+                <thead>
+                    <tr>
+                        <th>PRODUTO</th>
+                        <th style="text-align: center;">SALDO</th>
+                        {% if usuario.role == 'admin' %}
+                        <th style="text-align: right;">REPOR</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in produtos_criticos %}
+                    <tr>
+                        <td style="font-weight: 600;">{{ p.nome }}</td>
+                        <td style="text-align: center;">
+                            {% if p.estoque_atual == 0 %}
+                                <span class="badge-estoque zerado">Esgotado (0)</span>
+                            {% else %}
+                                <span class="badge-estoque baixo">{{ p.estoque_atual }} un.</span>
+                            {% endif %}
+                        </td>
+                        {% if usuario.role == 'admin' %}
+                        <td style="text-align: right;">
+                            <a href="/movimentacoes/nova?produto_id={{ p.id }}" style="color: #ff6b35; font-weight: 700; text-decoration: none;">
+                                + Entrada
+                            </a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-dash-msg">
+                <i class="fa-solid fa-circle-check" style="color: #16a34a; font-size: 24px; margin-bottom: 6px; display: block;"></i>
+                Todo o estoque está acima do nível mínimo!
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+
 </div>
 
-<div class="logout-wrapper">
-    <a href="/auth/logout" class="btn-logout">
-        <i class="fa-solid fa-right-from-bracket"></i> Sair da Conta
-    </a>
-</div>
+{% if usuario.role == 'admin' %}
+<!-- Importação do Chart.js via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Dados vindos do FastAPI / Jinja2
+    const labels7Dias = {{ labels_7_dias | tojson }};
+    const valores7Dias = {{ valores_7_dias | tojson }};
+
+    const labelsPagamentos = {{ labels_pagamentos | tojson }};
+    const valoresPagamentos = {{ valores_pagamentos | tojson }};
+
+    // Gráfico 1: Faturamento dos Últimos 7 Dias
+    const ctxFat = document.getElementById('graficoFaturamento');
+    if (ctxFat) {
+        new Chart(ctxFat, {
+            type: 'bar',
+            data: {
+                labels: labels7Dias,
+                datasets: [{
+                    label: 'Faturamento (R$)',
+                    data: valores7Dias,
+                    backgroundColor: '#ff6b35',
+                    hoverBackgroundColor: '#e85a26',
+                    borderRadius: 8,
+                    maxBarThickness: 42
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                return ' R$ ' + Number(ctx.raw).toFixed(2).replace('.', ',');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f1f5f9' },
+                        ticks: {
+                            callback: function(value) {
+                                return 'R$ ' + value;
+                            }
+                        }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+
+    // Gráfico 2: Formas de Pagamento
+    const ctxPag = document.getElementById('graficoPagamentos');
+    if (ctxPag && valoresPagamentos.length > 0) {
+        new Chart(ctxPag, {
+            type: 'doughnut',
+            data: {
+                labels: labelsPagamentos,
+                datasets: [{
+                    data: valoresPagamentos,
+                    backgroundColor: [
+                        '#ff6b35',
+                        '#fb923c',
+                        '#fdba74',
+                        '#1e293b',
+                        '#64748b'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 16,
+                            font: { size: 12, weight: '600' }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                return ' ' + ctx.label + ': R$ ' + Number(ctx.raw).toFixed(2).replace('.', ',');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endif %}
 {% endblock %}

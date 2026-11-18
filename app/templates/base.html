@@ -14,18 +14,20 @@
 </head>
 <body>
 
+    {% if usuario %}
+    {% set eh_admin = (usuario.role == 'admin' or usuario.perfil == 'admin' or usuario.is_admin or usuario == 'admin' or (usuario is mapping and usuario.role == 'admin')) %}
     <!-- Header Superior -->
     <header class="app-header" style="display: flex; justify-content: space-between; align-items: center; padding: 0 30px; height: 60px;">
         
-        <!-- Logo e Marca -->
-        <div class="header-brand">
+        <!-- Logo e Marca (Clicável para voltar ao Dashboard) -->
+        <a href="/" class="header-brand" style="text-decoration: none; cursor: pointer;" title="Voltar para a Página Inicial">
             <img src="{{ url_for('static', path='IMG/logo.png') }}" alt="Logo AAPM" class="header-logo">
-            <span>AAPM - PDV</span>
-        </div>
+            <span style="color: #ff6b00;">AAPM - PDV</span>
+        </a>
         
         <!-- Navbar Centralizada -->
         <nav style="display: flex; gap: 24px; align-items: center;">
-            <!-- Rotas públicas/operadores -->
+            <!-- Rotas comuns: Operador e Admin -->
             <a href="/pdv" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-cash-register" style="color: #ff6b00;"></i> PDV
             </a>
@@ -33,17 +35,21 @@
             <a href="/produtos" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-box" style="color: #ff6b00;"></i> Produtos
             </a>
-            
+
+            <!-- Movimentações: exclusivo Admin -->
+            {% if eh_admin %}
             <a href="/movimentacoes" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-cart-shopping" style="color: #ff6b00;"></i> Movimentações
             </a>
+            {% endif %}
 
-            <!-- Rotas de Admin (Validação por role / perfil / is_admin) -->
-            {% if usuario and (usuario.role == 'admin' or usuario.perfil == 'admin' or usuario.is_admin or usuario == 'admin' or (usuario is mapping and usuario.role == 'admin')) %}
+            <!-- Histórico: comum a Operador e Admin -->
             <a href="/pdv/historico" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-clock-rotate-left" style="color: #ff6b00;"></i> Histórico
             </a>
 
+            <!-- Cadastros e Gestão: exclusivo Admin -->
+            {% if eh_admin %}
             <a href="/clientes" style="text-decoration: none; color: #555; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-address-book" style="color: #ff6b00;"></i> Clientes
             </a>
@@ -71,6 +77,7 @@
         </div>
         
     </header>
+    {% endif %}
 
     <!-- Conteúdo Dinâmico -->
     <main class="app-main">

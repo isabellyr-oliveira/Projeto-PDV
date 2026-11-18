@@ -23,14 +23,9 @@
         width: 100% !important;
         margin: 0 !important;
         box-sizing: border-box !important;
-    }
-
-    .page-container {
-        padding: 32px 0;
-        max-width: 1100px;
-        margin: 0 auto;
-        width: 100%;
-        box-sizing: border-box;
+        min-height: calc(100vh - 72px);
+        display: flex;
+        flex-direction: column;
     }
 
     /* Card Padrão de Cabeçalho */
@@ -242,29 +237,12 @@
         color: #64748B;
     }
 
-    .back-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 15px;
-        color: #0f172a;
-        font-weight: 600;
-        font-size: 0.9rem;
-        text-decoration: none;
-    }
-
-    .back-link:hover {
-        text-decoration: underline;
-    }
-
     /* ESTILOS DA PAGINAÇÃO */
     .pagination-wrapper {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         gap: 12px !important;
-        margin: 2rem 0 !important;
-
         margin-top: auto !important;
         margin-bottom: 12px !important;
         padding-top: 24px !important;
@@ -276,20 +254,11 @@
         font-weight: 500;
     }
 
-    .page-container {
-        padding: 32px 40px;
-        /* Adiciona respiro nas laterais para não colar na borda do monitor */
-        max-width: 100%;
-        /* Remove o limite de 1100px e ocupa 100% da largura */
-        width: 100%;
-        margin: 0;
-        box-sizing: border-box;
-
-        /* Opcional: Faz o container esticar até o final da tela verticalmente */
-        min-height: calc(100vh - 72px);
-        /* 70px é a altura aproximada da sua navbar */
-        display: flex;
-        flex-direction: column;
+    .pagination-container {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 16px !important;
     }
 
     .btn-page-pill {
@@ -368,13 +337,16 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        margin-top: 0 !important;
-        /* Fica logo abaixo da paginação, no rodapé */
+        margin-top: 20px;
         align-self: flex-start;
         color: #0f172a;
         font-weight: 600;
         font-size: 0.9rem;
         text-decoration: none;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
     }
 </style>
 
@@ -473,11 +445,6 @@
                                 {% else %}
                                 <button type="button" class="btn-action btn-toggle-on" title="Ativar usuário"
                                     onclick="abrirModalUsuario('form-usuario-{{ u.id }}', '{{ u.nome }}', 'ativar')">Ativar</button>
-                                <button type="submit" class="btn-action btn-toggle-off"
-                                    title="Desativar usuário">Desativar</button>
-                                {% else %}
-                                <button type="submit" class="btn-action btn-toggle-on"
-                                    title="Ativar usuário">Ativar</button>
                                 {% endif %}
                             </form>
                         </div>
@@ -503,7 +470,7 @@
         <div class="pagination-container">
             <!-- BOTÃO VOLTAR -->
             {% if pagina > 1 %}
-            <a href="/usuarios/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}" class="btn-page-pill">
+            <a href="/usuarios/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca or '' }}&role={{ role or '' }}" class="btn-page-pill">
                 <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
             </a>
             {% else %}
@@ -520,27 +487,27 @@
                 {% elif item == pagina %}
                 <span class="page-num active">{{ item }}</span>
                 {% else %}
-                <a href="/usuarios/?pagina={{ item }}&por_pagina={{ por_pagina }}" class="page-num">{{ item }}</a>
+                <a href="/usuarios/?pagina={{ item }}&por_pagina={{ por_pagina }}&busca={{ busca or '' }}&role={{ role or '' }}" class="page-num">{{ item }}</a>
                 {% endif %}
                 {% endfor %}
             </div>
 
             <!-- BOTÃO PRÓXIMO -->
-            {% if pagina < total_paginas %} <a href="/usuarios/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}"
-                class="btn-page-pill">
+            {% if pagina < total_paginas %}
+            <a href="/usuarios/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca or '' }}&role={{ role or '' }}" class="btn-page-pill">
                 Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
-                </a>
-                {% else %}
-                <span class="btn-page-pill disabled">
-                    Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
-                </span>
-                {% endif %}
+            </a>
+            {% else %}
+            <span class="btn-page-pill disabled">
+                Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
+            </span>
+            {% endif %}
         </div>
     </div>
     {% endif %}
 
     <!-- Botão de voltar para a Home -->
-    <a href="/pdv" class="back-link">
+    <a href="/" class="back-link">
         <i class="fa-solid fa-arrow-left"></i> Ir para a Página Inicial
     </a>
 
