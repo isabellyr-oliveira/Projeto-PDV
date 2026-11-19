@@ -63,7 +63,7 @@ def tela_pdv(
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado),
     pagina: int = 1,
-    por_pagina: int = 2,
+    por_pagina: int = 12,
 ):
     """
     Carrega a tela do PDV com produtos paginados
@@ -72,7 +72,7 @@ def tela_pdv(
     # 1. Monta a query base dos produtos ativos e com estoque
     query_produtos = (
         db.query(Produto)
-        .filter(Produto.ativo == True, Produto.estoque_atual > 0)
+        .filter(Produto.ativo == True)
         .order_by(Produto.nome)
     )
 
@@ -99,7 +99,6 @@ def tela_pdv(
 
     # 6. Gera o intervalo das páginas (ex: [1, '...', 4, 5, 6])
     intervalo_paginas = gerar_intervalo_paginas(pagina, total_paginas)
-
     return templates.TemplateResponse(
         request,
         "pdv/index.html",
