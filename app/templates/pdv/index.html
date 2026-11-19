@@ -7,6 +7,471 @@
 <link rel="stylesheet" href="{{ url_for('static', path='CSS_produtos/index.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', path='CSS/pdv.css') }}">
 
+<style>
+    /* ==========================================
+       PADRONIZAÇÃO GERAL DO PDV E DO CARRINHO
+    ========================================== */
+    body:has(.pdv-page) .app-main {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 20px 30px 40px 30px !important;
+        box-sizing: border-box !important;
+        height: auto !important;
+        min-height: calc(100vh - 120px) !important;
+        overflow: visible !important;
+    }
+
+    .pdv-page {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        height: auto !important;
+        overflow: visible !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    .pdv-layout {
+        display: flex !important;
+        align-items: flex-start !important;
+        gap: 24px !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    /* Coluna Esquerda: Busca + Catálogo */
+    .pdv-main {
+        flex: 1 !important;
+        min-width: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 18px !important;
+    }
+
+    .pdv-search-card {
+        background: #ffffff;
+        padding: 14px 18px;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        border: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .pdv-search-card:focus-within {
+        border-color: #ff6b35;
+    }
+
+    .pdv-search-card i {
+        color: #94a3b8;
+        font-size: 15px;
+    }
+
+    .pdv-search-card input {
+        width: 100%;
+        border: none;
+        outline: none;
+        font-size: 14.5px;
+        color: #1e293b;
+        background: transparent;
+    }
+
+    .pdv-produtos-wrapper {
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        border: 1px solid #f1f5f9;
+    }
+
+    .pdv-produtos {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)) !important;
+        gap: 16px !important;
+    }
+
+    .card-produto {
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 10px !important;
+        padding: 14px 12px !important;
+        text-align: center !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+        background: #ffffff !important;
+        display: flex;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        height: 215px !important;
+        box-sizing: border-box !important;
+        position: relative;
+    }
+
+    .card-produto:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(255, 107, 53, 0.12);
+        border-color: #ff6b35 !important;
+    }
+
+    .card-produto:active {
+        transform: scale(0.98);
+    }
+
+    .card-produto-img-box {
+        height: 92px;
+        width: 100%;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 8px;
+        overflow: hidden;
+    }
+
+    .card-produto-img-box img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+        background: #ffffff;
+    }
+
+    .card-produto-nome {
+        font-weight: 700;
+        font-size: 13px;
+        color: #1e293b;
+        line-height: 1.25;
+        height: 32px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .card-produto-preco {
+        color: #ff6b35;
+        font-weight: 800;
+        font-size: 15.5px;
+    }
+
+    .card-produto-estoque {
+        color: #94a3b8;
+        font-size: 11px;
+        margin-top: 2px;
+        font-weight: 500;
+    }
+
+    /* Paginação dentro da coluna esquerda sem cortar no rodapé */
+    .pdv-main .pagination-wrapper {
+        margin: 12px 0 24px 0 !important;
+        padding-bottom: 12px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 10px !important;
+    }
+
+    /* Coluna Direita: Carrinho Modernizado */
+    .pdv-carrinho {
+        width: 390px !important;
+        min-width: 390px !important;
+        max-width: 390px !important;
+        background: #ffffff !important;
+        border-radius: 12px !important;
+        border: 1px solid #f1f5f9 !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+        padding: 18px 20px !important;
+        box-sizing: border-box !important;
+        position: sticky !important;
+        top: 20px !important;
+        height: calc(100vh - 135px) !important;
+        min-height: 520px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+    }
+
+    .carrinho-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 12px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid #f1f5f9;
+        flex-shrink: 0;
+    }
+
+    .carrinho-header-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .carrinho-badge-qtd {
+        background: #fff7ed;
+        color: #ff6b35;
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 999px;
+    }
+
+    .btn-limpar-pill {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fee2e2;
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 11.5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn-limpar-pill:hover {
+        background: #dc2626;
+        color: #ffffff;
+    }
+
+    #form-pdv {
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1 !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* Lista de Itens (Área Central Rolável) */
+    #lista-carrinho {
+        flex: 1 !important;
+        min-height: 110px !important;
+        max-height: none !important;
+        overflow-y: auto !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        padding: 8px 10px !important;
+        margin-bottom: 12px !important;
+        background: #f8fafc !important;
+    }
+
+    .carrinho-vazio-box {
+        height: 100%;
+        min-height: 95px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 12.5px;
+        gap: 6px;
+    }
+
+    .item-carrinho-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 6px;
+        background: #ffffff;
+        border: 1px solid #f1f5f9;
+        border-radius: 6px;
+        margin-bottom: 6px;
+        font-size: 12.5px;
+        gap: 6px;
+    }
+
+    .item-carrinho-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .item-carrinho-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .item-carrinho-nome {
+        font-weight: 600;
+        color: #1e293b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .item-carrinho-unit {
+        font-size: 11px;
+        color: #94a3b8;
+    }
+
+    .qtd-control {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 2px;
+    }
+
+    .btn-qtd {
+        background: #ffffff;
+        border: none;
+        width: 22px;
+        height: 22px;
+        border-radius: 4px;
+        font-weight: 700;
+        color: #334155;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s;
+    }
+
+    .btn-qtd:hover {
+        background: #ff6b35;
+        color: #ffffff;
+    }
+
+    /* Bloco Inferior Fixo do Checkout */
+    .carrinho-footer-controls {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .field-label-sm {
+        font-size: 10.5px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+    }
+
+    .pdv-control {
+        width: 100%;
+        height: 36px;
+        padding: 0 10px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 12.5px;
+        color: #1e293b;
+        background: #ffffff;
+        box-sizing: border-box;
+        outline: none;
+        transition: border-color 0.15s;
+    }
+
+    .pdv-control:focus {
+        border-color: #ff6b35;
+    }
+
+    .badge-desconto-ativo {
+        background: #dcfce7;
+        color: #15803d;
+        padding: 1px 7px;
+        border-radius: 999px;
+        font-size: 10.5px;
+        font-weight: 700;
+        text-transform: none;
+    }
+
+    .btn-toggle-extra {
+        background: none;
+        border: none;
+        color: #ff6b35;
+        font-size: 11.5px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn-toggle-extra:hover {
+        text-decoration: underline;
+    }
+
+    .resumo-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .resumo-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12.5px;
+        color: #475569;
+    }
+
+    .resumo-row.total-principal {
+        font-size: 15px;
+        font-weight: 800;
+        color: #0f172a;
+        padding-bottom: 4px;
+        border-bottom: 1px dashed #cbd5e1;
+    }
+
+    .btn-finalizar-venda {
+        width: 100%;
+        height: 44px;
+        background: #ff6b35;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 14.5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: background 0.2s, transform 0.1s;
+        box-shadow: 0 2px 6px rgba(255, 107, 53, 0.25);
+    }
+
+    .btn-finalizar-venda:hover {
+        background: #e85a26;
+    }
+
+    .btn-finalizar-venda:active {
+        transform: scale(0.99);
+    }
+
+    @media (max-width: 960px) {
+        .pdv-layout {
+            flex-direction: column !important;
+        }
+        .pdv-carrinho {
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: none !important;
+            position: static !important;
+            height: auto !important;
+        }
+    }
+</style>
 
 <div class="pdv-page">
 
@@ -18,48 +483,48 @@
         <!-- SEÇÃO ESQUERDA: Busca e Catálogo de Produtos -->
         <div class="pdv-main">
 
-            <!-- Busca -->
-            <div style="background: #fff; padding: 12px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+            <!-- Busca instantânea -->
+            <div class="pdv-search-card">
+                <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="busca-produto" onkeyup="filtrarProdutos()"
-                    placeholder="🔍 Buscar produto por nome..."
-                    style="width: 100%; padding: 10px 14px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; box-sizing: border-box; outline: none;">
+                    placeholder="Buscar produto por nome...">
             </div>
 
             <!-- Grade de Produtos -->
-            <div id="grade-produtos" class="pdv-produtos">
-                {% for produto in produtos %}
-                <div class="card-produto" data-nome="{{ produto.nome|lower }}"
-                    onclick="adicionarAoCarrinho({{ produto.id }}, '{{ produto.nome }}', {{ produto.preco }}, {{ produto.estoque_atual }})"
-                    style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; background: #fff; display: flex; flex-direction: column; justify-content: space-between; height: 210px; box-sizing: border-box;">
+            <div class="pdv-produtos-wrapper">
+                <div id="grade-produtos" class="pdv-produtos">
+                    {% for produto in produtos %}
+                    <div class="card-produto" data-nome="{{ produto.nome|lower }}"
+                        onclick="adicionarAoCarrinho({{ produto.id }}, '{{ produto.nome }}', {{ produto.preco }}, {{ produto.estoque_atual }})">
 
-                    <div style="height: 90px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
-                        {% if produto.imagem_path %}
-                        <img src="/static/{{ produto.imagem_path }}" alt="{{ produto.nome }}"
-                            style="max-height: 100%; max-width: 100%; object-fit: contain;">
-                        {% else %}
-                        <i class="fa-regular fa-image" style="font-size: 32px; color: #ccc;"></i>
-                        {% endif %}
-                    </div>
-
-                    <div style="font-weight: bold; font-size: 13px; color: #333; line-height: 1.2; height: 32px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
-                        {{ produto.nome }}
-                    </div>
-
-                    <div style="margin-top: 5px;">
-                        <div style="color: #ff6b00; font-weight: bold; font-size: 15px;">
-                            R$ {{ "%.2f"|format(produto.preco) }}
+                        <div class="card-produto-img-box">
+                            {% if produto.imagem_path %}
+                            <img src="/static/{{ produto.imagem_path }}" alt="{{ produto.nome }}">
+                            {% else %}
+                            <i class="fa-regular fa-image" style="font-size: 32px; color: #cbd5e1;"></i>
+                            {% endif %}
                         </div>
-                        <div style="color: #888; font-size: 11px; margin-top: 2px;">
-                            Estoque: {{ produto.estoque_atual }}
+
+                        <div class="card-produto-nome">
+                            {{ produto.nome }}
+                        </div>
+
+                        <div style="margin-top: 6px;">
+                            <div class="card-produto-preco">
+                                R$ {{ "%.2f"|format(produto.preco) }}
+                            </div>
+                            <div class="card-produto-estoque">
+                                Estoque: {{ produto.estoque_atual }}
+                            </div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
 
             <!-- PAGINAÇÃO DO PDV (DENTRO DA COLUNA ESQUERDA) -->
             {% if total_paginas and total_paginas > 1 %}
-            <div class="pagination-wrapper" style="margin-top: 10px;">
+            <div class="pagination-wrapper">
                 <div class="pagination-subtitle">
                     Página {{ pagina }} de {{ total_paginas }}
                 </div>
@@ -104,150 +569,155 @@
         <!-- SEÇÃO DIREITA: Carrinho e Checkout -->
         <div class="pdv-carrinho">
 
-            <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                <span><i class="fa-solid fa-cart-shopping" style="color: #ff6b00; margin-right: 8px;"></i> Carrinho</span>
-                <button type="button" onclick="limparCarrinho()"
-                    style="background: none; border: none; color: #dc3545; font-size: 12px; cursor: pointer; text-decoration: underline;">Limpar</button>
-            </h3>
+            <div class="carrinho-header">
+                <h3 class="carrinho-header-title">
+                    <i class="fa-solid fa-cart-shopping" style="color: #ff6b35;"></i>
+                    <span>Carrinho</span>
+                    <span id="badge-qtd-itens" class="carrinho-badge-qtd">0 itens</span>
+                </h3>
+                <button type="button" onclick="limparCarrinho()" class="btn-limpar-pill" title="Esvaziar carrinho">
+                    <i class="fa-solid fa-trash-can"></i> Limpar
+                </button>
+            </div>
 
-            <form id="form-pdv" action="/pdv/finalizar" method="POST"
-                style="display: flex; flex-direction: column; height: 100%; overflow-y: auto;">
+            <form id="form-pdv" action="/pdv/finalizar" method="POST">
 
                 <input type="hidden" name="carrinho_json" id="carrinho_json">
 
-                <!-- Cliente -->
-                <div style="margin-bottom: 10px;">
-                    <label style="font-size: 11px; font-weight: bold; color: #666; text-transform: uppercase;">Clientes</label>
-                    <select name="cliente_id" id="cliente-id" onchange="atualizarTotaisEPagamentos()"
-                        style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 13px; margin-top: 4px; outline: none;">
-                        <option value="0" data-desconto="0">Sem identificação (Balcão)</option>
-                        {% for cliente in clientes %}
-                        <option value="{{ cliente.id }}" data-desconto="{% if cliente.is_associado %}{{ desconto_associado }}{% else %}0{% endif %}">
-                            {{ cliente.nome }} {% if cliente.is_associado %}(Desconto {{ desconto_associado }}%){% endif %}
-                        </option>
-                        {% endfor %}
-                    </select>
+                <!-- 1. Lista Carrinho (Protagonista no topo) -->
+                <div id="lista-carrinho">
+                    <div class="carrinho-vazio-box">
+                        <i class="fa-solid fa-basket-shopping" style="font-size: 22px; color: #cbd5e1;"></i>
+                        <span>Clique em um produto para adicionar</span>
+                    </div>
                 </div>
 
-                <!-- Desconto Manual Admin -->
-                {% if eh_admin or (usuario and (usuario.is_admin or usuario.username == 'admin' or usuario.nome == 'admin' or usuario.cargo == 'admin')) %}
-                <div style="margin-bottom: 10px;">
-                    <label style="font-size: 11px; font-weight: bold; color: #666; text-transform: uppercase;">Desconto Manual</label>
-                    <div style="display: flex; gap: 6px; margin-top: 4px;">
-                        <select name="tipo_desconto" id="tipo_desconto" onchange="atualizarTotaisEPagamentos()"
-                            style="width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 13px; outline: none; background: #fff;">
-                            <option value="RS">R$</option>
-                            <option value="PCT">%</option>
+                <!-- 2. Controles Inferiores Fixos -->
+                <div class="carrinho-footer-controls">
+
+                    <!-- Cliente -->
+                    <div>
+                        <label class="field-label-sm">
+                            <span>Cliente</span>
+                            <span id="badge-associado-info" class="badge-desconto-ativo" style="display: none;"></span>
+                        </label>
+                        <select name="cliente_id" id="cliente-id" onchange="aoMudarClienteOuDesconto()" class="pdv-control">
+                            <option value="0" data-desconto="0">Sem identificação (Balcão)</option>
+                            {% for cliente in clientes %}
+                            <option value="{{ cliente.id }}" data-desconto="{% if cliente.is_associado %}{{ desconto_associado }}{% else %}0{% endif %}">
+                                {{ cliente.nome }} {% if cliente.is_associado %}(Associado -{{ desconto_associado }}%){% endif %}
+                            </option>
+                            {% endfor %}
                         </select>
-                        <input type="number" step="0.01" min="0" name="desconto_manual" id="desconto_manual"
-                            oninput="atualizarTotaisEPagamentos()" placeholder="0,00"
-                            style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 13px; outline: none; box-sizing: border-box;">
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Lista Carrinho -->
-                <div id="lista-carrinho"
-                    style="max-height: 180px; min-height: 100px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; padding: 10px; margin-bottom: 10px; background: #fafafa;">
-                    <div id="carrinho-vazio" style="text-align: center; color: #aaa; margin-top: 30px; font-size: 13px;">
-                        Nenhum produto adicionado
-                    </div>
-                </div>
-
-                <!-- Formas de Pagamento -->
-                <!-- Formas de Pagamento -->
-                <div style="border-top: 1px solid #eee; padding-top: 10px; margin-bottom: 10px;">
-                    <label style="font-size: 11px; font-weight: bold; color: #666; text-transform: uppercase; display: block; margin-bottom: 6px;">
-                        <i class="fa-solid fa-wallet" style="color: #ff6b00;"></i> Formas de Pagamento
-                    </label>
-
-                    <div style="display: flex; gap: 6px; margin-bottom: 6px;">
-                        <select name="forma_pagamento_1" id="forma_pagamento_1"
-                            style="flex: 1.2; padding: 6px; border: 1px solid #ccc; border-radius: 5px; font-size: 12px; outline: none;">
-                            <option value="Dinheiro">Dinheiro</option>
-                            <option value="Cartão de Crédito">Cartão de Crédito</option>
-                            <option value="Cartão de Débito">Cartão de Débito</option>
-                            <option value="PIX">PIX</option>
-                        </select>
-                        <input type="number" step="0.01" min="0" name="valor_pagamento_1" id="valor_pagamento_1"
-                            oninput="calcularSaldoRestante()" placeholder="Valor 1"
-                            style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 5px; font-size: 12px; outline: none;">
                     </div>
 
-                    <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-                        <select name="forma_pagamento_2" id="forma_pagamento_2"
-                            style="flex: 1.2; padding: 6px; border: 1px solid #ccc; border-radius: 5px; font-size: 12px; outline: none;">
-                            <option value="">Nenhuma (2ª Forma)</option>
-                            <option value="Dinheiro">Dinheiro</option>
-                            <option value="Cartão de Crédito">Cartão de Crédito</option>
-                            <option value="Cartão de Débito">Cartão de Débito</option>
-                            <option value="PIX">PIX</option>
-                        </select>
-                        <input type="number" step="0.01" min="0" name="valor_pagamento_2" id="valor_pagamento_2"
-                            oninput="calcularSaldoRestante()" placeholder="Valor 2"
-                            style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 5px; font-size: 12px; outline: none;">
-                    </div>
-                </div>
+                    <!-- Desconto Manual Admin + Observação (Compactos) -->
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        {% if eh_admin or (usuario and (usuario.is_admin or usuario.username == 'admin' or usuario.nome == 'admin' or usuario.cargo == 'admin')) %}
+                        <button type="button" class="btn-toggle-extra" onclick="toggleBlocoExtra('bloco-desconto-manual')">
+                            <i class="fa-solid fa-tag"></i> Desconto manual
+                        </button>
+                        {% else %}
+                        <span></span>
+                        {% endif %}
 
-                <!-- Resumo -->
-                <div style="border-top: 1px solid #eee; padding-top: 8px;">
-                    <textarea name="observacao" id="observacao" placeholder="Observações do pedido..."
-                        style="width: 100%; height: 38px; border: 1px solid #ccc; border-radius: 5px; padding: 6px; font-size: 11px; resize: none; box-sizing: border-box; outline: none; margin-bottom: 8px;"></textarea>
-
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <span style="font-size: 13px; color: #555;">Total Venda:</span>
-                        <span id="valor-total" style="font-size: 16px; font-weight: bold; color: #333;">R$ 0,00</span>
+                        <button type="button" class="btn-toggle-extra" onclick="toggleBlocoExtra('bloco-observacao')">
+                            <i class="fa-regular fa-comment-dots"></i> Observação
+                        </button>
                     </div>
 
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <span style="font-size: 12px; color: #666;">Total Pago:</span>
-                        <span id="valor-pago" style="font-size: 14px; font-weight: bold; color: #007bff;">R$ 0,00</span>
+                    {% if eh_admin or (usuario and (usuario.is_admin or usuario.username == 'admin' or usuario.nome == 'admin' or usuario.cargo == 'admin')) %}
+                    <div id="bloco-desconto-manual" style="display: none;">
+                        <div style="display: flex; gap: 6px;">
+                            <select name="tipo_desconto" id="tipo_desconto" onchange="aoMudarClienteOuDesconto()"
+                                class="pdv-control" style="width: 76px;">
+                                <option value="RS">R$</option>
+                                <option value="PCT">%</option>
+                            </select>
+                            <input type="number" step="0.01" min="0" name="desconto_manual" id="desconto_manual"
+                                oninput="aoMudarClienteOuDesconto()" placeholder="Valor do desconto..."
+                                class="pdv-control" style="flex: 1;">
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div id="bloco-observacao" style="display: none;">
+                        <input type="text" name="observacao" id="observacao" placeholder="Observações do pedido..."
+                            class="pdv-control">
                     </div>
 
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <span style="font-size: 13px; font-weight: bold; color: #444;">Saldo Restante:</span>
-                        <span id="saldo-restante" style="font-size: 15px; font-weight: bold; color: #dc3545;">R$ 0,00</span>
+                    <!-- Formas de Pagamento -->
+                    <div style="border-top: 1px solid #f1f5f9; padding-top: 8px;">
+                        <div class="field-label-sm">
+                            <span><i class="fa-solid fa-wallet" style="color: #ff6b35; margin-right: 4px;"></i> Pagamento</span>
+                            <button type="button" id="btn-dividir-pagamento" class="btn-toggle-extra" onclick="toggleSegundaForma()">
+                                <i class="fa-solid fa-plus"></i> Dividir pagamento
+                            </button>
+                        </div>
+
+                        <div style="display: flex; gap: 6px;">
+                            <select name="forma_pagamento_1" id="forma_pagamento_1" class="pdv-control" style="flex: 1.3;">
+                                <option value="Dinheiro">Dinheiro</option>
+                                <option value="PIX">PIX</option>
+                                <option value="Cartão de Débito">Cartão de Débito</option>
+                                <option value="Cartão de Crédito">Cartão de Crédito</option>
+                            </select>
+                            <input type="number" step="0.01" min="0" name="valor_pagamento_1" id="valor_pagamento_1"
+                                oninput="aoEditarValor1()" placeholder="0,00"
+                                class="pdv-control" style="flex: 1; font-weight: 700;">
+                        </div>
+
+                        <div id="linha-pagamento-2" style="display: none; gap: 6px; margin-top: 6px;">
+                            <select name="forma_pagamento_2" id="forma_pagamento_2" class="pdv-control" style="flex: 1.3;">
+                                <option value="">2ª Forma...</option>
+                                <option value="Dinheiro">Dinheiro</option>
+                                <option value="PIX">PIX</option>
+                                <option value="Cartão de Débito">Cartão de Débito</option>
+                                <option value="Cartão de Crédito">Cartão de Crédito</option>
+                            </select>
+                            <input type="number" step="0.01" min="0" name="valor_pagamento_2" id="valor_pagamento_2"
+                                oninput="calcularSaldoRestante()" placeholder="0,00"
+                                class="pdv-control" style="flex: 1; font-weight: 700;">
+                        </div>
                     </div>
 
-                    <button type="button" id="btn-finalizar" onclick="submeterVenda()"
-                        style="width: 100%; background: #ff6b00; color: #fff; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; transition: background 0.2s;">
-                        Finalizar Venda
+                    <!-- Resumo de Valores -->
+                    <div class="resumo-box">
+                        <div id="linha-desconto-resumo" class="resumo-row" style="display: none; color: #16a34a; font-weight: 600;">
+                            <span>Descontos aplicados:</span>
+                            <span id="valor-descontos">- R$ 0.00</span>
+                        </div>
+
+                        <div class="resumo-row total-principal">
+                            <span>Total Venda:</span>
+                            <span id="valor-total" style="color: #ff6b35;">R$ 0.00</span>
+                        </div>
+
+                        <div class="resumo-row">
+                            <span>Total Pago:</span>
+                            <span id="valor-pago" style="font-weight: 700; color: #2563eb;">R$ 0.00</span>
+                        </div>
+
+                        <div class="resumo-row" style="font-weight: 700;">
+                            <span id="label-saldo">Status:</span>
+                            <span id="saldo-restante" style="color: #64748b;">Aguardando itens</span>
+                        </div>
+                    </div>
+
+                    <!-- Botão Finalizar -->
+                    <button type="button" id="btn-finalizar" onclick="submeterVenda()" class="btn-finalizar-venda">
+                        <i class="fa-solid fa-check-circle"></i> Finalizar Venda
                     </button>
+
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<style>
-    .card-produto:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        border-color: #ff6b00 !important;
-    }
-
-    .item-carrinho-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 6px 0;
-        border-bottom: 1px solid #eef;
-        font-size: 12px;
-    }
-
-    .btn-qtd {
-        background: #e9ecef;
-        border: 1px solid #ced4da;
-        width: 20px;
-        height: 20px;
-        border-radius: 4px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-</style>
-
 <script>
     let carrinho = JSON.parse(sessionStorage.getItem('pdv_carrinho')) || [];
+    let valor1EditadoManualmente = false;
 
     document.addEventListener("DOMContentLoaded", function () {
         renderizarCarrinho();
@@ -261,6 +731,42 @@
             window.open(`/pdv/venda/${vendaId}`, '_blank');
             window.history.replaceState({}, document.title, "/pdv");
         }
+    }
+
+    function toggleBlocoExtra(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
+    }
+
+    function toggleSegundaForma() {
+        const linha2 = document.getElementById('linha-pagamento-2');
+        const btn = document.getElementById('btn-dividir-pagamento');
+        const input2 = document.getElementById('valor_pagamento_2');
+        const select2 = document.getElementById('forma_pagamento_2');
+
+        if (linha2.style.display === 'none' || linha2.style.display === '') {
+            linha2.style.display = 'flex';
+            btn.innerHTML = '<i class="fa-solid fa-minus"></i> Remover 2ª forma';
+
+            const total = calcularTotalLiquido();
+            const v1 = parseFloat(document.getElementById('valor_pagamento_1').value) || 0;
+            const restante = Math.max(0, total - v1);
+            if (restante > 0) {
+                input2.value = restante.toFixed(2);
+            }
+            if (!select2.value) {
+                select2.value = 'PIX';
+            }
+        } else {
+            linha2.style.display = 'none';
+            btn.innerHTML = '<i class="fa-solid fa-plus"></i> Dividir pagamento';
+            select2.value = '';
+            input2.value = '';
+            valor1EditadoManualmente = false;
+            atualizarTotaisEPagamentos();
+        }
+        calcularSaldoRestante();
     }
 
     function adicionarAoCarrinho(id, nome, preco, estoqueMax) {
@@ -305,6 +811,11 @@
 
     function limparCarrinho() {
         carrinho = [];
+        valor1EditadoManualmente = false;
+        const input1 = document.getElementById("valor_pagamento_1");
+        const input2 = document.getElementById("valor_pagamento_2");
+        if (input1) input1.value = '';
+        if (input2) input2.value = '';
         salvarERenderizar();
     }
 
@@ -313,12 +824,22 @@
         renderizarCarrinho();
     }
 
-    function calcularTotalLiquido() {
+    function calcularDetalhesValores() {
         let totalBruto = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
 
         const selectCliente = document.getElementById("cliente-id");
         const optionSelecionado = selectCliente ? selectCliente.options[selectCliente.selectedIndex] : null;
         const percentualDesconto = optionSelecionado ? parseFloat(optionSelecionado.getAttribute("data-desconto") || "0") : 0;
+
+        const badgeAssoc = document.getElementById("badge-associado-info");
+        if (badgeAssoc) {
+            if (percentualDesconto > 0) {
+                badgeAssoc.style.display = 'inline-block';
+                badgeAssoc.innerText = `Desconto ${percentualDesconto}%`;
+            } else {
+                badgeAssoc.style.display = 'none';
+            }
+        }
 
         const descontoAssociado = totalBruto * (percentualDesconto / 100);
 
@@ -336,30 +857,58 @@
             descontoManualValor = valManual;
         }
 
-        let totalLiquido = totalBruto - descontoAssociado - descontoManualValor;
-        return totalLiquido < 0 ? 0 : totalLiquido;
+        const totalDescontos = descontoAssociado + descontoManualValor;
+        let totalLiquido = totalBruto - totalDescontos;
+        if (totalLiquido < 0) totalLiquido = 0;
+
+        return {
+            totalBruto,
+            totalDescontos,
+            totalLiquido
+        };
+    }
+
+    function calcularTotalLiquido() {
+        return calcularDetalhesValores().totalLiquido;
     }
 
     function renderizarCarrinho() {
         const listaEl = document.getElementById("lista-carrinho");
+        const badgeQtd = document.getElementById("badge-qtd-itens");
         if (!listaEl) return;
 
+        const totalUnidades = carrinho.reduce((acc, item) => acc + item.quantidade, 0);
+        if (badgeQtd) {
+            badgeQtd.innerText = totalUnidades === 1 ? "1 item" : `${totalUnidades} itens`;
+        }
+
         if (carrinho.length === 0) {
-            listaEl.innerHTML = '<div id="carrinho-vazio" style="text-align: center; color: #aaa; margin-top: 30px; font-size: 13px;">Nenhum produto adicionado</div>';
+            listaEl.innerHTML = `
+                <div class="carrinho-vazio-box">
+                    <i class="fa-solid fa-basket-shopping" style="font-size: 22px; color: #cbd5e1;"></i>
+                    <span>Clique em um produto para adicionar</span>
+                </div>
+            `;
         } else {
             let html = '';
             carrinho.forEach(item => {
                 const subtotal = item.preco * item.quantidade;
                 html += `
                     <div class="item-carrinho-row">
-                        <div style="flex: 1; font-weight: 600; color: #333;">${item.nome}</div>
-                        <div style="display: flex; align-items: center; gap: 4px; margin: 0 8px;">
+                        <div class="item-carrinho-info">
+                            <div class="item-carrinho-nome" title="${item.nome}">${item.nome}</div>
+                            <div class="item-carrinho-unit">R$ ${item.preco.toFixed(2)} un</div>
+                        </div>
+                        <div class="qtd-control">
                             <button type="button" class="btn-qtd" onclick="alterarQuantidade(${item.produto_id}, -1)">-</button>
-                            <span style="font-weight: bold; width: 18px; text-align: center;">${item.quantidade}</span>
+                            <span style="font-weight: 700; min-width: 18px; text-align: center; font-size: 12px;">${item.quantidade}</span>
                             <button type="button" class="btn-qtd" onclick="alterarQuantidade(${item.produto_id}, 1)">+</button>
                         </div>
-                        <div style="font-weight: bold; color: #ff6b00; min-width: 60px; text-align: right;">R$ ${subtotal.toFixed(2)}</div>
-                        <button type="button" onclick="removerItem(${item.produto_id})" style="background: none; border: none; color: #dc3545; cursor: pointer; margin-left: 6px;"><i class="fa-solid fa-trash-can"></i></button>
+                        <div style="font-weight: 700; color: #ff6b35; min-width: 62px; text-align: right;">R$ ${subtotal.toFixed(2)}</div>
+                        <button type="button" onclick="removerItem(${item.produto_id})" title="Remover item"
+                            style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 2px 4px;">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
                     </div>
                 `;
             });
@@ -369,9 +918,46 @@
         atualizarTotaisEPagamentos();
     }
 
+    function aoMudarClienteOuDesconto() {
+        atualizarTotaisEPagamentos();
+    }
+
+    function aoEditarValor1() {
+        valor1EditadoManualmente = true;
+        const linha2 = document.getElementById('linha-pagamento-2');
+        if (linha2 && linha2.style.display === 'flex') {
+            const total = calcularTotalLiquido();
+            const v1 = parseFloat(document.getElementById('valor_pagamento_1').value) || 0;
+            const restante = Math.max(0, total - v1);
+            document.getElementById('valor_pagamento_2').value = restante > 0 ? restante.toFixed(2) : '';
+        }
+        calcularSaldoRestante();
+    }
+
     function atualizarTotaisEPagamentos() {
-        const total = calcularTotalLiquido();
-        document.getElementById("valor-total").innerText = "R$ " + total.toFixed(2);
+        const { totalDescontos, totalLiquido } = calcularDetalhesValores();
+
+        const linhaDesc = document.getElementById("linha-desconto-resumo");
+        const valDescEl = document.getElementById("valor-descontos");
+        if (linhaDesc && valDescEl) {
+            if (totalDescontos > 0) {
+                linhaDesc.style.display = "flex";
+                valDescEl.innerText = "- R$ " + totalDescontos.toFixed(2);
+            } else {
+                linhaDesc.style.display = "none";
+            }
+        }
+
+        document.getElementById("valor-total").innerText = "R$ " + totalLiquido.toFixed(2);
+
+        const input1 = document.getElementById("valor_pagamento_1");
+        const linha2 = document.getElementById("linha-pagamento-2");
+        const segundaAberta = linha2 && linha2.style.display === "flex";
+
+        if (input1 && !valor1EditadoManualmente && !segundaAberta) {
+            input1.value = totalLiquido > 0 ? totalLiquido.toFixed(2) : "";
+        }
+
         calcularSaldoRestante();
     }
 
@@ -380,17 +966,28 @@
         const v1 = parseFloat(document.getElementById("valor_pagamento_1").value) || 0;
         const v2 = parseFloat(document.getElementById("valor_pagamento_2").value) || 0;
         const pago = v1 + v2;
-        const saldo = total - pago;
+        const diferenca = pago - total;
 
         document.getElementById("valor-pago").innerText = "R$ " + pago.toFixed(2);
+        const labelSaldo = document.getElementById("label-saldo");
         const saldoEl = document.getElementById("saldo-restante");
 
-        if (saldo <= 0) {
-            saldoEl.innerText = "R$ 0,00 (Quitado)";
-            saldoEl.style.color = "#28a745";
+        if (carrinho.length === 0) {
+            labelSaldo.innerText = "Status:";
+            saldoEl.innerText = "Aguardando itens";
+            saldoEl.style.color = "#64748b";
+        } else if (diferenca > 0.009) {
+            labelSaldo.innerText = "Troco:";
+            saldoEl.innerText = "R$ " + diferenca.toFixed(2);
+            saldoEl.style.color = "#16a34a";
+        } else if (diferenca >= -0.009) {
+            labelSaldo.innerText = "Status:";
+            saldoEl.innerText = "Quitado";
+            saldoEl.style.color = "#16a34a";
         } else {
-            saldoEl.innerText = "R$ " + saldo.toFixed(2);
-            saldoEl.style.color = "#dc3545";
+            labelSaldo.innerText = "Falta pagar:";
+            saldoEl.innerText = "R$ " + Math.abs(diferenca).toFixed(2);
+            saldoEl.style.color = "#dc2626";
         }
     }
 
@@ -418,7 +1015,7 @@
         const v2 = parseFloat(document.getElementById("valor_pagamento_2").value) || 0;
         const pago = v1 + v2;
 
-        if (pago < total) {
+        if (pago + 0.009 < total) {
             alert("O valor pago é insuficiente para cobrir o total da venda!");
             return;
         }

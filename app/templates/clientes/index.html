@@ -5,161 +5,643 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', path='CSS/clientes.css') }}">
 
-<!-- Card de Cabeçalho da Página -->
-<section class="page-card header-card">
-    <div class="title-group">
-        <h2><i class="fa-solid fa-users"></i> Gestão de Clientes</h2>
-        <p>Consulte e gerencie os clientes e associados da AAPM.</p>
-    </div>
-    <a href="/clientes/novo" class="btn-primary">
-        <i class="fa-solid fa-plus"></i> Novo Cliente
-    </a>
-</section>
+<style>
+    /* ==========================================
+       PADRONIZAÇÃO IDÊNTICA À TELA DE MOVIMENTAÇÕES
+    ========================================== */
+    body:has(.clientes-wrapper) .app-main {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 30px !important;
+        box-sizing: border-box !important;
+    }
 
-<!-- Barra de Busca e Filtros -->
-<section class="page-card filter-card">
-    <form method="get" action="/clientes" class="filter-form">
-        <div class="search-box">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" name="busca" placeholder="Buscar por nome..." value="{{ busca or '' }}">
+    .clientes-wrapper {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 32px auto !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    /* Card Superior Header */
+    .cli-header-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 24px 32px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .cli-header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .cli-header-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background-color: #fff7ed;
+        color: #ff6b35;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    .cli-header-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .cli-header-subtitle {
+        font-size: 13.5px;
+        color: #94a3b8;
+        margin: 4px 0 0 0;
+    }
+
+    .cli-btn-primary {
+        background-color: #ff6b35;
+        color: #ffffff !important;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 22px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s;
+    }
+
+    .cli-btn-primary:hover {
+        background-color: #e85a26;
+    }
+
+    /* Card de Filtros */
+    .cli-filter-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 18px 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        margin-bottom: 20px;
+        border: 1px solid #f1f5f9;
+    }
+
+    .cli-filter-form {
+        display: flex !important;
+        align-items: center !important;
+        gap: 16px !important;
+        width: 100% !important;
+        flex-wrap: wrap;
+    }
+
+    .cli-search-box {
+        flex: 1 !important;
+        min-width: 260px !important;
+        height: 42px !important;
+        display: flex !important;
+        align-items: center !important;
+        background-color: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        padding: 0 14px !important;
+        box-sizing: border-box !important;
+        transition: border-color 0.2s;
+    }
+
+    .cli-search-box:focus-within {
+        border-color: #ff6b35 !important;
+    }
+
+    .cli-search-box i {
+        color: #94a3b8;
+        margin-right: 10px;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .cli-search-box input {
+        border: none !important;
+        background: transparent !important;
+        width: 100% !important;
+        height: 100% !important;
+        outline: none !important;
+        font-size: 13.5px !important;
+        color: #334155 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .cli-checkbox-label {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        font-size: 13.5px !important;
+        font-weight: 500 !important;
+        color: #475569 !important;
+        cursor: pointer !important;
+        user-select: none;
+        white-space: nowrap;
+        margin: 0 !important;
+    }
+
+    .cli-checkbox-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #ff6b35;
+        cursor: pointer;
+    }
+
+    .cli-filter-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .cli-btn-filter {
+        background-color: #ff6b35 !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 8px !important;
+        height: 42px !important;
+        padding: 0 28px !important;
+        font-size: 13.5px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        transition: background-color 0.2s;
+        white-space: nowrap;
+    }
+
+    .cli-btn-filter:hover {
+        background-color: #e85a26 !important;
+    }
+
+    .cli-btn-clean {
+        color: #ff6b35;
+        font-size: 13.5px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .cli-btn-clean:hover {
+        text-decoration: underline;
+    }
+
+    /* Card da Tabela */
+    .cli-table-card {
+        background-color: #ffffff !important;
+        border-radius: 12px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+        overflow-x: auto !important;
+        border: 1px solid #f1f5f9 !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .cli-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        text-align: left !important;
+        margin: 0 !important;
+    }
+
+    .cli-table th {
+        background-color: #f8fafc !important;
+        color: #475569 !important;
+        font-size: 11.5px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        padding: 16px 24px !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        white-space: nowrap;
+    }
+
+    .cli-table td {
+        padding: 18px 24px !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        font-size: 13.5px !important;
+        color: #334155 !important;
+        vertical-align: middle !important;
+    }
+
+    .cli-table tr:last-child td {
+        border-bottom: none !important;
+    }
+
+    .cli-table tbody tr:hover {
+        background-color: #f8fafc !important;
+    }
+
+    .cli-col-name {
+        font-weight: 600 !important;
+        color: #1e293b !important;
+    }
+
+    .cli-badge-assoc-yes {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 6px;
+        background-color: #fff7ed;
+        color: #ff6b35;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .cli-badge-assoc-no {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 6px;
+        background-color: #f1f5f9;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .cli-badge-status {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .cli-status-ok {
+        background-color: #dcfce7;
+        color: #15803d;
+    }
+
+    .cli-status-low {
+        background-color: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .cli-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .cli-btn-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13.5px;
+        text-decoration: none !important;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .cli-btn-icon.edit {
+        background-color: #fef9c3;
+        color: #ca8a04;
+    }
+
+    .cli-btn-icon.edit:hover {
+        background-color: #eab308;
+        color: #ffffff;
+    }
+
+    .cli-btn-icon.delete {
+        background-color: #fef2f2;
+        color: #dc2626;
+    }
+
+    .cli-btn-icon.delete:hover {
+        background-color: #dc2626;
+        color: #ffffff;
+    }
+
+    .cli-btn-icon.enable {
+        background-color: #dcfce7;
+        color: #16a34a;
+    }
+
+    .cli-btn-icon.enable:hover {
+        background-color: #16a34a;
+        color: #ffffff;
+    }
+
+    .cli-empty-state {
+        padding: 60px 20px !important;
+        text-align: center !important;
+        color: #94a3b8 !important;
+        font-size: 14px !important;
+    }
+
+    /* Paginação */
+    .pagination-wrapper {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 12px !important;
+        margin: 2.5rem 0 1.5rem 0 !important;
+        width: 100% !important;
+    }
+
+    .pagination-subtitle {
+        font-size: 0.95rem !important;
+        color: #475569 !important;
+        font-weight: 500 !important;
+        text-align: center !important;
+    }
+
+    .pagination-container {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 16px !important;
+    }
+
+    .pagination-numbers {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 12px !important;
+    }
+
+    .btn-page-pill {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        padding: 8px 20px !important;
+        border-radius: 50px !important;
+        border: 1px solid #cbd5e1 !important;
+        background-color: #ffffff !important;
+        color: #1e293b !important;
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .btn-page-pill:hover:not(.disabled) {
+        background-color: #f1f5f9 !important;
+        border-color: #94a3b8 !important;
+    }
+
+    .btn-page-pill.disabled {
+        opacity: 0.5 !important;
+        cursor: not-allowed !important;
+        border-color: #e2e8f0 !important;
+        background-color: #f8fafc !important;
+        color: #94a3b8 !important;
+    }
+
+    .page-num {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 50% !important;
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        color: #334155 !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .page-num:hover:not(.active) {
+        background-color: #e2e8f0 !important;
+    }
+
+    .page-num.active {
+        background-color: #2563eb !important;
+        color: #ffffff !important;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3) !important;
+    }
+
+    .page-dots {
+        color: #64748b !important;
+        font-weight: 700 !important;
+        padding: 0 4px !important;
+    }
+
+    .icon-sm {
+        font-size: 0.75rem !important;
+    }
+
+    /* Link Voltar Rodapé */
+    .cli-back-box {
+        margin-top: 20px;
+    }
+
+    .cli-back-link {
+        color: #1e293b;
+        font-size: 13.5px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .cli-back-link:hover {
+        color: #ff6b35;
+    }
+
+    @media (max-width: 768px) {
+        body:has(.clientes-wrapper) .app-main {
+            padding: 0 12px !important;
+        }
+        .cli-filter-form {
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+    }
+</style>
+
+<div class="clientes-wrapper">
+
+    <!-- Card de Cabeçalho da Página -->
+    <div class="cli-header-card">
+        <div class="cli-header-left">
+            <div class="cli-header-icon">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+                <h1 class="cli-header-title">Gestão de Clientes</h1>
+                <p class="cli-header-subtitle">Consulte e gerencie os clientes e associados da AAPM.</p>
+            </div>
+        </div>
+        <a href="/clientes/novo" class="cli-btn-primary">
+            <i class="fa-solid fa-plus"></i> Novo Cliente
+        </a>
+    </div>
+
+    <!-- Barra de Busca e Filtros -->
+    <div class="cli-filter-card">
+        <form method="get" action="/clientes" class="cli-filter-form">
+            <div class="cli-search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" name="busca" placeholder="Buscar por nome..." value="{{ busca or '' }}">
+            </div>
+
+            <label class="cli-checkbox-label">
+                <input type="checkbox" name="apenas_associados" value="true" {{ 'checked' if apenas_associados }}>
+                <span>Apenas associados</span>
+            </label>
+
+            <div class="cli-filter-actions">
+                <button type="submit" class="cli-btn-filter">
+                    <i class="fa-solid fa-filter"></i> Filtrar
+                </button>
+                {% if busca or apenas_associados %}
+                    <a href="/clientes" class="cli-btn-clean">Limpar</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Card da Tabela -->
+    <div class="cli-table-card">
+        <table class="cli-table">
+            <thead>
+                <tr>
+                    <th>NOME</th>
+                    <th>ASSOCIADO</th>
+                    <th>STATUS</th>
+                    <th style="text-align: center; width: 140px;">AÇÕES</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in clientes %}
+                <tr>
+                    <td class="cli-col-name">{{ c.nome }}</td>
+                    <td>
+                        {% if c.is_associado %}
+                            <span class="cli-badge-assoc-yes"><i class="fa-solid fa-check"></i> Sim (10%)</span>
+                        {% else %}
+                            <span class="cli-badge-assoc-no">Não</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if c.ativo %}
+                            <span class="cli-badge-status cli-status-ok">Ativo</span>
+                        {% else %}
+                            <span class="cli-badge-status cli-status-low">Inativo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="cli-actions">
+                            <a href="/clientes/{{ c.id }}/editar" class="cli-btn-icon edit" title="Editar">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            <form id="form-cliente-{{ c.id }}" action="/clientes/{{ c.id }}/toggle-ativo" method="post" style="display:inline">
+                                {% if c.ativo %}
+                                    <button type="button" class="cli-btn-icon delete" title="Desativar" 
+                                            onclick="abrirModalCliente('form-cliente-{{ c.id }}', '{{ c.nome }}', 'desativar')">
+                                        <i class="fa-solid fa-user-xmark"></i>
+                                    </button>
+                                {% else %}
+                                    <button type="button" class="cli-btn-icon enable" title="Ativar" 
+                                            onclick="abrirModalCliente('form-cliente-{{ c.id }}', '{{ c.nome }}', 'ativar')">
+                                        <i class="fa-solid fa-user-check"></i>
+                                    </button>
+                                {% endif %}
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="cli-empty-state">
+                        <i class="fa-solid fa-users-slash" style="font-size: 36px; color: #cbd5e1; margin-bottom: 10px; display: block;"></i>
+                        <p style="margin: 0;">Nenhum cliente cadastrado até o momento.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginação -->
+    {% if total_paginas and total_paginas > 1 %}
+    <div class="pagination-wrapper">
+        <div class="pagination-subtitle">
+            Página {{ pagina }} de {{ total_paginas }}
         </div>
 
-        <label class="checkbox-filter">
-            <input type="checkbox" name="apenas_associados" value="true" {{ 'checked' if apenas_associados }}>
-            <span>Apenas associados</span>
-        </label>
+        <div class="pagination-container">
+            <!-- BOTÃO VOLTAR -->
+            {% if pagina > 1 %}
+            <a href="/clientes/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca or '' }}&apenas_associados={{ 'true' if apenas_associados else 'false' }}"
+                class="btn-page-pill">
+                <i class="fa-solid fa-chevron-left icon-sm"></i>
+                Voltar
+            </a>
+            {% else %}
+            <span class="btn-page-pill disabled">
+                <i class="fa-solid fa-chevron-left icon-sm"></i>
+                Voltar
+            </span>
+            {% endif %}
 
-        <div class="filter-actions">
-            <button type="submit" class="btn-filter">
-                <i class="fa-solid fa-filter"></i> Filtrar
-            </button>
-            {% if busca or apenas_associados %}
-                <a href="/clientes" class="btn-clear">Limpar</a>
+            <!-- NÚMEROS DAS PÁGINAS -->
+            <div class="pagination-numbers">
+                {% for item in intervalo_paginas %}
+                    {% if item == "..." %}
+                        <span class="page-dots">...</span>
+                    {% elif item == pagina %}
+                        <span class="page-num active">{{ item }}</span>
+                    {% else %}
+                        <a href="/clientes/?pagina={{ item }}&por_pagina={{ por_pagina }}&busca={{ busca or '' }}&apenas_associados={{ 'true' if apenas_associados else 'false' }}"
+                            class="page-num">{{ item }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <!-- BOTÃO PRÓXIMO -->
+            {% if pagina < total_paginas %}
+            <a href="/clientes/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca or '' }}&apenas_associados={{ 'true' if apenas_associados else 'false' }}"
+                class="btn-page-pill">
+                Próximo
+                <i class="fa-solid fa-chevron-right icon-sm"></i>
+            </a>
+            {% else %}
+            <span class="btn-page-pill disabled">
+                Próximo
+                <i class="fa-solid fa-chevron-right icon-sm"></i>
+            </span>
             {% endif %}
         </div>
-    </form>
-</section>
-
-<!-- Card da Tabela -->
-<section class="page-card table-card">
-    <table class="custom-table">
-        <thead>
-            <tr>
-                <th>NOME</th>
-                <th>ASSOCIADO</th>
-                <th>STATUS</th>
-                <th style="text-align: center;">AÇÕES</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for c in clientes %}
-            <tr>
-                <td class="col-name">{{ c.nome }}</td>
-                <td>
-                    {% if c.is_associado %}
-                        <span class="badge-cat"><i class="fa-solid fa-check"></i> Sim (10%)</span>
-                    {% else %}
-                        <span class="badge-gray">Não</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if c.ativo %}
-                        <span class="badge-stock stock-ok">Ativo</span>
-                    {% else %}
-                        <span class="badge-stock stock-low">Inativo</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <div class="actions-wrapper">
-                        <a href="/clientes/{{ c.id }}/editar" class="btn-icon edit" title="Editar">
-                            <i class="fa-solid fa-pen"></i>
-                        </a>
-                        <form id="form-cliente-{{ c.id }}" action="/clientes/{{ c.id }}/toggle-ativo" method="post" style="display:inline">
-                            {% if c.ativo %}
-                                <button type="button" class="btn-icon delete" title="Desativar" 
-                                        onclick="abrirModalCliente('form-cliente-{{ c.id }}', '{{ c.nome }}', 'desativar')">
-                                    <i class="fa-solid fa-user-xmark"></i>
-                                </button>
-                            {% else %}
-                                <button type="button" class="btn-icon enable" title="Ativar" 
-                                        onclick="abrirModalCliente('form-cliente-{{ c.id }}', '{{ c.nome }}', 'ativar')">
-                                    <i class="fa-solid fa-user-check"></i>
-                                </button>
-                            {% endif %}
-                        </form>
-                    </div>
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="4" class="empty-state">
-                    <i class="fa-solid fa-users-slash"></i>
-                    <p>Nenhum cliente cadastrado até o momento.</p>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</section>
-
-<!-- Paginação -->
-{% if total_paginas and total_paginas > 1 %}
-<div class="pagination-wrapper">
-    <div class="pagination-subtitle">
-        Página {{ pagina }} de {{ total_paginas }}
     </div>
+    {% endif %}
 
-    <div class="pagination-container">
-        <!-- BOTÃO VOLTAR -->
-        {% if pagina > 1 %}
-        <a href="/clientes/?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca or '' }}&apenas_associados={{ 'true' if apenas_associados else 'false' }}"
-            class="btn-page-pill">
-            <i class="fa-solid fa-chevron-left icon-sm"></i>
-            Voltar
-        </a>
-        {% else %}
-        <span class="btn-page-pill disabled">
-            <i class="fa-solid fa-chevron-left icon-sm"></i>
-            Voltar
-        </span>
-        {% endif %}
+  
 
-        <!-- NÚMEROS DAS PÁGINAS -->
-        <div class="pagination-numbers">
-            {% for item in intervalo_paginas %}
-                {% if item == "..." %}
-                    <span class="page-dots">...</span>
-                {% elif item == pagina %}
-                    <span class="page-num active">{{ item }}</span>
-                {% else %}
-                    <a href="/clientes/?pagina={{ item }}&por_pagina={{ por_pagina }}&busca={{ busca or '' }}&apenas_associados={{ 'true' if apenas_associados else 'false' }}"
-                        class="page-num">{{ item }}</a>
-                {% endif %}
-            {% endfor %}
-        </div>
-
-        <!-- BOTÃO PRÓXIMO -->
-        {% if pagina < total_paginas %}
-        <a href="/clientes/?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca or '' }}&apenas_associados={{ 'true' if apenas_associados else 'false' }}"
-            class="btn-page-pill">
-            Próximo
-            <i class="fa-solid fa-chevron-right icon-sm"></i>
-        </a>
-        {% else %}
-        <span class="btn-page-pill disabled">
-            Próximo
-            <i class="fa-solid fa-chevron-right icon-sm"></i>
-        </span>
-        {% endif %}
-    </div>
-</div>
-{% endif %}
-
-<!-- Botão Voltar -->
-<div style="margin-top: 15px;">
-    <a href="/" style="text-decoration: none; color: #0f172a; font-weight: 600; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px;">
-        <i class="fa-solid fa-arrow-left"></i> Ir para a Página Inicial
-    </a>
 </div>
 
 <!-- MODAL CUSTOMIZADO CLIENTE -->

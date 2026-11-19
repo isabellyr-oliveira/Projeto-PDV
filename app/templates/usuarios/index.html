@@ -4,82 +4,200 @@
 
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', path='CSS_produtos/index.css') }}">
+
 <style>
-    /* Força qualquer container pai do base.html a liberar a largura total */
-    body>main,
-    body>div,
-    .container,
-    .main-content {
-        max-width: 100% !important;
+    /* ==========================================
+       PADRONIZAÇÃO IDÊNTICA ÀS OUTRAS TELAS
+    ========================================== */
+    body:has(.usuarios-wrapper) .app-main {
         width: 100% !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
+        max-width: none !important;
         margin: 0 !important;
-    }
-
-    .page-container {
-        padding: 32px 40px !important;
-        max-width: 100% !important;
-        width: 100% !important;
-        margin: 0 !important;
+        padding: 0 30px !important;
         box-sizing: border-box !important;
-        min-height: calc(100vh - 72px);
-        display: flex;
-        flex-direction: column;
     }
 
-    /* Card Padrão de Cabeçalho */
-    .page-card {
+    .usuarios-wrapper {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 32px auto !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    /* Card Superior Header */
+    .usr-header-card {
         background-color: #ffffff;
         border-radius: 12px;
-        padding: 24px;
-        margin-bottom: 20px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        border: 1px solid #E2E8F0;
-    }
-
-    .header-card {
+        padding: 24px 32px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
         display: flex;
         justify-content: space-between;
         align-items: center;
+        margin-bottom: 20px;
+        border: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+        gap: 16px;
     }
 
-    .title-group h2 {
-        font-size: 20px;
-        font-weight: 800;
-        color: #0f172a;
-        margin: 0;
+    .usr-header-left {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 16px;
     }
 
-    .title-group h2 i {
-        color: #ff6b00;
+    .usr-header-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background-color: #fff7ed;
+        color: #ff6b35;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
     }
 
-    .title-group p {
-        margin: 4px 0 0 0;
-        color: #64748b;
-        font-size: 14px;
-    }
-
-    .btn-novo {
-        background-color: #FF6B35;
-        color: #ffffff;
-        padding: 10px 18px;
-        border-radius: 8px;
+    .usr-header-title {
+        font-size: 22px;
         font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .usr-header-subtitle {
+        font-size: 13.5px;
+        color: #94a3b8;
+        margin: 4px 0 0 0;
+    }
+
+    .usr-btn-primary {
+        background-color: #ff6b35;
+        color: #ffffff !important;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 22px;
         font-size: 14px;
-        text-decoration: none;
+        font-weight: 600;
+        text-decoration: none !important;
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        transition: background-color 0.2s, transform 0.1s;
+        transition: background-color 0.2s;
     }
 
-    .btn-novo:hover {
-        background-color: #e55a2b;
+    .usr-btn-primary:hover {
+        background-color: #e85a26;
+    }
+
+    /* Card de Filtros */
+    .usr-filter-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 18px 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        margin-bottom: 20px;
+        border: 1px solid #f1f5f9;
+    }
+
+    .usr-filter-form {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        width: 100% !important;
+        flex-wrap: wrap;
+    }
+
+    .usr-search-box {
+        flex: 2 !important;
+        min-width: 260px !important;
+        height: 42px !important;
+        display: flex !important;
+        align-items: center !important;
+        background-color: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        padding: 0 14px !important;
+        box-sizing: border-box !important;
+        transition: border-color 0.2s;
+    }
+
+    .usr-search-box:focus-within {
+        border-color: #ff6b35 !important;
+    }
+
+    .usr-search-box i {
+        color: #94a3b8;
+        margin-right: 10px;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .usr-search-box input {
+        border: none !important;
+        background: transparent !important;
+        width: 100% !important;
+        height: 100% !important;
+        outline: none !important;
+        font-size: 13.5px !important;
+        color: #334155 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .usr-select {
+        flex: 1 !important;
+        min-width: 200px !important;
+        height: 42px !important;
+        border-radius: 8px !important;
+        border: 1px solid #e2e8f0 !important;
+        background-color: #ffffff !important;
+        padding: 0 14px !important;
+        font-size: 13.5px !important;
+        color: #475569 !important;
+        outline: none !important;
+        cursor: pointer;
+    }
+
+    .usr-select:focus {
+        border-color: #ff6b35 !important;
+    }
+
+    .usr-btn-filter {
+        background-color: #ff6b35 !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 8px !important;
+        height: 42px !important;
+        padding: 0 28px !important;
+        font-size: 13.5px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        transition: background-color 0.2s;
+        white-space: nowrap;
+    }
+
+    .usr-btn-filter:hover {
+        background-color: #e85a26 !important;
+    }
+
+    .usr-btn-clean {
+        color: #ff6b35;
+        font-size: 13.5px;
+        font-weight: 600;
+        text-decoration: none;
+        margin-left: 6px;
+        white-space: nowrap;
+    }
+
+    .usr-btn-clean:hover {
+        text-decoration: underline;
     }
 
     /* Feedback Mensagens */
@@ -106,51 +224,56 @@
         border: 1px solid #FBD5D5;
     }
 
-    /* Tabela */
-    .card-table {
-        background-color: #ffffff;
-        border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    /* Card da Tabela */
+    .usr-table-card {
+        background-color: #ffffff !important;
+        border-radius: 12px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+        overflow-x: auto !important;
+        border: 1px solid #f1f5f9 !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
 
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        text-align: left;
+    .usr-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        text-align: left !important;
+        margin: 0 !important;
     }
 
-    .data-table th {
-        background-color: #F8FAFC;
-        padding: 14px 20px;
-        font-size: 11px;
-        font-weight: 700;
-        color: #64748B;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 1px solid #E2E8F0;
+    .usr-table th {
+        background-color: #f8fafc !important;
+        color: #475569 !important;
+        font-size: 11.5px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        padding: 16px 24px !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        white-space: nowrap;
     }
 
-    .data-table td {
-        padding: 16px 20px;
-        font-size: 14px;
-        color: #334155;
-        border-bottom: 1px solid #F1F5F9;
-        vertical-align: middle;
+    .usr-table td {
+        padding: 18px 24px !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        font-size: 13.5px !important;
+        color: #334155 !important;
+        vertical-align: middle !important;
     }
 
-    .data-table tr:last-child td {
-        border-bottom: none;
+    .usr-table tr:last-child td {
+        border-bottom: none !important;
     }
 
-    .data-table tr:hover {
-        background-color: #F8FAFC;
+    .usr-table tbody tr:hover {
+        background-color: #f8fafc !important;
     }
 
     .badge-role {
         display: inline-block;
-        padding: 4px 10px;
+        padding: 4px 12px;
         border-radius: 20px;
         font-size: 11px;
         font-weight: 700;
@@ -171,7 +294,7 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 4px 10px;
+        padding: 4px 12px;
         border-radius: 20px;
         font-size: 12px;
         font-weight: 600;
@@ -231,10 +354,11 @@
         background-color: #DCFCE7;
     }
 
-    .empty-state {
-        text-align: center;
-        padding: 40px 20px;
-        color: #64748B;
+    .usr-empty-state {
+        text-align: center !important;
+        padding: 60px 20px !important;
+        color: #94a3b8 !important;
+        font-size: 14px !important;
     }
 
     /* ESTILOS DA PAGINAÇÃO */
@@ -242,20 +366,22 @@
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
+        justify-content: center !important;
         gap: 12px !important;
-        margin-top: auto !important;
-        margin-bottom: 12px !important;
-        padding-top: 24px !important;
+        margin: 2.5rem 0 1.5rem 0 !important;
+        width: 100% !important;
     }
 
     .pagination-subtitle {
-        font-size: 0.95rem;
-        color: #475569;
-        font-weight: 500;
+        font-size: 0.95rem !important;
+        color: #475569 !important;
+        font-weight: 500 !important;
+        text-align: center !important;
     }
 
     .pagination-container {
         display: flex !important;
+        flex-direction: row !important;
         align-items: center !important;
         justify-content: center !important;
         gap: 16px !important;
@@ -266,44 +392,44 @@
         align-items: center !important;
         justify-content: center !important;
         gap: 6px !important;
-        height: 38px !important;
-        padding: 0 18px !important;
+        padding: 8px 20px !important;
         border-radius: 50px !important;
-        border: 1px solid #94a3b8 !important;
-        background-color: transparent !important;
+        border: 1px solid #cbd5e1 !important;
+        background-color: #ffffff !important;
         color: #1e293b !important;
         font-size: 0.9rem !important;
-        font-weight: 500 !important;
+        font-weight: 600 !important;
         text-decoration: none !important;
         transition: all 0.2s ease !important;
         cursor: pointer !important;
     }
 
     .btn-page-pill:hover:not(.disabled) {
-        background-color: rgba(255, 255, 255, 0.6) !important;
-        border-color: #475569 !important;
-        color: #0f172a !important;
+        background-color: #f1f5f9 !important;
+        border-color: #94a3b8 !important;
     }
 
     .btn-page-pill.disabled {
-        background-color: transparent !important;
-        border-color: #e2e8f0 !important;
-        color: #cbd5e1 !important;
+        opacity: 0.5 !important;
         cursor: not-allowed !important;
+        border-color: #e2e8f0 !important;
+        background-color: #f8fafc !important;
+        color: #94a3b8 !important;
     }
 
     .pagination-numbers {
         display: flex !important;
+        flex-direction: row !important;
         align-items: center !important;
         gap: 12px !important;
     }
 
     .page-num {
-        display: inline-flex !important;
+        display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        width: 36px !important;
-        height: 36px !important;
+        width: 38px !important;
+        height: 38px !important;
         border-radius: 50% !important;
         color: #334155 !important;
         font-size: 0.95rem !important;
@@ -314,78 +440,94 @@
 
     .page-num:hover:not(.active) {
         background-color: #e2e8f0 !important;
-        color: #0f172a !important;
     }
 
     .page-num.active {
         background-color: #2563eb !important;
         color: #ffffff !important;
-        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35) !important;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3) !important;
     }
 
     .page-dots {
-        color: #64748b;
-        font-weight: 600;
-        padding: 0 4px;
+        color: #64748b !important;
+        font-weight: 700 !important;
+        padding: 0 4px !important;
     }
 
     .icon-sm {
-        font-size: 0.75rem;
+        font-size: 0.75rem !important;
     }
 
-    .back-link {
+    .usr-back-box {
+        margin-top: 20px;
+    }
+
+    .usr-back-link {
+        color: #1e293b;
+        font-size: 13.5px;
+        font-weight: 600;
+        text-decoration: none;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        margin-top: 20px;
-        align-self: flex-start;
-        color: #0f172a;
-        font-weight: 600;
-        font-size: 0.9rem;
-        text-decoration: none;
+        gap: 6px;
     }
 
-    .back-link:hover {
-        text-decoration: underline;
+    .usr-back-link:hover {
+        color: #ff6b35;
+    }
+
+    @media (max-width: 768px) {
+        body:has(.usuarios-wrapper) .app-main {
+            padding: 0 12px !important;
+        }
+        .usr-filter-form {
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
     }
 </style>
 
-<div class="page-container">
+<div class="usuarios-wrapper">
 
     <!-- Card de Cabeçalho da Página -->
-    <section class="page-card header-card">
-        <div class="title-group">
-            <h2><i class="fa-solid fa-users"></i> Gerenciamento de Usuários</h2>
-            <p>Consulte e gerencie os usuários cadastrados no sistema.</p>
+    <div class="usr-header-card">
+        <div class="usr-header-left">
+            <div class="usr-header-icon">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+                <h1 class="usr-header-title">Gerenciamento de Usuários</h1>
+                <p class="usr-header-subtitle">Consulte e gerencie os usuários cadastrados no sistema.</p>
+            </div>
         </div>
-        <a href="/usuarios/novo" class="btn-novo">
+        <a href="/usuarios/novo" class="usr-btn-primary">
             <i class="fa-solid fa-plus"></i> Novo Usuário
         </a>
-    </section>
+    </div>
 
     <!-- Card de Filtros e Busca -->
-    <section class="page-card" style="margin-bottom: 20px;">
-        <form method="get" action="/usuarios" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 200px; display: flex; align-items: center; background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 8px; padding: 0 12px;">
-                <i class="fa-solid fa-magnifying-glass" style="color: #64748B; margin-right: 8px;"></i>
-                <input type="text" name="busca" placeholder="Buscar por nome ou e-mail..." value="{{ busca or '' }}" style="border: none; background: transparent; padding: 10px 0; width: 100%; outline: none; font-size: 14px;">
+    <div class="usr-filter-card">
+        <form method="get" action="/usuarios" class="usr-filter-form">
+            <div class="usr-search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" name="busca" placeholder="Buscar por nome ou e-mail..." value="{{ busca or '' }}">
             </div>
 
-            <select name="role" style="padding: 10px 14px; border-radius: 8px; border: 1px solid #CBD5E1; background-color: #F8FAFC; font-size: 14px; color: #334155; outline: none;">
+            <select name="role" class="usr-select">
                 <option value="">Todos os Perfis</option>
                 <option value="admin" {{ 'selected' if role == 'admin' }}>Administrador</option>
                 <option value="operador" {{ 'selected' if role == 'operador' }}>Operador</option>
             </select>
 
-            <button type="submit" style="background-color: #0F172A; color: #ffffff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <button type="submit" class="usr-btn-filter">
                 <i class="fa-solid fa-filter"></i> Filtrar
             </button>
 
             {% if busca or role %}
-                <a href="/usuarios" style="color: #64748B; font-weight: 600; text-decoration: none; font-size: 14px;">Limpar</a>
+                <a href="/usuarios" class="usr-btn-clean">Limpar</a>
             {% endif %}
         </form>
-    </section>
+    </div>
 
     <!-- Feedback Mensagens Query Params -->
     {% if request.query_params.get('criado') == 'ok' %}
@@ -406,9 +548,10 @@
     </div>
     {% endif %}
 
-    <div class="card-table">
+    <!-- Card da Tabela -->
+    <div class="usr-table-card">
         {% if usuarios %}
-        <table class="data-table">
+        <table class="usr-table">
             <thead>
                 <tr>
                     <th>Nome</th>
@@ -421,11 +564,10 @@
             <tbody>
                 {% for u in usuarios %}
                 <tr>
-                    <td style="font-weight: 600;">{{ u.nome }}</td>
+                    <td style="font-weight: 600; color: #1e293b;">{{ u.nome }}</td>
                     <td>{{ u.email }}</td>
                     <td>
-                        <span
-                            class="badge-role {% if u.role == 'admin' %}badge-admin{% else %}badge-operador{% endif %}">
+                        <span class="badge-role {% if u.role == 'admin' %}badge-admin{% else %}badge-operador{% endif %}">
                             {{ u.role }}
                         </span>
                     </td>
@@ -455,8 +597,8 @@
             </tbody>
         </table>
         {% else %}
-        <div class="empty-state">
-            <p>Nenhum usuário encontrado.</p>
+        <div class="usr-empty-state">
+            <p style="margin: 0;">Nenhum usuário encontrado.</p>
         </div>
         {% endif %}
     </div>
@@ -507,10 +649,12 @@
     </div>
     {% endif %}
 
-    <!-- Botão de voltar para a Home -->
-    <a href="/" class="back-link">
-        <i class="fa-solid fa-arrow-left"></i> Ir para a Página Inicial
-    </a>
+    <!-- Link Voltar Padronizado -->
+    <div class="usr-back-box">
+        <a href="/" class="usr-back-link">
+            ← Ir para a Página Inicial
+        </a>
+    </div>
 
 </div>
 
