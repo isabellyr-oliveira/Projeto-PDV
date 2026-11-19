@@ -5,12 +5,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - AAPM</title>
+    <!-- Ícones Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- CSS Exclusivo de Login -->
     <link rel="stylesheet" href="{{ request.url_for('static', path='CSS/login.css') }}">
+
+    <style>
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-wrapper input {
+            width: 100%;
+            padding-right: 42px !important;
+            box-sizing: border-box;
+        }
+
+        .btn-toggle-senha {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            z-index: 2;
+            transition: color 0.2s;
+        }
+
+        .btn-toggle-senha:hover {
+            color: #ff6b35;
+        }
+    </style>
 </head>
 
 <body>
-
 
     <main class="login-container">
         <div class="login-card">
@@ -39,8 +75,14 @@
 
                 <div class="input-group">
                     <label for="senha">Senha</label>
-                    <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required
-                        autocomplete="current-password">
+                    <div class="password-wrapper">
+                        <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required
+                            autocomplete="current-password">
+                        <button type="button" class="btn-toggle-senha" onclick="alternarVisibilidadeSenha()"
+                            title="Mostrar/Ocultar senha" aria-label="Mostrar ou ocultar senha">
+                            <i id="icone-olho-senha" class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn-entrar">ENTRAR</button>
@@ -54,15 +96,22 @@
         </div>
     </main>
 
-    <form action="/auth/login" method="POST">
+    <script>
+        function alternarVisibilidadeSenha() {
+            const inputSenha = document.getElementById("senha");
+            const icone = document.getElementById("icone-olho-senha");
 
-
-
-
-
-
-
-    </form>
+            if (inputSenha.type === "password") {
+                inputSenha.type = "text";
+                icone.classList.remove("fa-eye");
+                icone.classList.add("fa-eye-slash");
+            } else {
+                inputSenha.type = "password";
+                icone.classList.remove("fa-eye-slash");
+                icone.classList.add("fa-eye");
+            }
+        }
+    </script>
 
 </body>
 

@@ -144,12 +144,15 @@
             color: #94a3b8;
             font-size: 15px;
             pointer-events: none;
+            z-index: 2;
             transition: color 0.2s;
         }
 
         .input-wrapper input {
+            position: relative;
+            z-index: 1;
             width: 100%;
-            padding: 14px 44px 14px 42px;
+            padding: 14px 46px 14px 42px;
             border: 1px solid #cbd5e1;
             border-radius: 12px;
             font-size: 15px;
@@ -175,13 +178,17 @@
         /* Botão olho ver/ocultar senha */
         .btn-toggle-senha {
             position: absolute;
-            right: 14px;
-            background: none;
-            border: none;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 5 !important;
+            pointer-events: auto !important;
+            background: transparent !important;
+            border: none !important;
             color: #94a3b8;
-            cursor: pointer;
-            padding: 4px;
-            font-size: 15px;
+            cursor: pointer !important;
+            padding: 6px;
+            font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -189,7 +196,7 @@
         }
 
         .btn-toggle-senha:hover {
-            color: #ff6b00;
+            color: #ff6b00 !important;
         }
 
         /* Botão ENTRAR Ampliado na paleta Laranja AAPM */
@@ -357,7 +364,7 @@
                         <div class="input-wrapper">
                             <i class="fa-solid fa-lock icon-left"></i>
                             <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required autocomplete="current-password">
-                            <button type="button" class="btn-toggle-senha" onclick="alternarVisibilidadeSenha()" title="Mostrar/Ocultar senha">
+                            <button type="button" id="btn-toggle-senha" class="btn-toggle-senha" title="Mostrar/Ocultar senha" aria-label="Mostrar ou ocultar senha">
                                 <i id="icone-olho" class="fa-regular fa-eye"></i>
                             </button>
                         </div>
@@ -432,24 +439,40 @@
 
     <script src="{{ url_for('static', path='JS/tela_inicio.js') }}"></script>
     <script>
-        function alternarVisibilidadeSenha() {
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnToggle = document.getElementById('btn-toggle-senha');
             const inputSenha = document.getElementById('senha');
             const iconeOlho = document.getElementById('icone-olho');
+            const formLogin = document.getElementById('form-login');
 
-            if (inputSenha.type === 'password') {
-                inputSenha.type = 'text';
-                iconeOlho.classList.remove('fa-eye');
-                iconeOlho.classList.add('fa-eye-slash');
-            } else {
-                inputSenha.type = 'password';
-                iconeOlho.classList.remove('fa-eye-slash');
-                iconeOlho.classList.add('fa-eye');
+            if (btnToggle && inputSenha && iconeOlho) {
+                btnToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (inputSenha.type === 'password') {
+                        inputSenha.type = 'text';
+                        iconeOlho.classList.remove('fa-eye');
+                        iconeOlho.classList.add('fa-eye-slash');
+                    } else {
+                        inputSenha.type = 'password';
+                        iconeOlho.classList.remove('fa-eye-slash');
+                        iconeOlho.classList.add('fa-eye');
+                    }
+                });
             }
-        }
 
-        document.getElementById('form-login').addEventListener('submit', function() {
-            const btn = document.getElementById('btn-submit-login');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Autenticando...</span>';
+            if (formLogin) {
+                formLogin.addEventListener('submit', function() {
+                    const btn = document.getElementById('btn-submit-login');
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Autenticando...</span>';
+                    }
+                });
+            }
         });
-    </script
+    </script>
+
+</body>
+</html>
