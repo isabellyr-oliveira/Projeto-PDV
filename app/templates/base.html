@@ -90,5 +90,29 @@
         <span>&copy; 2026 AAPM SENAI — Todos os direitos reservados.</span>
     </footer>
 
+    <!-- Sobrescrita Global: Paginação em Laranja (#ff6b35) em todas as telas -->
+    <style>
+        .pagination-wrapper .pagination-container .page-num.active,
+        .pagination-container .page-num.active,
+        .page-num.active {
+            background-color: #ff6b35 !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.35) !important;
+        }
+
+        .pagination-container .page-num:hover:not(.active),
+        .page-num:hover:not(.active) {
+            background-color: #fff7ed !important;
+            color: #ff6b35 !important;
+        }
+
+        .pagination-container .btn-page-pill:hover:not(.disabled),
+        .btn-page-pill:hover:not(.disabled) {
+            border-color: #ff6b35 !important;
+            color: #ff6b35 !important;
+            background-color: #fff7ed !important;
+        }
+    </style>
+
 </body>
 </html>

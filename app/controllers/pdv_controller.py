@@ -160,17 +160,7 @@ def finalizar_venda(
     usuario            = Depends(get_usuario_logado)
 ):
     """
-
     Recebe o carrinho como JSON, valida pagamentos (1 ou 2) e persiste a venda.
-
-    Formato esperado do carrinho_json:
-    [
-        {"produto_id": 1, "nome": "Caneta", "preco": 2.50, "quantidade": 3},
-        {"produto_id": 2, "nome": "Caderno", "preco": 15.00, "quantidade": 1}
-    ]
-
-    Recebe o carrinho como JSON, valida e persiste a venda.
-
     """
     try:
         itens = json.loads(carrinho_json)
@@ -234,27 +224,22 @@ def finalizar_venda(
     desconto_associado_valor = total_bruto * (desconto_percentual / 100)
     val_manual = max(0.0, float(desconto_manual or 0.0))
 
-    # 👈 ACRESCENTADO: Converte a percentagem em valor monetário se for do tipo %
     if tipo_desconto == "PCT":
         desconto_manual_val = total_bruto * (val_manual / 100.0)
     else:
         desconto_manual_val = val_manual
 
-    # 🔴 BLOQUEIO NO BACK-END: Se o desconto manual for maior que o valor bruto, recusa a venda
     if desconto_manual_val > total_bruto:
         return RedirectResponse(
             url="/pdv?erro=desconto_maior_total",
             status_code=302
         )
 
-    # Soma os dois descontos
     desconto_total_valor = desconto_associado_valor + desconto_manual_val
 
-    # Garante que o desconto total acumulado não ultrapasse 100% do valor bruto
     if desconto_total_valor > total_bruto:
         desconto_total_valor = total_bruto
 
-    # Calcula o valor líquido real com desconto
     total_liquido  = round(total_bruto - desconto_total_valor, 2)
     desconto_percentual_efetivo = (desconto_total_valor / total_bruto * 100) if total_bruto > 0 else 0.0
 
@@ -278,11 +263,9 @@ def finalizar_venda(
 
     soma_pagamentos = round(sum(p["valor"] for p in pagamentos), 2)
 
-    # Valida se a soma dos pagamentos fecha exatamente o total líquido
     if abs(soma_pagamentos - total_liquido) > 0.01:
         return RedirectResponse(url="/pdv?erro=pagamento_divergente", status_code=302)
 
-    # Captura o ID do utilizador com segurança
     usuario_id = usuario.get("id") if isinstance(usuario, dict) else getattr(usuario, "id", None) if usuario else None
 
     # ── Persiste tudo em uma única transação ─────────────────
@@ -295,7 +278,7 @@ def finalizar_venda(
         observacao          = observacao or None,
     )
     db.add(venda)
-    db.flush()  # gera o venda.id sem commitar ainda
+    db.flush()
 
     for item in itens_validados:
         db.add(ItemVenda(
@@ -305,10 +288,8 @@ def finalizar_venda(
             quantidade     = item["quantidade"],
             preco_unitario = item["preco"],
         ))
-        # Baixa o estoque do produto
         item["produto"].estoque_atual -= item["quantidade"]
 
-    # Salva os pagamentos registrados
     for pag in pagamentos:
         db.add(PagamentoVenda(
             venda_id        = venda.id,
@@ -350,10 +331,12 @@ def historico_vendas(
     busca: str = "",
     data_inicio: str = "",
     data_fim: str = "",
+    pagina: int = 1,
+    por_pagina: int = 10,
     db: Session = Depends(get_db),
     usuario = Depends(get_usuario_logado)
 ):
-    """Histórico de vendas com busca por cliente/ID e filtro de datas."""
+    """Histórico de vendas paginado com busca por cliente/ID e filtro de datas."""
     query = db.query(Venda).outerjoin(Cliente)
 
     if busca.strip():
@@ -371,7 +354,24 @@ def historico_vendas(
         dt_fim = datetime.combine(datetime.strptime(data_fim, "%Y-%m-%d").date(), time.max)
         query = query.filter(Venda.criado_em <= dt_fim)
 
-    vendas = query.order_by(Venda.criado_em.desc()).limit(200).all()
+    total_vendas = query.count()
+
+    pagina = max(pagina, 1)
+    por_pagina = max(por_pagina, 1)
+    total_paginas = math.ceil(total_vendas / por_pagina) if total_vendas else 1
+
+    if pagina > total_paginas:
+        pagina = total_paginas
+
+    offset = (pagina - 1) * por_pagina
+    vendas = (
+        query.order_by(Venda.criado_em.desc())
+        .offset(offset)
+        .limit(por_pagina)
+        .all()
+    )
+
+    intervalo_paginas = gerar_intervalo_paginas(pagina, total_paginas)
 
     return templates.TemplateResponse(
         request,
@@ -383,5 +383,10 @@ def historico_vendas(
             "busca": busca,
             "data_inicio": data_inicio,
             "data_fim": data_fim,
+            "pagina": pagina,
+            "por_pagina": por_pagina,
+            "total_vendas": total_vendas,
+            "total_paginas": total_paginas,
+            "intervalo_paginas": intervalo_paginas,
         }
     )

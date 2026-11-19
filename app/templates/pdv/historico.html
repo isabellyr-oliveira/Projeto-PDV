@@ -5,7 +5,7 @@
 {% block content %}
 <style>
     /* ==========================================
-       PADRONIZAÇÃO IDÊNTICA À TELA DE MOVIMENTAÇÕES
+       PADRONIZAÇÃO IDÊNTICA ÀS OUTRAS TELAS
     ========================================== */
     body:has(.hist-vendas-wrapper) .app-main {
         width: 100% !important;
@@ -165,8 +165,8 @@
         border-color: #ff6b35;
     }
 
-    .hv-btn-dark {
-        background-color: #1e293b;
+    .hv-btn-filter {
+        background-color: #ff6b35;
         color: #ffffff;
         border: none;
         border-radius: 8px;
@@ -175,11 +175,14 @@
         font-size: 13.5px;
         font-weight: 600;
         cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
         transition: background-color 0.2s;
     }
 
-    .hv-btn-dark:hover {
-        background-color: #0f172a;
+    .hv-btn-filter:hover {
+        background-color: #e85a26;
     }
 
     .hv-btn-clean {
@@ -452,8 +455,8 @@
                 <input type="date" name="data_fim" value="{{ data_fim or '' }}" class="hv-input-date">
             </div>
 
-            <button type="submit" class="hv-btn-dark">
-                Filtrar
+            <button type="submit" class="hv-btn-filter">
+                <i class="fa-solid fa-filter"></i> Filtrar
             </button>
 
             {% if busca or data_inicio or data_fim %}
@@ -562,7 +565,7 @@
         </table>
     </div>
 
-    <!-- Paginação (caso configurada no controller) -->
+    <!-- Paginação -->
     {% if total_paginas is defined and total_paginas > 1 %}
     <div class="pagination-wrapper">
         <div class="pagination-subtitle">
@@ -571,7 +574,7 @@
 
         <div class="pagination-container">
             {% if pagina > 1 %}
-            <a href="/pdv/historico?pagina={{ pagina - 1 }}&busca={{ busca or '' }}&data_inicio={{ data_inicio or '' }}&data_fim={{ data_fim or '' }}" class="btn-page-pill">
+            <a href="/pdv/historico?pagina={{ pagina - 1 }}&por_pagina={{ por_pagina }}&busca={{ busca or '' }}&data_inicio={{ data_inicio or '' }}&data_fim={{ data_fim or '' }}" class="btn-page-pill">
                 <i class="fa-solid fa-chevron-left icon-sm"></i> Voltar
             </a>
             {% else %}
@@ -588,14 +591,14 @@
                 {% elif item == pagina %}
                 <span class="page-num active">{{ item }}</span>
                 {% else %}
-                <a href="/pdv/historico?pagina={{ item }}&busca={{ busca or '' }}&data_inicio={{ data_inicio or '' }}&data_fim={{ data_fim or '' }}" class="page-num">{{ item }}</a>
+                <a href="/pdv/historico?pagina={{ item }}&por_pagina={{ por_pagina }}&busca={{ busca or '' }}&data_inicio={{ data_inicio or '' }}&data_fim={{ data_fim or '' }}" class="page-num">{{ item }}</a>
                 {% endif %}
                 {% endfor %}
             </div>
             {% endif %}
 
             {% if pagina < total_paginas %}
-            <a href="/pdv/historico?pagina={{ pagina + 1 }}&busca={{ busca or '' }}&data_inicio={{ data_inicio or '' }}&data_fim={{ data_fim or '' }}" class="btn-page-pill">
+            <a href="/pdv/historico?pagina={{ pagina + 1 }}&por_pagina={{ por_pagina }}&busca={{ busca or '' }}&data_inicio={{ data_inicio or '' }}&data_fim={{ data_fim or '' }}" class="btn-page-pill">
                 Próximo <i class="fa-solid fa-chevron-right icon-sm"></i>
             </a>
             {% else %}
@@ -607,7 +610,12 @@
     </div>
     {% endif %}
 
-   
+    <!-- Link Voltar Padronizado -->
+    <div class="hv-back-box">
+        <a href="/" class="hv-back-link">
+            ← Ir para a Página Inicial
+        </a>
+    </div>
 
 </div>
 {% endblock %}
